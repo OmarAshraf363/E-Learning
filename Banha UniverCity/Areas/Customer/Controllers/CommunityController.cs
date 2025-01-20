@@ -21,7 +21,7 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index(int? id)
+        public IActionResult Index(int? id ,string?word)
         {
             if (!User.Identity.IsAuthenticated)
             {
