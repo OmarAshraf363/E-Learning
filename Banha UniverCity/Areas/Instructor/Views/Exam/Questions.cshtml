@@ -1,0 +1,120 @@
+﻿@model IEnumerable<BFCAI.Models.Question>
+
+@{
+    ViewData["Title"] = "Questions";
+}
+
+<style>
+    .question-card {
+        margin-bottom: 20px;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+        .question-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-card .card-header {
+            background-color: #004d99;
+            color: #fff;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .question-card .card-header a {
+                color: #fff;
+                background-color: #007bff;
+                border: none;
+                padding: 5px 10px;
+                text-decoration: none;
+                border-radius: 4px;
+            }
+
+                .question-card .card-header a:hover {
+                    background-color: #0056b3;
+                }
+
+        .question-card .card-body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+    .btn-create {
+        background-color: #28a745;
+        color: white;
+    }
+
+        .btn-create:hover {
+            background-color: #218838;
+        }
+
+    .list-group-item-secondary {
+        background-color: #e9ecef;
+    }
+</style>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Questions for @ViewBag.examName </h1>
+
+    <!-- زر الإنشاء الجديد -->
+    <div class="d-flex justify-content-end mb-3">
+        <a class="btn btn-create" asp-action="UpsertQuestions" asp-route-examId="@ViewBag.ExamId">
+            <i class="fas fa-plus"></i> Create New Question
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <!-- عرض الأسئلة في صفوف متعددة -->
+        <div class="row">
+            @foreach (var question in Model)
+            {
+                <div class="col-md-6">
+                    <div class="card question-card">
+                        <div class="card-header">
+                            <span>Question @question.QuestionID</span>
+                            <a class="btn" asp-action="UpsertQuestions" asp-route-examId="@ViewBag.ExamId" asp-route-id="@question.QuestionID">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@question.QuestionText</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Choices:</h6>
+                            @if (question.Choices != null && question.Choices.Any())
+                            {
+                                <ul class="list-group">
+                                    @foreach (var choice in question.Choices)
+                                    {
+                                        <li class="list-group-item @(!choice.IsCorrect ? "list-group-item-secondary" : "list-group-item-success")">
+                                            @choice.ChoiceText
+                                            @if (choice.IsCorrect)
+                                            {
+                                                <span class="badge badge-success ml-2">Correct</span>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No choices available for this question.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            No questions found for this exam.
+            <a class="btn btn-outline-primary" asp-action="UpsertQuestions" asp-route-examId="@ViewBag.ExamId">
+                <i class="fas fa-plus"></i> Create New Question
+            </a>
+        </div>
+    }
+</div>

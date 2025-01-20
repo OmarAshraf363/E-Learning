@@ -1,0 +1,223 @@
+﻿@model CourseCurriculum
+<style>
+    /* Styling for Section Titles */
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        color: #333;
+    }
+
+        .section-title i {
+            margin-right: 10px;
+        }
+
+    ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    /* Resource and Assignment List Styling */
+    .resource-list, .assignment-list {
+        margin-top: 10px;
+        padding-left: 0;
+    }
+
+    .resource-link, .assignment-link {
+        display: flex;
+        align-items: center;
+        background-color: #f9f9f9;
+        padding: 12px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+        .resource-link:hover, .assignment-link:hover {
+            background-color: #e0e0e0;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+    .assignment-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .due-date {
+        font-size: 0.9rem;
+        color: #777;
+        margin-left: 10px;
+        font-weight: 500;
+    }
+
+    /* Exam Button Styling */
+    .start-exam-btn {
+        font-size: 1.2rem;
+        padding: 10px 20px;
+        border: 2px solid #dc3545;
+        border-radius: 8px;
+        color: #dc3545;
+        transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+
+        .start-exam-btn i {
+            margin-right: 8px;
+        }
+
+        .start-exam-btn:hover {
+            background-color: #dc3545;
+            color: #fff;
+            border-color: #dc3545;
+        }
+
+    /* URL Submission Form Styling */
+    .url-form {
+        display: flex;
+        align-items: center;
+    }
+
+    .input-group {
+        display: flex;
+        width: 100%;
+    }
+
+        .input-group input[type="url"] {
+            flex-grow: 1;
+        }
+
+    .input-group-append button {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+        color: #fff;
+        background-color: #28a745;
+        border: none;
+        border-radius: 0 4px 4px 0;
+    }
+
+        .input-group-append button:hover {
+            background-color: #218838;
+        }
+</style>
+
+<h2 class="mb-3">@Model.Title</h2>
+
+<div class="container">
+    <!-- Video List Section -->
+    <div class="video-section">
+        <h4>Videos List</h4>
+        <div class="d-flex justify-content-start gap-2 align-items-center w-100">
+            <div class="dropdown w-100">
+                <a style="background-color:rgb(83, 42, 164); color:#ccc;" class="btn text-start dropdown-toggle w-100" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    @Model.Title | @Model.Content
+                </a>
+                <ul class="dropdown-menu w-100" aria-labelledby="dropdownMenuLink">
+                    @foreach (var video in Model.CourseVideos)
+                    {
+                        <li>
+                            <a class="dropdown-item w-100" onclick="getVideo(@video.CourseVideoID, 'video-item')">
+                                @video.VideoTitle | Duration: mins
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div id="video-item" onclick="testVideo(@Model.CourseCurriculumID)" class="video-item mt-3">
+            <!-- Video will be displayed here -->
+        </div>
+    </div>
+
+    <!-- Resources Section -->
+    <div class="resources-section mt-5">
+        <h4 class="section-title"><i class="fa-solid fa-book"></i> Resources</h4>
+        <ul class="resource-list">
+            @foreach (var resource in Model.CourseResources)
+            {
+                <li>
+                    <a href="@resource.ResourceURL" target="_blank" class="resource-link">
+                        <i class="fa-solid fa-link"></i> @resource.ResourceTitle
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <!-- Assignments Section -->
+    <div class="assignments-section mt-5">
+        <h4 class="section-title"><i class="fa-solid fa-tasks"></i> Assignments</h4>
+        <ul class="assignment-list">
+            @foreach (var assignment in Model.Assignments)
+            {
+                <li>
+                    <div class="assignment-item">
+                        <!-- Assignment Details -->
+                        <a href="/assignments/@assignment.Content" target="_blank" class="assignment-link">
+                            <i class="fa-solid fa-file-alt"></i> @assignment.Title
+                        </a>
+                        <span class="due-date">
+                            <i class="fa-solid fa-calendar"></i> Due Date: @assignment.DeadLine.ToString("dd/MM/yyyy")
+                        </span>
+                        @if(assignment.Submissions.Any(e=>e.AssignmentID==assignment.AssignmentID)){
+                            <span class="text-success">Submited <i class="fas fa-check"></i></span>
+                        }else{
+
+                        @if(DateTime.Now<assignment.DeadLine){
+                            
+                        <!-- URL Submission Form -->
+                        <form asp-action="SubmitSolutionURL" method="post" class="url-form mt-2">
+                            <input type="hidden" name="AssignmentID" value="@assignment.AssignmentID" />
+                            <div class="input-group">
+                                <input type="url" name="SolutionURL" class="form-control" placeholder="Enter solution URL (e.g. Google Drive)" required />
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fa-solid fa-link"></i> Submit URL
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        }
+                        }
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <!-- Exam Section -->
+    <div class="exam-section mt-5">
+        <h4 class="section-title"><i class="fa-solid fa-clipboard-list"></i> Exam</h4>
+        <p>
+            <button onclick="loadQuestions(@Model.CourseCurriculumID)" class="btn btn-outline-danger start-exam-btn">
+                <i  class="fa-solid fa-play-circle"></i> Start Exam
+            </button>
+        </p>
+    </div>
+</div>
+
+<!-- Modal Structure for Exam -->
+<div class="modal fade" id="examModal" tabindex="-1" aria-labelledby="quizModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="quizModalLabel">Quiz</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="questionSection">
+                    <!-- Questions will be displayed here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="prevButton" type="button" class="btn btn-primary" onclick="goToPreviousQuestion()">Previous</button>
+                <button id="nextButton" type="button" class="btn btn-primary" onclick="goToNextQuestion()">Next</button>
+            </div>
+        </div>
+    </div>
+</div>

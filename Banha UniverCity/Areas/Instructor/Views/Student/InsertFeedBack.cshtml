@@ -1,0 +1,31 @@
+﻿@model Feedback
+
+
+<div class="modal-header">
+    <h5 class="modal-title" id="feedbackModalLabel">Submit Feedback</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    <form id="feedbackForm" method="post" asp-action="InsertFeedBack">
+        <input type="hidden" asp-for="FeedbackID" />
+        <input type="hidden" asp-for="TargetStudentUserId" />
+        <input type="hidden" asp-for="FeedbackDate" />
+        <input type="hidden" asp-for="ProviderUserId" />
+        <input type="hidden" asp-for="FeedbackDate" />
+
+
+
+        <div class="mb-3">
+            <label asp-for="Content" class="form-label">Feedback Content</label>
+            <textarea class="form-control" asp-for="Content" rows="4" ></textarea>
+        </div>
+
+        
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" onclick="allConfirm('feedbackForm')" class="btn btn-primary">Submit Feedback</button>
+        </div>
+    </form>
+</div>

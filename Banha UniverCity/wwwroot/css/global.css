@@ -1,0 +1,13 @@
+﻿*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+div ,section{
+    margin: 0;
+    padding: 0;
+}
+
+.container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl{
+    padding-inline:0;
+}

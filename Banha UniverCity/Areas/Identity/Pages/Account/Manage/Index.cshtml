@@ -1,0 +1,62 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<div class="container mt-1 ">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header text-center bg-primary text-white">
+                    <h3>@ViewData["Title"]</h3>
+                </div>
+                <div class="card-body">
+                    <partial name="_StatusMessage" for="StatusMessage" />
+
+                    <form id="profile-form" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Username" class="form-label fw-bold">Username</label>
+                            <input asp-for="Username" class="form-control form-control-lg" disabled />
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Input.PhoneNumber" class="form-label fw-bold">Phone Number</label>
+                            <input asp-for="Input.PhoneNumber" class="form-control form-control-lg" placeholder="Please enter your phone number." />
+                            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Input.JopDescription" class="form-label fw-bold"></label>    
+                            <textarea asp-for="Input.JopDescription" class="form-control form-control-lg" placeholder="Please enter your description."></textarea> 
+                            <span asp-validation-for="Input.JopDescription" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Input.ProfilePicture" class="form-label fw-bold">Profile Picture</label>
+                            <input type="file" asp-for="Input.ProfilePicture" class="form-control form-control-lg" />
+                            <span asp-validation-for="Input.ProfilePicture" class="text-danger"></span>
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <img src="@Model.Input.Picture" alt="Profile Picture" class="rounded-circle border border-3" style="width: 150px; height: 150px; object-fit: cover;">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button id="update-profile-button" type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

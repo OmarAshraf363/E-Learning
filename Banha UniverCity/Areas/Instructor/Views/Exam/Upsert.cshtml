@@ -1,0 +1,46 @@
+﻿@model BFCAI.Models.Exam
+
+<div class="row">
+
+    <div class="col-md-6 p-3">
+        <h4> @(Model.ExamID == 0 ? " Create New Exam" : $" Edit {Model.Title} Exam")  </h4>
+        <form asp-action="Upsert" class="w-100">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                
+                <input asp-for="ExamID" type="hidden" class="form-control" />
+                
+            </div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExamDate" class="control-label"></label>
+                <input asp-for="ExamDate" class="form-control" />
+                <span asp-validation-for="ExamDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CourseID" class="control-label">Course</label>
+                <select asp-for="CourseID" class="form-control">
+                    <option value="">Select Course</option>
+                    @foreach (var item in ViewBag.courses)
+                    {
+                        <option value="@item.CourseID">@item.CourseName</option>
+                    }
+                </select>
+                <span asp-validation-for="CourseID" class="text-danger"></span>
+            </div>
+          
+            <div class="form-group">
+
+                <input type="submit" value="@(Model.ExamID==0? "Create":"Save Changes")" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

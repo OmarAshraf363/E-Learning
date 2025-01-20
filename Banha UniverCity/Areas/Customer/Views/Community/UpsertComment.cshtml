@@ -1,0 +1,32 @@
+﻿@model BFCAI.Models.Comment
+
+
+<div class="modal-body">
+
+
+    <h4 class="modal-title text-center  mb-3">@((Model.Id != 0) ? "Edit Comment" : "Create New Comment")</h4>
+        <form asp-action="UpsertComment" id="addComment">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+           
+           
+            <div class="form-group mb-3">
+                <label asp-for="Content" class="control-label"></label>
+                <input asp-for="Content" class="form-control" />
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <input asp-for="UserId" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+        <input asp-for="PostId" type="hidden" />
+
+
+
+
+        <div class="form-group text-center">
+            <button type="button" onclick="allConfirm('addComment')" class="btn btn-primary w-50">@((Model.Id != 0) ? "Update Comment" : "Create Comment")</button>
+        </div>
+        </form>
+
+        </div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

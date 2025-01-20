@@ -1,0 +1,252 @@
+﻿@using BFCAI.Models
+
+@model Track
+
+@if (!User.IsInRole(StaticData.role_Admin))
+{
+    Layout = "_RegistreationLayout";
+
+    <style>
+        body {
+            background-color: #f4f4f9;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .track-overview img {
+            max-height: 350px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .track-details {
+            border-left: 5px solid #007bff;
+        }
+
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 10px;
+        }
+
+            .card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            }
+
+        .card-footer {
+            background-color: #f8f9fa;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+            }
+
+        .text-primary {
+            color: #007bff;
+        }
+    </style>
+
+
+    <div class="container my-5">
+        <!-- Track Overview Section -->
+        <div class="track-overview mb-5">
+            <div class="row align-items-center">
+                <div class="col-lg-6 text-center text-lg-start">
+                    <h1 class="display-4 fw-bold text-primary">@Model.Name</h1>
+                    <p class="lead text-muted">
+                        Explore the <strong>@Model.Name</strong> track and gain the skills you need for a successful career.
+                    </p>
+                </div>
+                <div class="col-lg-6">
+                    <img src="/Covers/@Model.Cover" alt="@Model.Name" class="img-fluid rounded shadow-sm">
+                </div>
+            </div>
+        </div>
+
+        <!-- Track Details Section -->
+        <div class="track-details bg-light p-4 rounded shadow-sm mb-5">
+            <h3 class="text-secondary fw-bold mb-3">Track Details</h3>
+            <dl class="row">
+                <dt class="col-sm-4">Track Name:</dt>
+                <dd class="col-sm-8">@Model.Name</dd>
+
+                <dt class="col-sm-4">Description:</dt>
+                <dd class="col-sm-8">@Model.Description</dd>
+
+                <dt class="col-sm-4">Number of Courses:</dt>
+                <dd class="col-sm-8">@Model.Courses.Count()</dd>
+
+                <dt class="col-sm-4">Total Enrollments:</dt>
+                <dd class="col-sm-8">@ViewBag.count</dd>
+            </dl>
+        </div>
+
+        <!-- Courses Section -->
+        <h3 class="text-primary fw-bold mb-4">Courses in This Track</h3>
+        @if (Model.Courses.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var course in Model.Courses)
+                {
+                    <div class="col">
+                        <div class="card border-0 shadow-sm h-100" >
+                            <!-- Course Image -->
+                            <img src="/Covers/@course.ImgCover" alt="@course.CourseName" onclick="goTo('Customer','Home','Courses',@course.CourseID)" class="card-img-top" style="height: 200px; object-fit: cover;">
+
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                
+                                <h5 class="card-title fw-bold">@course.CourseName</h5>
+                               
+                                
+                                <p class="card-text text-muted">
+                                    @if (course.Description.Length > 100)
+                                    {
+                                        @course.Description.Substring(0, 100) @:...
+                                    }
+                                    else
+                                    {
+                                        @course.Description
+                                    }
+                                </p>
+                                <span class="badge bg-primary text-light" style="font-size: 0.8rem;">
+                                    @course.Enrollments.Count() Students
+                                </span>
+                            </div>
+
+                            <!-- Card Footer -->
+                            <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+                                <span class="text-success fw-bold">$@course.Price</span>
+
+                                <a asp-controller="Cart" asp-action="AddToCart" asp-route-courseId="@course.CourseID" asp-route-quantity="1" class="btn cus-btn px-5 py-2" style="border-radius: 5px; font-size: 1.1rem;"> Enroll Now</a>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">No courses are currently available in this track.</p>
+        }
+    </div>
+
+}
+else
+{
+    
+<style>
+    .card {
+        border-radius: 8px;
+        border: none;
+    }
+
+    .card-header {
+        background-color: #1e1e1e;
+        border-bottom: 1px solid #333;
+    }
+
+    .card-body {
+        background-color: #121212;
+    }
+
+    .card-footer {
+        background-color: #1e1e1e;
+        border-top: 1px solid #333;
+    }
+
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .row > .col-lg-4,
+    .row > .col-md-6 {
+        display: flex;
+    }
+
+    .card-body dl {
+        margin: 0;
+    }
+
+    .text-white {
+        color: #fff;
+    }
+</style>
+<div class="container mt-4">
+    
+    <h2 class="text-white mb-4">Track Details</h2>
+
+    <!-- Track Details -->
+    <div class="card bg-dark text-white mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">@Model.Name</h3>
+            <a asp-action="Upsert" asp-controller="Course" asp-route-trackId="@Model.Id" class="btn btn-success px-4">
+                <i class="fas fa-plus me-2"></i> New Course
+            </a>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Track ID:</dt>
+                <dd class="col-sm-9">@Model.Id</dd>
+
+                <dt class="col-sm-4">Description:</dt>
+                <dd class="col-sm-9">@Model.Description</dd>
+
+                <dt class="col-sm-3">Number of Courses:</dt>
+                <dd class="col-sm-9">@Model.Courses.Count()</dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Courses Section -->
+    <h3 class="text-white mb-3">Courses in this Track</h3>
+    @if (Model.Courses.Any())
+    {
+        <div class="row g-4">
+            @foreach (var course in Model.Courses)
+            {
+                <div class="col-lg-5 col-md-6">
+                    <div class="card bg-dark text-white">
+                        <!-- Course Image -->
+                            <img src="/Covers/@course.ImgCover" alt="Course Cover" onclick="goTo('Customer','Home','Courses',@course.CourseID)" class="card-img-top">
+
+                        <!-- Course Details -->
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-4">Name:</dt>
+                                <dd class="col-sm-8">@course.CourseName</dd>
+
+                                <dt class="col-sm-4">Instructor:</dt>
+                                <dd class="col-sm-8">@course.Instructor?.FullName</dd>
+
+                                <dt class="col-sm-4">Price:</dt>
+                                <dd class="col-sm-8">$@course.Price</dd>
+
+                                <dt class="col-sm-4">Description:</dt>
+                                <dd class="col-sm-8">@course.Description</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No courses are currently available in this track.</p>
+    }
+</div>
+}
+
+<!-- FontAwesome CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+

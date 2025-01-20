@@ -1,0 +1,231 @@
+﻿/*html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}*/
+
+
+/* Layout Admin Style*/
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    background-color: #101010;
+}
+.sidebar {
+    min-height: 100vh;
+}
+
+    .sidebar .nav-link {
+        color: #adb5bd;
+    }
+
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: #495057;
+        }
+
+        .sidebar .nav-link.active {
+            color: #fff;
+        }
+
+.navbar {
+    color: #fff;
+}
+
+    .navbar .navbar-brand, .navbar .nav-link {
+        color: #fff;
+    }
+
+.main-content {
+    padding: 20px;
+    background-color: #202020;
+    color: #ccc;
+    border-radius: 20px;
+}
+
+.navbar .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+/* End Layout Admin Style*/
+
+/*Taple and Index Styels*/
+h3 {
+    margin: 0;
+}
+
+.btn {
+    padding-inline: 15px;
+    padding-block: 8px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+    .btn:hover {
+        background-color: #333;
+        color: #fff;
+    }
+
+.search-container {
+    width: 100%;
+}
+
+.input-group {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: #121212;
+}
+
+.search {
+    background-color: #121212;
+    border: none;
+    color: gainsboro;
+    padding: 10px;
+    width: 100%;
+    outline: none;
+    transition: background-color 0.3s ease;
+}
+
+    .search:focus {
+        background-color: #252525;
+        color: #fff;
+    }
+
+.search-icon {
+    background-color: #1e1e1e;
+    border: none;
+    padding: 10px;
+    color: gainsboro;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    .search-icon:hover {
+        background-color: #333;
+    }
+
+.new-course-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background-color: #333;
+    color: #fff;
+}
+
+    .new-course-btn:hover {
+        background-color: #444;
+    }
+
+/* Table Styling */
+
+.table th, .table td {
+    color: #ccc;
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: #252525;
+}
+
+.table .btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.table .btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.table .btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.table .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.table .btn-info:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+.table .btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.table .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/*Modal style*/
+
+/* تغيير خلفية الـ modal إلى لون داكن */
+.modal-content {
+    background-color: #343a40; /* لون داكن */
+    color: white; /* نص أبيض ليتناسب مع الخلفية الداكنة */
+}
+
+/* تغيير لون الـ header إلى داكن */
+.modal-header {
+    background-color: #212529; /* لون داكن */
+    color: white;
+}
+
+    /* تغيير لون الزر عند الإغلاق */
+    .modal-header .close {
+        color: white;
+        opacity: 0.8;
+    }
+
+        .modal-header .close:hover {
+            opacity: 1;
+        }
+
+/* تغيير لون جسم الـ modal */
+.modal-body {
+    background-color: #343a40;
+}
+
+/* تخصيص أزرار الـ modal */
+.modal-footer .btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+    .modal-footer .btn:hover {
+        background-color: #5a6268;
+    }
+
+

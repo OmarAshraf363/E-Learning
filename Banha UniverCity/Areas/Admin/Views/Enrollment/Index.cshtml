@@ -1,0 +1,129 @@
+﻿@model BFCAI.Models.ViewModels.EnrollmentViewModel
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Enroll Students in Courses</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="EnrollByEmail" method="post">
+                <div class="form-group">
+                    <label for="Email">Student Email</label>
+                    <input type="email" class="form-control" id="Email" name="Email" placeholder="Enter student email" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="Course">Course</label>
+                    <select class="form-control" id="Course" name="CourseId" required>
+                        <option value="">-- Select Course --</option>
+                        @foreach (var course in Model.Courses)
+                        {
+                            <option value="@course.Value">@course.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-2">Enroll via Email</button>
+            </form>
+        </div>
+
+        <div class="col-md-6 text-center">
+            <h4>Other Enrollment Methods</h4>
+            <button class="btn btn-success mt-3" data-toggle="modal" data-target="#enrollCSVModal">Enroll via CSV File</button>
+            <button class="btn btn-info mt-3" data-toggle="modal" data-target="#enrollManualModal">Enroll Manually</button>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h4>Total Enrollments: @Model.TotalEnrollments</h4>
+
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var enrollment in Model.Enrollments)
+                {
+                    <tr>
+                        <td>@enrollment.Student.Email</td>
+                        <td>@enrollment.Course.CourseName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modals for other enrollment methods -->
+<!-- CSV Modal -->
+<div class="modal fade" id="enrollCSVModal" tabindex="-1" role="dialog" aria-labelledby="enrollCSVModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="enrollCSVModalLabel">Enroll via CSV File</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Upload a CSV file containing student emails and course IDs.</p>
+                <form asp-action="UploadCsv" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="csvFile">Choose CSV File</label>
+                        <input type="file" name="CsvFile" class="form-control" id="csvFile" />
+                    </div>
+                    <button type="submit" class="btn btn-success">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manual Enrollment Modal -->
+<div class="modal fade" id="enrollManualModal" tabindex="-1" role="dialog" aria-labelledby="enrollManualModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="enrollManualModalLabel">Manual Enrollment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="studentEmailManual">Student Email</label>
+                        <input type="email" class="form-control" id="studentEmailManual" placeholder="Enter student email" />
+                    </div>
+                    <div class="form-group">
+                        <label for="manualCourse">Select Course</label>
+                        <select class="form-control" id="manualCourse">
+                            <option value="">-- Select Course --</option>
+                            @foreach (var course in Model.Courses)
+                            {
+                                <option value="@course.Value">@course.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-info">Enroll</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts for Bootstrap Modals -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>

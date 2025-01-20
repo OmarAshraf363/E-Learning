@@ -1,0 +1,62 @@
+﻿
+@model  IEnumerable<ApplicationUser>
+<div class="container p-3">
+    <h2>Manage Students for Your Courses</h2>
+
+    <form method="get" asp-action="Index">
+        <div class="form-group">
+            <label for="Course">Select Course</label>
+            <select id="Course" name="courseId" class="form-control" onchange="this.form.submit()">
+                <option value="">-- Select Course --</option>
+                @foreach (var course in ViewBag.listOfCourses)
+                {
+                    if (ViewBag.courseId == int.Parse(course.Value))
+                    {
+
+                        <option selected value="@course.Value">@course.Text</option>
+                    }else{
+                        <option value="@course.Value" >@course.Text</option>
+
+                    }
+                }
+            </select>
+        </div>
+    </form>
+
+    <!-- عرض الطلاب المسجلين في الكورس المحدد -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Email</th>
+                <th>Gpa</th>
+                <th>Controll</th>
+
+                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in Model)
+            {
+                <tr>
+                    <td>@student.FullName</td>
+                    <td>@student.Email</td>
+                    <td>@student.Gpa</td>
+                    <td>
+                        <a onclick="openModal('@student.Id','Student','addModal','InsertFeedBack','Instructor')" class="btn btn-dark">Add FeedBack</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+ 
+</div>
+
+<div class="modal fade " id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>

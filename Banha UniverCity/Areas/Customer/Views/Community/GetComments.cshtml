@@ -1,0 +1,146 @@
+﻿@model IEnumerable<BFCAI.Models.Comment>
+
+<style>
+    .comments-container {
+        max-height: 400px;
+        overflow-y: auto;
+        background-color: #f1f5f9;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .comment-item {
+        border-bottom: 1px solid #e0e0e0;
+        padding: 15px 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .comment-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+        .comment-header img {
+            width: 45px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .comment-header .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .comment-header .user-details .name {
+                font-weight: bold;
+                font-size: 15px;
+                color: #333;
+            }
+
+            .comment-header .user-details .timestamp {
+                font-size: 13px;
+                color: #888;
+            }
+
+    .comment-content p {
+        margin: 5px 0 10px;
+        font-size: 14px;
+        color: #444;
+    }
+
+    .comment-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 14px;
+    }
+
+        .comment-actions button {
+            background: none;
+            border: none;
+            color: #555;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .comment-actions button:hover {
+                color: #007bff;
+            }
+
+        .comment-actions .reply-box {
+            margin-top: 10px;
+        }
+
+    .no-comments {
+        text-align: center;
+        font-size: 15px;
+        color: #777;
+        padding: 20px 0;
+    }
+</style>
+
+<div class="comments-container">
+    @if (Model != null && Model.Any())
+    {
+        foreach (var comment in Model)
+        {
+            <div class="comment-item">
+                <div class="comment-header">
+                    <img src="@comment.User.Picture" alt="@comment.User.FullName" />
+                    <div class="user-details">
+                        <span class="name">@comment.User.FullName</span>
+                        <span class="timestamp">@comment.CreatedAt.ToShortDateString() @comment.CreatedAt.ToShortTimeString()</span>
+                    </div>
+                </div>
+                <div class="comment-content">
+                    <p>@comment.Content</p>
+                </div>
+                <div class="comment-actions">
+                    <button onclick="reactToComment('@comment.Id', 'Like')">
+                        <i class="fa fa-thumbs-up"></i> Like
+                    </button>
+                    <button onclick="reactToComment('@comment.Id', 'Love')">
+                        <i class="fa fa-heart"></i> Love
+                    </button>
+                    <button onclick="showReplyBox('@comment.Id')">
+                        <i class="fa fa-reply"></i> Reply
+                    </button>
+                </div>
+                <div id="reply-box-@comment.Id" class="reply-box" style="display: none;">
+                    <textarea class="form-control mb-2" placeholder="Write a reply..."></textarea>
+                    <button class="btn btn-primary btn-sm" onclick="submitReply('@comment.Id')">Post Reply</button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p class="no-comments">No comments yet. Be the first to comment!</p>
+    }
+</div>
+
+<script>
+    function reactToComment(commentId, reactionType) {
+        alert(`Reacted with ${reactionType} to comment ${commentId}`);
+        // Implement API call or action here
+    }
+
+    function showReplyBox(commentId) {
+        const replyBox = document.getElementById(`reply-box-${commentId}`);
+        if (replyBox) {
+            replyBox.style.display = replyBox.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    function submitReply(commentId) {
+        alert(`Reply submitted to comment ${commentId}`);
+        // Implement API call or action here
+    }
+</script>

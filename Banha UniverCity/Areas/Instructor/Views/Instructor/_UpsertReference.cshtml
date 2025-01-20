@@ -1,0 +1,28 @@
+﻿@model BFCAI.Models.CourseResource
+
+<form id="formRef" asp-action="UpsertReference" method="post">
+    <div class="modal-header">
+        <h5 class="modal-title">Add Reference</h5>
+        <button type="button" class="btn fw-bolder btn-close text-warning" data-bs-dismiss="modal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+        <div class="mb-3">
+            <label asp-for="ResourceTitle" class="form-label">Reference Title</label>
+            <input asp-for="ResourceTitle" class="form-control bg-dark text-light" required />
+            <span asp-validation-for="ResourceTitle" class="text-danger"></span>
+
+        </div>
+        <div class="mb-3">
+            <label asp-for="ResourceURL" class="form-label">Reference URL</label>
+            <input asp-for="ResourceURL" class="form-control  bg-dark text-light" required />
+            <span asp-validation-for="ResourceURL" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <input type="hidden" asp-for="CourseCurriculumID" />
+        <input type="hidden" asp-for="CourseResourceID" />
+
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" onclick="allConfirm('formRef')" class="btn btn-primary">Save</button>
+    </div>
+</form>

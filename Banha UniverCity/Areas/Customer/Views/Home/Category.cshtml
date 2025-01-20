@@ -1,0 +1,204 @@
+﻿@model BFCAI.Models.ViewModels.DepartmentCoursesVM
+<style>
+    body {
+        background-color: #fff;
+    }
+
+    .topics {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .topic-header h5, .courses h5 {
+        font-weight: bolder;
+    }
+
+    .one-topic {
+        width: 19.3%;
+    }
+
+        .one-topic a {
+            width: 100%;
+            text-align: center;
+            padding-block: 10px;
+        }
+
+            .one-topic a:hover {
+                background-color: #eee;
+            }
+
+    .category-details-header h4 {
+        font-weight: bolder;
+    }
+
+    .category-details-description p {
+        font-size: 0.9rem;
+    }
+
+    .departmentsList .oneDepart .discPart p {
+        font-size:0.93rem;
+        font-weight:bold;
+        margin:15px;
+        width:80%;
+    }
+
+    .departmentsList .oneDepart .coverPart img{
+        width:245px;
+        height:215px;
+    }
+</style>
+@if (Model.Departments.Any())
+{
+    <section class="departmentsList p-3 container">
+        @foreach (var dept in Model.Departments)
+        {
+            <div class="oneDepart d-flex align-items-start g-4 mb-5">
+                <div class="coverPart">
+                    <img src="/Covers/@dept.Cover" alt="Alternate Text" />
+                </div>
+                <div class="discPart">
+                    <p>@dept.DepartmentDescription</p>
+                    <div>
+                        <a asp-action="Category" asp-route-id="@dept.DepartmentID" class="btn ">Explore <i class="fa-solid fa-arrow-right"></i></a>
+
+                    </div>
+                </div>
+            </div>
+
+        }
+    </section>
+}
+else
+{
+    <section class="category-details px-xl-5">
+        <div class=" category-details-header">
+            <h4>@Model.Department?.DepartmentName | @Model.Courses.Count Courses</h4>
+
+        </div>
+        <div class="w-75 px-3 category-details-description">
+            <p>@Model.Department?.DepartmentDescription</p>
+        </div>
+    </section>
+    <section id="courses" class="courses container p-3 mb-5">
+        <div class="mb-4">
+            <h5>Top Courses for You in @Model.Department?.DepartmentName</h5>
+        </div>
+        <div id="main" class="top-courses ">
+            @foreach (var course in Model.Courses)
+            {
+
+
+
+                <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Courses',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
+                    <div class="course-video mb-3">
+                        <img src="/Covers/@course.ImgCover" alt="Alternate Text" />
+                    </div>
+                    <div class="course-title">
+                        <h5>@course.CourseName</h5>
+                    </div>
+                    <div class="w-75 instructor">
+                        <h6>@course.Instructor?.FullName</h6>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="rating">
+                        @for (int i = 0; i < course.Rate; i++)
+                        {
+                            <span class="fa fa-star"></span>
+                        }
+                        @for (int i = 0; i < (5 - course.Rate); i++)
+                        {
+                            <span class="fa fa-star-o"></span>
+                        }
+                    </div>
+
+                    <!-- Price -->
+                    <div class="price">
+                        <span> $@course.Price</span>
+                    </div>
+
+                    <!-- Hidden modal for each course -->
+                    <div class="modal-test p-4" id="modal-main-@course.CourseID" style="max-width: 700px; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff;">
+                        <!-- Course Name Section -->
+                        <div class="modal-course-header ">
+                            <h3 class="modal-course-name mb-3">@course.CourseName</h3>
+                            <h5>by <span>@course.Instructor?.FullName</span></h5>
+                        </div>
+
+                        <!-- Course Stats Section -->
+                        <div class="modal-course-details d-flex justify-content-between mb-2">
+                            <div class="course-videos">
+                                <span><i class="fas fa-play-circle me-2"></i>@course.CourseCurricula.Count Videos</span>
+                            </div>
+
+                            <div class="course-enrollments">
+                                <span><i class="fas fa-users me-2"></i>@course.Enrollments.Count Enrolled</span>
+                            </div>
+                        </div>
+
+                        <!-- Course Description Section -->
+                        <div class="modal-course-description mb-2">
+                            <p> @course.Description</p>
+                        </div>
+
+                        <!-- Course Topics and Objectives Section -->
+                        <div class="modal-course-about ">
+
+                            <div class="course-objectives ">
+
+                                <ul class="list-unstyled">
+                                    @foreach (var item in course.LearningObjectives)
+                                    {
+                                        <li class="d-flex justify-content-start align-items-baseline gap-1">
+
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+
+                                            <p class="m-1"> @item.Objective</p>
+
+
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Course Call to Action -->
+                        <div class="d-flex justify-content-center mt-2">
+                            <button class="btn cus-btn px-5 py-2" style="border-radius: 5px; font-size: 1.1rem;">Add to Cart</button>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
+
+
+
+
+
+            }
+        </div>
+    </section>
+    <section class="container mb-5 ">
+        <div class="topic-header mb-4">
+            <h5>Popular Topic</h5>
+        </div>
+        <div class="topics  ">
+            @foreach (var topic in Model.KeyWords)
+            {
+                <div class="one-topic">
+                    <a asp-action="TopicCourse" asp-route-word="@topic.Name" style="border-color:lightgray;" class="btn text-black   btn-outline-light">@topic.Name</a>
+                </div>
+
+            }
+        </div>
+    </section>
+}
+
+
+

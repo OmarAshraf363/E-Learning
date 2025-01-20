@@ -1,0 +1,221 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+    if (User.IsInRole(Banha_UniverCity.StaticData.role_Admin))
+    {
+
+
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "_RegistreationLayout";
+    }
+}
+<style>
+    .register {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 50px;
+        height: 100vh;
+    }
+
+    #registerSubmit {
+        background-color: rgb(83, 42, 164);
+    }
+
+        #registerSubmit:hover {
+            opacity: 0.9;
+        }
+
+    .img-sec {
+        width: 50%;
+    }
+
+        .img-sec img {
+            width: 100%;
+        }
+
+    .external-login-btn {
+        display: flex;
+        gap: 10px;
+    }
+
+        .external-login-btn button {
+            width: 48%;
+        }
+
+    .social-login-btns {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+        height: 60px;
+    }
+
+        .social-login-btns form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .social-login-btns button {
+            width: 100%;
+            max-width: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            border-radius: 30%;
+            border: none;
+        }
+
+        .social-login-btns i:hover {
+            font-size: 2.5rem;
+            color: #532aa4;
+        }
+
+        .social-login-btns button i {
+            font-size: 2.2rem;
+            color: #532aa4;
+            transition: 0.3s;
+        }
+</style>
+
+<div class="register">
+    <div class="col-md-4">
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <h2>Create a new account.</h2>
+            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.FullName" class="form-control" autocomplete="username" aria-required="true" />
+                <label asp-for="Input.FullName">Full Name</label>
+                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <label asp-for="Input.Email">Email</label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <label asp-for="Input.Password">Password</label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                @if ((!User.IsInRole(Banha_UniverCity.StaticData.role_Admin)))
+                {
+                    <input asp-for="Input.Role" value="Student" hidden />
+                }
+                else
+                {
+                    <div class="col-md-6 form-floating">
+                        <select asp-for="Input.Role" asp-items="@Model.Input.Roles" class="form-select" aria-required="true" placeholder="role" id="roleSelect">
+                            <option disabled selected>--Select specific role--</option>
+                        </select>
+                        <label asp-for="Input.Role"></label>
+                        <span asp-validation-for="Input.Role" class="text-danger"></span>
+                    </div>
+                }
+            </div>
+
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+        </form>
+        <hr />
+        <div>
+            <h5 class="text-center">Or log in with</h5>
+            <div class="social-login-btns">
+                <form asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                    @foreach (var provider in Model.ExternalLogins)
+                    {
+                        <button type="submit" class="btn " name="provider" value="@provider.Name">
+                            <i class="fab fa-@provider.Name.ToLower()"></i>
+                        </button>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 img-sec">
+      <img src="~/images/online-courses.png"  alt="Alternate Text" />
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

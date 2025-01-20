@@ -1,0 +1,42 @@
+﻿@model IEnumerable<AcademicYear>
+
+@{
+    ViewData["Title"] = "Academic Year Management";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center">Academic Years</h2>
+    <a onclick="openModal(null,'AcadmicYear','addModal','Upsert','Admin')" class="btn btn-primary mb-3">Add New Academic Year</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Year </th>
+                
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var year in Model)
+            {
+                <tr>
+                    <td>@year.AcademicYearID</td>
+                    <td>@year.YearName</td>
+                    
+                
+                    <td>
+                        <a onclick="openModal(@year.AcademicYearID,'AcadmicYear','addModal','Upsert','Admin')" class="btn btn-warning">Edit</a>
+                        <button class="btn btn-danger" onclick="deleteIt(@year.AcademicYearID,'Acadmicyear')">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade " id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>

@@ -1,0 +1,20 @@
+﻿@model BFCAI.Models.Assignment
+
+<div>
+    <h4>@Model.Title</h4>
+    <p><strong>Due Date:</strong> @Model.DeadLine.ToString("dd/MM/yyyy")</p>
+    <p><strong>Description:</strong> @Model.Description</p>
+    @if (!string.IsNullOrEmpty(Model.Content))
+    {
+        <p><strong>File:</strong> <a href="/assignments/@Model.Content" target="_blank">@Model.Content</a></p>
+       
+        <a asp-controller="Assinment" asp-action="Downloadassignment" asp-route-fileName="@Model.Content">Download Assignment</a>
+        <a asp-action="DeleteConfirmed" asp-route-id="@Model.AssignmentID" class="btn btn-danger btn-sm ml-2">Delete</a>
+        <a onclick="openAddToCourseRefOrVideo(@Model.CourseCurriculumID, @Model.AssignmentID, 'addModal', 'Instructor', 'Upsert', 'Assinment')" class="btn btn-primary btn-sm ml-2">Edit</a>
+
+    }
+    else
+    {
+        <p>No file uploaded.</p>
+    }
+</div>

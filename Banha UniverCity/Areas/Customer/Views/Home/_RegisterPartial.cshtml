@@ -1,0 +1,134 @@
+﻿@model BFCAI.Models.ViewModels.InstructorVM
+
+
+<style>
+
+
+    .main-thing {
+        width: 100%;
+    }
+
+    h2, h3 {
+        font-weight: bolder;
+    }
+
+    .main-thing p {
+        font-size: 0.8rem;
+    }
+
+    .main-thing .form-login {
+        width: 70%;
+        margin: auto;
+    }
+
+        .main-thing .form-login input {
+            border-radius: 0.5rem;
+            border: none;
+            background-color: #eee;
+            color: black;
+        }
+
+    .main-thing .forget-pass a {
+        text-decoration: none;
+        color: dimgray;
+        font-size: 0.8rem;
+    }
+
+    .main-thing #login-submit {
+        position: relative;
+        background-color: #eee;
+        color: black;
+        border: none;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        overflow: hidden;
+        z-index: 1000;
+        cursor: pointer;
+        transition: color 0.3s ease, background-color 0.3s ease;
+    }
+
+        .main-thing #login-submit:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 100%;
+            background-color: black;
+            z-index: -1;
+            transition: width 0.5s ease;
+        }
+
+    #login-submit:hover {
+        color: white;
+    }
+
+        #login-submit:hover:before {
+            width: 100%;
+        }
+
+    .social-login-btns {
+        border: none;
+        border-radius: 0.5rem;
+        background-color: black;
+    }
+
+        .social-login-btns button {
+            width: 100%;
+        }
+
+</style>
+
+
+
+<div class="modal-header">
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body modal-dialog-scrollable w-100">
+    @* Instructor Form Inside Modal *@
+    <div class="main-thing p-3">
+
+        <div class="wel-back text-center">
+            <h1>Teach In BFCAI</h1>
+            <p>Please put your information </p>
+        </div>
+        <div class="form-login">
+            <form class="shadow-lg p-4 rounded bg-white " asp-action="PostRegister" id="account" method="post">
+                <div class="form-floating mb-3">
+                    <input asp-for="FullName" class="form-control" placeholder="Full Name" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                    <label asp-for="FullName">Name</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Email" class="form-control" placeholder="name@example.com" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                    <label asp-for="Email">Email</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Password" class="form-control" placeholder="password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                    <label asp-for="Password">Password</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    <label asp-for="ConfirmPassword">Confirm Password</label>
+                </div>
+
+
+
+                <div class="sub-btn text-center">
+                    <button id="login-submit" type="button" onclick="allConfirm('account')" class="w-100 btn ">Login</button>
+                </div>
+            </form>
+
+
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

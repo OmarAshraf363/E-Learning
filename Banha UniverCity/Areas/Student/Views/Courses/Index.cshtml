@@ -1,0 +1,60 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<Course>
+@inject UserManager<IdentityUser> _userManegr;
+<section id="courses" class="courses container p-3 mb-5">
+    <div class="mt-3 d-flex justify-content-between align-items-center ">
+        <h3 class="fw-bolder">My Courses</h3>
+        <span>@Model.Count() Courses</span>
+    </div>
+    <div id="main" class="top-courses ">
+        @foreach (var course in Model)
+        {
+            <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Courses',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
+                <div class="course-video mb-3">
+                    <img src="/Covers/@course.ImgCover" alt="Alternate Text" />
+                </div>
+                <div class="course-title">
+                    <h5>@course.CourseName</h5>
+                </div>
+                <div class="w-75 instructor">
+                    <h6>@course.Instructor?.FullName</h6>
+                </div>
+
+                <!-- Rating -->
+                <div class="rating">
+                    @for (int i = 0; i < course.Rate; i++)
+                    {
+                        <span class="fa fa-star"></span>
+                    }
+                    @for (int i = 0; i < (5 - course.Rate); i++)
+                    {
+                        <span class="fa fa-star-o"></span>
+                    }
+                </div>
+
+
+                <div class="progress mt-3">
+                    <div class="progress-bar bg-success"
+                         role="progressbar"
+                         style="width: @course.StudentCourseProgresses.Where(e=>e.StudentId==_userManegr.GetUserId(User)).Select(e=>e.ProgressPercentage).FirstOrDefault()"
+                         aria-valuenow="@course.StudentCourseProgresses.Where(e=>e.StudentId==_userManegr.GetUserId(User)).Select(e=>e.ProgressPercentage).FirstOrDefault()"
+                         aria-valuemin="0"
+                         aria-valuemax="100">
+                        @course.StudentCourseProgresses.Where(e => e.StudentId == _userManegr.GetUserId(User)).Select(e => e.ProgressPercentage).FirstOrDefault()%
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+
+
+
+
+
+        }
+    </div>
+
+</section>

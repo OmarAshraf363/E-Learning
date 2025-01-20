@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Banha_UniverCity.Models.Course>
+
+@{
+    ViewData["Title"] = "Courses";
+}
+@if (TempData["alert"] != null)
+{
+    <div class="alert alert-success mt-5">
+        @TempData["alert"]
+    </div>
+}
+<div class="container mt-4">
+    <div id="head" class="head d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-white"> <span class="text-warning">@Model.FirstOrDefault()?.Department?.DepartmentName</span>Courses List</h3>
+        <div class="search-container d-flex align-items-center w-50">
+            <div class="input-group">
+                <input type="search" class="form-control search" placeholder="Search..." />
+                <span class="input-group-text search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            </div>
+        </div>
+        <a asp-controller="Course" asp-action="Upsert" class="btn new-course-btn"><i class="fas fa-plus"></i> New Course</a>
+    </div>
+
+    <table class="table  table-hover">
+        <thead>
+            <tr>
+                <th>Course ID</th>
+                <th>Course Name</th>
+                <th>Department</th>
+                <th>Instructor</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in Model)
+            {
+                <tr>
+                    <td>@course.CourseID</td>
+                    <td>@course.CourseName</td>
+                    <td>@(course.Department?.DepartmentName)</td>
+                    <td>@course.Instructor?.UserName</td>
+                    <td>
+                        <a href="@Url.Action("Details", "Course", new { id = course.CourseID })" class="btn btn-info btn-sm">Details</a>
+                        <a href="@Url.Action("Upsert", "Course", new { id = course.CourseID })" class="btn btn-warning btn-sm">Edit</a>
+                        <a onclick="deleteIt(@course.CourseID,'Course')" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+
+<!-- FontAwesome CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<style>
+
+</style>

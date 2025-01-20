@@ -1,0 +1,56 @@
+﻿@model IEnumerable<Department>
+
+<div class="container mt-4">
+    <div id="head" class="head d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-white">Department List</h3>
+        <div class="search-container d-flex align-items-center w-50">
+            <div class="input-group">
+                <input type="search" class="form-control search" placeholder="Search..." />
+                <span class="input-group-text search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            </div>
+        </div>
+        <a  onclick="openModal(null,'Department','addModal','Upsert','Admin')" class="btn new-course-btn"><i class="fas fa-plus"></i> New Department</a>
+    </div>
+
+    <table class="table  table-hover">
+        <thead>
+            <tr>
+                <th>Department ID</th>
+                <th>Department Name</th>
+                <th>Courses</th>
+                <th>Instructors</th>
+                <th>Total Hours</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var dept in Model)
+            {
+                <tr>
+                    <td>@dept.DepartmentID</td>
+                    <td>@dept.DepartmentName</td>
+                    <td>
+                        <a asp-action="Courses" asp-route-id="@dept.DepartmentID" class="btn btn-danger btn-sm">Show</a>
+                    </td>
+                    <td>
+                        <a  class="btn btn-danger btn-sm">Show</a>
+                    </td>
+                    <td>@dept.Courses.Sum(e=>e.Credits)</td>
+                    <td>
+                        <a  asp-action="details" asp-route-id="@dept.DepartmentID" class="btn btn-info btn-sm">Details</a>
+                        <a  onclick="openModal(@dept.DepartmentID,'Department','addModal','Upsert','Admin')" class="btn btn-warning btn-sm">Edit</a>
+                        <a onclick="deleteIt(@dept.DepartmentID,'Department')" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+
+<div class="modal fade " id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>

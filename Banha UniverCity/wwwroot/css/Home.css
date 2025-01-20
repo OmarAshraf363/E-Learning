@@ -1,0 +1,382 @@
+﻿body {
+    background-color: #f3f2f0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.part-img {
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 400px;
+    width: 600px;
+}
+
+    .part-img img {
+        object-position: 100px -100px;
+        object-fit: cover;
+        max-width: 600px;
+        max-height: 575px;
+    }
+
+.courses, .top-category {
+    background-color: white;
+    border-radius: 10px;
+}
+
+    .courses .top-courses {
+        display: flex;
+        justify-content: start;
+        align-items: start;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+        .courses .top-courses .one-course {
+            border-radius: 10px;
+            padding: 7px;
+            transition: 0.3s;
+            position: relative;
+            width: 214px;
+            height: 320px;
+        }
+
+            .courses .top-courses .one-course img {
+                width: 100%;
+                height: 171px;
+            }
+
+.course-title {
+    width: 100%;
+}
+
+    .course-title h5 {
+        width: 100%;
+        font-size: 18px;
+        font-weight: bolder;
+        margin-bottom: 0.3rem;
+    }
+
+.instructor h6 {
+    font-weight: 400;
+    line-height: 1.4;
+    font-size: 0.9rem;
+    color: #6a6f73;
+    margin-bottom: 0.3rem;
+}
+
+/* Rating Stars */
+.rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.3rem;
+}
+
+    .rating .fa-star {
+        color: gold;
+        margin-right: 2px;
+    }
+
+.price span {
+    font-weight: bold;
+    color: #007bff;
+    margin-top: 0.5rem;
+    color: #2d2f31;
+    font-weight: bolder;
+    font-size: 1rem;
+}
+
+.modal-test {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: none;
+    position: absolute;
+    top: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 25rem;
+    z-index: 100000000;
+    border-radius: 10px;
+}
+
+/* Modal positioning for right-aligned courses */
+.modal-left {
+    right: 100%;
+}
+
+.modal-right {
+    left: 100%;
+}
+
+
+.modal-course-header h3 {
+    font-weight: bolder;
+    font-size: 1.3rem;
+}
+
+.modal-course-header h5,
+.modal-course-header span {
+    font-size: 0.8rem;
+    color: #6a6f73;
+}
+
+.modal-course-header span {
+    font-weight: bolder;
+}
+
+.modal-course-about {
+    display: flex;
+    justify-content: center;
+    width: 90%;
+}
+
+.modal-course-details {
+    color: #6a6f73;
+    font-size: 0.8rem;
+}
+
+.modal-course-description {
+    color: #3d3d3d;
+    font-size: 0.9rem;
+}
+
+    .modal-course-description p {
+        margin: 0;
+    }
+
+.modal-course-about {
+    color: #3d3d3d;
+    font-size: 0.9rem;
+}
+
+
+.cus-btn, .one-category .btn {
+    background-color: #eee;
+}
+
+.category-list ul a, .cus-btn, .one-category .btn {
+    border: none;
+    position: relative;
+    color: gray;
+    transition: 1.3s;
+    align-items: center;
+    font-weight: bolder;
+}
+
+    .category-list ul a::after, .cus-btn::after {
+        content: ' ';
+        width: 2px;
+        height: 100%;
+        position: absolute;
+        right: 0;
+        top: 0;
+        background-color: purple;
+        transition: 0.9s;
+        border-radius: 2mm;
+    }
+
+    .one-category .btn::before {
+        content: ' ';
+        width: 2px;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        background-color: purple;
+        transition: 0.9s;
+        border-radius: 2mm;
+    }
+
+    .one-category .btn:hover::before {
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+    }
+
+    .category-list ul a:hover::after, .cus-btn:hover::after {
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+    }
+
+    .category-list ul a:hover, .cus-btn:hover, .one-category .btn:hover {
+        color: #ccc;
+        background-color: purple;
+    }
+
+.active {
+    background-color: purple;
+}
+
+
+
+
+
+
+
+
+.top-category {
+    padding: 2rem;
+}
+
+.top-category-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.one-category {
+    width: 25.1rem;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+    .one-category:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+.card-img-top {
+    height: 200px; /* Adjust as needed */
+    object-fit: cover;
+    border-radius: 0.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.card-text {
+    font-size: 1rem;
+    color: #6c757d; /* Secondary text color */
+}
+
+.btn-primary {
+    border-radius: 0.3rem;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+
+
+
+
+
+
+
+.feedback-section {
+    background-color: #f9f9f9;
+    padding: 2rem;
+}
+
+.feedbacks-header h3 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.feedbacks {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.feedback-card {
+    background-color: #fff;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+    .feedback-card:hover {
+        box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+.feedback-user {
+    display: flex;
+    align-items: center;
+}
+
+.user-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 0%;
+}
+
+.user-details h6 {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.user-details small {
+    font-size: 0.875rem;
+}
+
+.feedback-rating .fa-star,
+.feedback-rating .fa-star-o {
+    color: #fbb03b;
+}
+
+.feedback-text p {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.feedback-date small {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+
+
+
+
+/*Details.CSS*/
+.this-course-details {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.this-course-video,
+.this-course-info {
+    width: 50%;
+}
+
+.this-course-info-process {
+    font-size: 0.9rem;
+}
+
+
+.created-by span {
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+}
+
+    .rating .fa-star {
+        color: gold;
+        margin-right: 2px;
+    }
+
+.price span {
+    font-weight: bold;
+    color: #007bff;
+    margin-top: 0.5rem;
+    color: #2d2f31;
+    font-weight: bolder;
+    font-size: 1rem;
+}

@@ -1,0 +1,121 @@
+﻿@model IEnumerable<CourseCurriculum>
+@{
+    ViewBag.Title = "Course Curriculums";
+}
+
+<div class="container">
+    <h2>Manage Course Assignments</h2>
+
+    <!-- Dropdown to select a course -->
+    <form method="get" class="form-inline mb-4">
+        <div class="form-group">
+            <label for="courseId">Select Course: </label>
+            <select id="courseId" name="courseId" class="form-control ml-2" onchange="this.form.submit()">
+                <option value="">-- Select Course --</option>
+                @foreach (var course in ViewBag.Courses)
+                {
+                    if (ViewBag.courseId == int.Parse(course.Value))
+                    {
+                        <option selected value="@course.Value">
+                            @course.Text
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@course.Value">
+                            @course.Text
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+    </form>
+
+    <!-- Display message when no course is selected -->
+    @if (!string.IsNullOrEmpty(ViewBag.Message))
+    {
+        <div class="alert alert-info">@ViewBag.Message</div>
+    }
+
+    <!-- Display the list of curriculums -->
+    @if (Model.Any())
+    {
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Curriculum Title</th>
+                    <th>Assignments</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var curriculum in Model)
+                {
+                    <tr>
+                        <td>@curriculum.Title</td>
+                        <td>
+                            @if (curriculum.Assignments != null && curriculum.Assignments.Any())
+                            {
+                                <ul>
+                                    @foreach (var assignment in curriculum.Assignments)
+                                    {
+                                        <li>
+                                            @assignment.Title (Due: @assignment.DeadLine.ToString("dd/MM/yyyy"))
+
+                                           
+                                            @if (!string.IsNullOrEmpty(assignment.Content))
+                                            {
+                                                <a href="/assignments/@assignment.Content" target="_blank">@assignment.Title</a>
+                                                <a onclick="openAssignmentModal(@assignment.AssignmentID)" class="btn btn-info btn-sm ml-2">Details</a>
+
+                                            }
+                                            else
+                                            {
+                                                <span>No file uploaded</span>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <span>No assignments available for this curriculum. <i class="ms-3 fa-solid fa-arrow-right"></i> </span>
+                            }
+                        </td>
+                        <td><a onclick="openAddToCourseRefOrVideo(@curriculum.CourseCurriculumID, null, 'addModal', 'Instructor', 'Upsert', 'Assinment')" class="btn btn-success btn-sm">Create New</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<!-- Modal for Assignment Details -->
+<div class="modal fade" id="assignmentDetailsModal" tabindex="-1" role="dialog" aria-labelledby="AssignmentDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content bg-light text-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">Assignment Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="assignmentDetailsContent">
+                <!-- Assignment details will be loaded here via Ajax -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Creating/Editing Assignments -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="AddAssignmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content bg-light text-dark">
+            <!-- Content will be loaded here via Ajax -->
+        </div>
+    </div>
+</div>
+

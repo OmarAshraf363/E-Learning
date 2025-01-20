@@ -1,0 +1,203 @@
+﻿@model Banha_UniverCity.ViewModels.ScheduleViewModel
+
+@{
+    ViewData["Title"] = "Schedule Management";
+}
+
+<!-- Dark Mode Custom Styles -->
+<style>
+    body {
+        background-color: #1b1b1b;
+        color: #eaeaea;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .card {
+        background-color: #2a2a2a;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+        background-color: #383838;
+        color: #ffffff;
+        padding: 20px;
+        border-radius: 10px 10px 0 0;
+        text-align: center;
+    }
+
+    .form-label {
+        color: #bbbbbb;
+    }
+
+    .form-control, .form-select {
+        background-color: #404040;
+        border: 1px solid #555;
+        color: #eaeaea;
+        border-radius: 5px;
+        padding: 10px;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #007bff;
+            box-shadow: none;
+        }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #0069d9;
+        padding: 12px 40px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    .row {
+        margin-top: 15px;
+    }
+
+    .col-lg-6 {
+        margin-bottom: 20px;
+    }
+
+    .field-validation-error {
+        color: #dc3545;
+        font-size: 0.85rem;
+    }
+
+    /* Section styling */
+    .section-title {
+        background-color: #444;
+        padding: 10px;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        text-align: center;
+        color: #f1f1f1;
+        border-radius: 5px;
+    }
+
+    .section {
+        padding: 20px;
+        background-color: #333;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>@(Model.ClassScheduleId == 0 ? "Add New Schedule" : "Edit Schedule")</h2>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="UpSert" method="post">
+                <input asp-for="ClassScheduleId"type="hidden" />
+                <div class="row">
+                    <!-- Section 1: Course, Instructor, Room, Day -->
+                    <div class="col-lg-6 section">
+                        <div class="section-title">Class Details</div>
+
+                        <!-- Course -->
+                        <div class="mb-3">
+                            <label for="CourseID" class="form-label">Course</label>
+                            <select asp-for="CourseID" class="form-select" asp-items="Model.Courses">
+                                <option value="">Select Course</option>
+                            </select>
+                            <span asp-validation-for="CourseID" class="field-validation-error"></span>
+                        </div>
+
+                        <!-- Instructor -->
+                        <div class="mb-3">
+                            <label for="InstructorID" class="form-label">Instructor</label>
+                            <select asp-for="InstructorID" class="form-select" asp-items="Model.Instructors">
+                                <option value="">Select Instructor</option>
+                            </select>
+                            <span asp-validation-for="InstructorID" class="field-validation-error"></span>
+                        </div>
+
+                        <!-- Room -->
+                        <div class="mb-3">
+                            <label for="RoomID" class="form-label">Room</label>
+                            <select asp-for="RoomID" class="form-select" asp-items="Model.Rooms">
+                                <option value="">Select Room</option>
+                            </select>
+                            <span asp-validation-for="RoomID" class="field-validation-error"></span>
+                        </div>
+
+                        <!-- Day of the Week -->
+                        <div class="mb-3">
+                            <label for="DayOfWeek" class="form-label">Day of the Week</label>
+                            <select asp-for="DayOfWeek" class="form-select">
+                                <option value="">Select Day</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                            <span asp-validation-for="DayOfWeek" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Times, Academic Year, Department -->
+                    <div class="col-lg-6 section">
+                        <div class="section-title">Schedule Information</div>
+
+                        <!-- Start Time -->
+                        <div class="mb-3">
+                            <label for="StartTime" class="form-label">Start Time</label>
+                            <input asp-for="StartTime" type="time" class="form-control" />
+                            <span asp-validation-for="StartTime" class="field-validation-error"></span>
+                        </div>
+
+                        <!-- End Time -->
+                        <div class="mb-3">
+                            <label for="EndTime" class="form-label">End Time</label>
+                            <input asp-for="EndTime" type="time" class="form-control" />
+                            <span asp-validation-for="EndTime" class="field-validation-error"></span>
+                        </div>
+
+                        <!-- Academic Year -->
+                        <div class="mb-3">
+                            <label for="AcadmicYearId" class="form-label">Academic Year</label>
+                            <select asp-for="AcadmicYearId" class="form-select" asp-items="Model.Years">
+                                <option value="">Select Year</option>
+                            </select>
+                            <span asp-validation-for="AcadmicYearId" class="field-validation-error"></span>
+                        </div>
+
+                        <!-- Department -->
+                        <div class="mb-3">
+                            <label for="DepartmentId" class="form-label">Department</label>
+                            <select asp-for="DepartmentId" class="form-select" asp-items="Model.Departments">
+                                <option value="">Select Department</option>
+                            </select>
+                            <span asp-validation-for="DepartmentId" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Save Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

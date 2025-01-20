@@ -1,0 +1,50 @@
+﻿@model BFCAI.Models.ViewModels.InstructorDashboardViewModel
+
+@{
+    ViewData["Title"] = "Instructor Dashboard";
+}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Instructor Dashboard</h1>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Total Courses</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.TotalCourses</h5>
+                    <p class="card-text">Courses you are currently teaching.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Total Exams</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.TotalExams</h5>
+                    <p class="card-text">Exams created under your courses.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Total Questions</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.TotalQuestions</h5>
+                    <p class="card-text">Total number of questions across all your exams.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-header">Total Students Enrolled</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.TotalStudents</h5>
+                    <p class="card-text">Number of students enrolled in your courses.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- يمكنك إضافة المزيد من الإحصاءات أو الرسوم البيانية هنا -->
+</div>

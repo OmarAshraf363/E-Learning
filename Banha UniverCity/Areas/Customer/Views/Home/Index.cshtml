@@ -1,0 +1,641 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model Banha_UniverCity.ViewModels.AllModelsVM
+@{
+    Layout = "~/Views/Shared/_RegistreationLayout.cshtml";
+}
+@inject UserManager<IdentityUser> _userManger;
+<style>
+    .part-info-welcome span {
+        color: rebeccapurple;
+        font-weight: bolder;
+    }
+
+    .part-info-btns .btn {
+        width: 50%;
+        border-radius: 15px;
+        font-weight: bolder;
+        padding-block: 8px;
+        transition: 0.2s;
+    }
+
+    .part-info-btns .btn-explor {
+        background-color: #eee;
+        color: #3d3d3d;
+    }
+
+    .part-info-btns .btn-teach {
+        background-color: rebeccapurple;
+        color: #fff;
+    }
+
+    .part-info-btns .btn-explor:hover {
+        background-color: lightgray;
+    }
+
+    .part-info-btns .btn-teach:hover {
+        background-color: purple;
+    }
+
+
+    .tracks-header h3 {
+        font-size: 2rem;
+        color: rebeccapurple;
+    }
+
+    .tracks-header p {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+
+    .track-card {
+        background-color: #fff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .track-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+    .track-img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .track-title {
+        color: #3d3d3d;
+        font-weight: bold;
+    }
+
+    .track-description {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .btn-outline-primary {
+        color: rebeccapurple;
+        border-color: rebeccapurple;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: rebeccapurple;
+            color: #fff;
+        }
+
+</style>
+
+<section style="margin-top:10px; background-color: #fff; height: 400px;" class="container-fluid  mb-4 ">
+    <div class="d-flex align-items-center h-100 p-5 position-relative ">
+        <div class="part-info">
+            <div class="part-info-welcome w-75 mb-3">
+                <h3 class="w-100">Hello There, grow your skills and advance your career with BFC<span>AI</span> platform Learning</h3>
+            </div>
+            <div class="part-info-nums mb-4">
+                <h6>2m Learning about this</h6>
+            </div>
+            <div class="part-info-btns d-flex justify-content-start align-items-center gap-3 w-50">
+                <a href="#courses" class="btn btn-explor">Explor Courses <i class="fa-solid fa-arrow-down"></i></a>
+                <a onclick="openModal(null,'Home','genralModal','GetRegister','Customer')" class="btn btn-teach">Teach on BFC<span>Ai</span></a>
+            </div>
+        </div>
+        <div class=" part-img position-absolute top-0 end-0">
+            <img class="" src="/Images/cch95u9n3wpbme2zzh5n4uwg0.png" alt="">
+        </div>
+    </div>
+</section>
+
+<!-- Button to trigger the modal -->
+
+
+<section id="courses" class="courses container p-3 mb-5">
+    <div class="mb-4">
+        <h4>Top Courses for You</h4>
+    </div>
+    <div id="main" class="top-courses ">
+        @foreach (var course in Model.Courses.Where(e => e.Enrollments.Count >= 1))
+        {
+
+
+            @if (Model.Enrollments.Where(e => e.CourseID == course.CourseID && e.StudentId == _userManger.GetUserId(User)).FirstOrDefault() == null)
+            {
+
+            <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Courses',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
+                <div class="course-video mb-3">
+                    <img src="/Covers/@course.ImgCover" alt="Alternate Text" />
+                </div>
+                <div class="course-title">
+                    <h5>@course.CourseName</h5>
+                </div>
+                <div class="w-75 instructor">
+                    <h6>@course.Instructor?.FullName</h6>
+                </div>
+
+                <!-- Rating -->
+                <div class="rating">
+                    @for (int i = 0; i < course.Rate; i++)
+                    {
+                        <span class="fa fa-star"></span>
+                    }
+                    @for (int i = 0; i < (5 - course.Rate); i++)
+                    {
+                        <span class="fa fa-star-o"></span>
+                    }
+                </div>
+
+                <!-- Price -->
+                <div class="price">
+                    <span> $@course.Price</span>
+                </div>
+
+                @if(Model.Enrollments.Where(e=>e.CourseID==course.CourseID&&e.StudentId==_userManger.GetUserId(User)).FirstOrDefault()!=null)
+                {
+                    <div class="price">
+                        <h6>You Enrolled in This Course</h6>
+                    </div>
+                }
+
+                <!-- Hidden modal for each course -->
+                <div class="modal-test p-4" id="modal-main-@course.CourseID" style="max-width: 700px; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff;">
+                    <!-- Course Name Section -->
+                    <div class="modal-course-header ">
+                        <h3 class="modal-course-name mb-3">@course.CourseName</h3>
+                        <h5>by <span>@course.Instructor?.FullName</span></h5>
+                    </div>
+
+                    <!-- Course Stats Section -->
+                    <div class="modal-course-details d-flex justify-content-between mb-2">
+                        <div class="course-videos">
+                            <span><i class="fas fa-play-circle me-2"></i>@course.CourseCurricula.Count Videos</span>
+                        </div>
+
+                        <div class="course-enrollments">
+                            <span><i class="fas fa-users me-2"></i>@course.Enrollments.Count Enrolled</span>
+                        </div>
+                    </div>
+
+                    <!-- Course Description Section -->
+                    <div class="modal-course-description mb-2">
+                        <p> @course.Description</p>
+                    </div>
+                  
+                    <!-- Course Topics and Objectives Section -->
+                    <div class="modal-course-about ">
+
+                        <div class="course-objectives ">
+
+                            <ul class="list-unstyled">
+                                @foreach (var item in course.LearningObjectives)
+                                {
+                                    <li class="d-flex justify-content-start align-items-baseline gap-1">
+
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+
+                                        <p class="m-1"> @item.Objective</p>
+
+
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Course Call to Action -->
+                    <div class="d-flex justify-content-center mt-2">
+                        <a asp-controller="Cart" asp-action="AddToCart" asp-route-courseId="@course.CourseID" asp-route-quantity="1" class="btn cus-btn px-5 py-2" style="border-radius: 5px; font-size: 1.1rem;">Add to Cart</a>
+                    </div>
+                </div>
+
+            </div>
+            }
+
+
+
+
+
+
+
+
+
+        }
+    </div>
+</section>
+
+
+
+
+
+<section class="container">
+
+    <div class="category-list">
+        <ul class="d-flex list-unstyled justify-content-start align-items-center gap-3">
+            <li><a id="btn-0" onclick="getSpacifcCourses(0)" class="btn active ">All</a></li>
+
+            @foreach (var item in Model.Departments)
+            {
+
+                <li><a id="btn-@item.DepartmentID" onclick="getSpacifcCourses(@item.DepartmentID)" class="btn cus-btn">@item.DepartmentName</a></li>
+            }
+
+
+        </ul>
+
+
+    </div>
+    <hr />
+
+
+    <section class="courses container p-3 mb-5">
+        <div id="specific" class="top-courses ">
+            @foreach (var course in Model.Courses)
+            {
+                <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Courses',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'specific')" onmouseleave="closeModal(@course.CourseID, 'specific')">
+                    <div class="course-video mb-3">
+                        <img src="/Covers/@course.ImgCover" alt="Alternate Text" />
+                    </div>
+                    <div class="course-title">
+                        <h5>@course.CourseName</h5>
+                    </div>
+                    <div class="w-75 instructor">
+                        <h6>@course.Instructor?.FullName</h6>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="rating">
+                        @for (int i = 0; i < course.Rate; i++)
+                        {
+                            <span class="fa fa-star"></span>
+                        }
+                        @for (int i = 0; i < (5 - course.Rate); i++)
+                        {
+                            <span class="fa fa-star-o"></span>
+                        }
+                    </div>
+
+                    <!-- Price -->
+                    <div class="price">
+                        <span> $@course.Price</span>
+                    </div>
+
+                    <div class="modal-test p-4" id="modal-specific-@course.CourseID" style="max-width: 700px; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff;">
+                        <!-- Course Name Section -->
+                        <div class="modal-course-header ">
+                            <h3 class="modal-course-name mb-3">@course.CourseName</h3>
+                            <h5>by <span>@course.Instructor?.FullName</span></h5>
+                        </div>
+
+                        <!-- Course Stats Section -->
+                        <div class="modal-course-details d-flex justify-content-between mb-2">
+                            <div class="course-videos">
+                                <span><i class="fas fa-play-circle me-2"></i>@course.CourseCurricula.Count Videos</span>
+                            </div>
+
+                            <div class="course-enrollments">
+                                <span><i class="fas fa-users me-2"></i>@course.Enrollments.Count Enrolled</span>
+                            </div>
+                        </div>
+
+                        <!-- Course Description Section -->
+                        <div class="modal-course-description mb-2">
+                            <p> @course.Description</p>
+                        </div>
+
+                        <!-- Course Topics and Objectives Section -->
+                        <div class="modal-course-about ">
+
+                            <div class="course-objectives ">
+
+                                <ul class="list-unstyled">
+                                    @foreach (var item in course.LearningObjectives)
+                                    {
+                                        <li class="d-flex justify-content-start align-items-baseline gap-1">
+
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+
+                                            <p class="m-1"> @item.Objective</p>
+
+
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Course Call to Action -->
+                        <div class="d-flex justify-content-center mt-2">
+                            <a asp-controller="Cart" asp-action="AddToCart" asp-route-courseId="@course.CourseID" asp-route-quantity="1" class="btn cus-btn px-5 py-2" style="border-radius: 5px; font-size: 1.1rem;">Add to Cart</a>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+
+
+
+
+
+
+
+            }
+        </div>
+    </section>
+
+</section>
+
+
+<section class="top-category container">
+    <div class="top-category-header  mb-4">
+        <h3 class="">Top Categories</h3>
+    </div>
+    <div class="categories ">
+        @foreach (var item in Model.Departments)
+        {
+
+            <div class="one-category  border-0 shadow-sm rounded">
+                <img src="/Covers/@item.Cover" alt="@item.DepartmentName" class="card-img-top" />
+                <div class="card-body text-center">
+                    <h5 class="card-title">@item.DepartmentName</h5>
+                    <p class="card-text">
+
+
+
+                        @if (item.DepartmentDescription.Length > 250)
+                        {
+                            for (int i = 0; i < 250; i++)
+                            {
+
+                                @item.DepartmentDescription[i]
+                            }
+                            @:...
+                        }
+                        else
+                        {
+                            @item.DepartmentDescription
+
+                        }
+                    </p>
+                    <a asp-action="Category" asp-route-id="@item.DepartmentID" class="btn ">Explore <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+        }
+    </div>
+</section>
+
+
+
+
+<section class="container tracks my-5">
+    <div class="tracks-header text-center mb-4">
+        <h3 class="fw-bold">Explore Our Learning Tracks</h3>
+        <p class="text-muted">Choose a track and dive deep into the knowledge you seek.</p>
+    </div>
+    <div class="tracks-list row g-4">
+        @foreach (var track in Model.Tracks)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="track-card shadow-sm border-0 rounded">
+                    <img src="/Covers/@track.Cover" alt="@track.Name" class="track-img rounded-top" />
+                    <div class="card-body p-3">
+                        <div class="track-head d-flex justify-content-between align-items-center">
+                            <h5 class="track-title mb-2">@track.Name</h5>
+                            <span>@track.Courses.Count() Courses</span>
+                        </div>
+                        <p class="track-description text-muted mb-3">
+                            @if (track.Description.Length > 150)
+                            {
+                                @track.Description.Substring(0, 150) @:...
+                            }
+                            else
+                            {
+                                @track.Description
+                            }
+                        </p>
+                        <h6 class="fs-6">@track.Courses.SelectMany(c => c.Enrollments).Count() Enrollments</h6>
+
+                        <a asp-action="TrackDetails"  asp-route-id="@track.Id" class="btn btn-outline-primary w-100">
+                            Explore Track
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+
+@if(User.IsInRole(StaticData.role_Student)){
+
+<section id="courses" class="courses container p-3 mb-5">
+    <div class="mb-4">
+        <h4>Recommendation Courses for You</h4>
+    </div>
+    <div id="main" class="top-courses ">
+       
+            @foreach(var course in Model.RecommendationCourses){
+
+                @if (Model.Enrollments.Where(e => e.CourseID == course.CourseID && e.StudentId == _userManger.GetUserId(User)).FirstOrDefault() == null)
+                {
+
+                    <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Courses',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
+                        <div class="course-video mb-3">
+                            <img src="/Covers/@course.ImgCover" alt="Alternate Text" />
+                        </div>
+                        <div class="course-title">
+                            <h5>@course.CourseName</h5>
+                        </div>
+                        <div class="w-75 instructor">
+                            <h6>@course.Instructor?.FullName</h6>
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="rating">
+                            @for (int i = 0; i < course.Rate; i++)
+                            {
+                                <span class="fa fa-star"></span>
+                            }
+                            @for (int i = 0; i < (5 - course.Rate); i++)
+                            {
+                                <span class="fa fa-star-o"></span>
+                            }
+                        </div>
+
+                        <!-- Price -->
+                        <div class="price">
+                            <span> $@course.Price</span>
+                        </div>
+
+                        @if (Model.Enrollments.Where(e => e.CourseID == course.CourseID && e.StudentId == _userManger.GetUserId(User)).FirstOrDefault() != null)
+                        {
+                            <div class="price">
+                                <h6>You Enrolled in This Course</h6>
+                            </div>
+                        }
+
+                        <!-- Hidden modal for each course -->
+                        <div class="modal-test p-4" id="modal-main-@course.CourseID" style="max-width: 700px; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff;">
+                            <!-- Course Name Section -->
+                            <div class="modal-course-header ">
+                                <h3 class="modal-course-name mb-3">@course.CourseName</h3>
+                                <h5>by <span>@course.Instructor?.FullName</span></h5>
+                            </div>
+
+                            <!-- Course Stats Section -->
+                            <div class="modal-course-details d-flex justify-content-between mb-2">
+                                <div class="course-videos">
+                                    <span><i class="fas fa-play-circle me-2"></i>@course.CourseCurricula.Count Videos</span>
+                                </div>
+
+                                <div class="course-enrollments">
+                                    <span><i class="fas fa-users me-2"></i>@course.Enrollments.Count Enrolled</span>
+                                </div>
+                            </div>
+
+                            <!-- Course Description Section -->
+                            <div class="modal-course-description mb-2">
+                                <p> @course.Description</p>
+                            </div>
+
+                            <!-- Course Topics and Objectives Section -->
+                            <div class="modal-course-about ">
+
+                                <div class="course-objectives ">
+
+                                    <ul class="list-unstyled">
+                                        @foreach (var item in course.LearningObjectives)
+                                        {
+                                            <li class="d-flex justify-content-start align-items-baseline gap-1">
+
+                                                <i class="fas fa-check-circle text-success me-2"></i>
+
+                                                <p class="m-1"> @item.Objective</p>
+
+
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Course Call to Action -->
+                            <div class="d-flex justify-content-center mt-2">
+                                <a asp-controller="Cart" asp-action="AddToCart" asp-route-courseId="@course.CourseID" asp-route-quantity="1" class="btn cus-btn px-5 py-2" style="border-radius: 5px; font-size: 1.1rem;">Add to Cart</a>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+            
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+        }
+    </div>
+</section>
+}
+
+
+
+
+
+
+
+
+
+<section class="container feedback-section my-5">
+    <div class="feedbacks-header text-center mb-4">
+        <h3>What Our Students Say ?</h3>
+    </div>
+    <div class="feedbacks row">
+        @foreach (var item in Model.Feedbacks.Where(e => e.CourseId != null))
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card feedback-card p-4 shadow-sm">
+                    <!-- User Info -->
+                    <div class="feedback-user d-flex align-items-center mb-3">
+                        <img src="@item.ProviderUser.Picture" alt="User Image" class="rounded-circle user-img me-3" />
+                        <div class="user-details">
+                            <h6 class="mb-0">@item.ProviderUser?.FullName</h6>
+                            <a onclick="goTo('Customer','Home','Courses',@item.CourseId)" class="btn btn-outline-light text-muted">@item.Course.CourseName</a>
+                        </div>
+                    </div>
+
+                    <!-- Rating -->
+                    <!-- Feedback Text -->
+                    <div class="feedback-text">
+                        <p>@item.Content</p>
+                    </div>
+
+                    <!-- Feedback Date -->
+                    <div class="feedback-date text-muted">
+                        <small>Reviewed on: @item.FeedbackDate.ToString("MMM dd, yyyy")</small>
+                    </div>
+                </div>
+            </div>
+
+        }
+    </div>
+</section>
+
+
+<section class="events container p-3 mb-5">
+    <h4>Upcoming Events</h4>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Event Title</th>
+                <th>Description</th>
+                <th>Created By</th>
+                <th>Department</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var even in Model.Events)
+            {
+                <tr>
+                    <td>@even.Date.ToString("MMMM d, yyyy")</td>
+                    <td>@even.Name</td>
+                    <td>@even.Description</td>
+                    <td>@even.CreatedBy?.FullName</td>
+                    <td>@even.Department?.DepartmentName</td>
+
+                    <td><a href="@even" class="btn btn-primary">More Info</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+
+
+
+
+<div class="modal fade " id="genralModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@{
+    var userId = UserManager.GetUserId(User);
+    var user = UserManager.Users.FirstOrDefault(e => e.Id == userId);
+    var appUser = user as ApplicationUser;
+    var img = appUser?.Picture;
+}
+
+<ul class=" d-flex list-unstyled justify-content-center align-items-center gap-3 m-0">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="">
+
+            <img style="width:50px;height:50px; border-radius:50px;" src="@appUser.Picture" onclick="goTo('Identity','Account','Manage')" />
+       
+@*         <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+ *@    </li>
+    <li class="">
+        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">
+
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="">
+        <a class=" btn btn-dark " id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    </li>
+    <li class="nav-item">
+        <a class=" btn btn-light text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </li>
+}
+</ul>

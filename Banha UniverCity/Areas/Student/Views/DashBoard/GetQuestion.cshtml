@@ -1,0 +1,45 @@
+﻿@model List<BFCAI.Models.Question>
+
+@{
+    var ides = Model.Select(e => e.QuestionID).ToArray();
+}
+
+<div class="modal-body">
+    <div id="questionSection">
+        @if (Model.Any())
+        {
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <div class="question-container @((i == 0) ? "active-question" : "hidden-question")" id="question-@i">
+                    <h4>@Model[i].QuestionText</h4>
+                    <ul>
+                        @foreach (var choice in Model[i].Choices)
+                        {
+                            <li>
+                                <label>
+                                    <input type="checkbox" name="Choices-@i" value="@choice.QuestionChoiceID" /> @choice.ChoiceText
+                                </label>
+                            </li>
+                        }
+                    </ul>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary prev-question" data-index="@i" @(i == 0 ? "disabled" : "")>Previous Question</button>
+                        <button type="button" class="btn btn-primary next-question" data-index="@i">@((i == Model.Count - 1) ? "Finish" : "Next Question")</button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div>No Found Questions</div>
+        }
+    </div>
+</div>
+
+<!-- تحسين الأنماط باستخدام CSS -->
+<style>
+    .hidden-question { display: none; }
+    .active-question { display: block; }
+</style>
+
+<!-- تحسين جافاسكريبت -->

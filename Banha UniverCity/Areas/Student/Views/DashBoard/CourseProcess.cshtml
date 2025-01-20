@@ -1,0 +1,171 @@
+﻿@model Course
+<style>
+    body {
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    header {
+        display: none;
+    }
+
+    .new-head {
+        background-color: rgb(83, 42, 164);
+        color: #fff;
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+        .new-head h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+            .new-head h1 i {
+                margin-right: 10px;
+            }
+
+    /* Main container */
+    .main-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px;
+        height: calc(100vh - 100px); /* Adjust height to fill the screen */
+    }
+
+    /* Left sidebar (Curriculum) */
+    .curriculum {
+        width: 15%;
+        background-color: rgb(242, 242, 242);
+        padding: 10px;
+        box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 0px;
+        overflow-y: auto;
+        border-radius: 8px;
+        height: 100%;
+    }
+
+        .curriculum h5 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .curriculum .part {
+            margin-bottom: 10px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 1rem;
+            color: #333;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+            .curriculum .part:hover {
+                background-color: #ccc;
+            }
+
+    /* Processes Section */
+    .processes {
+        width: 60%;
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow-y: auto; /* Make this section scrollable */
+        height: 100%; /* Fill the remaining height */
+    }
+
+    /* Feedback Section */
+    .feedback {
+        width: 20%;
+        background-color: rgb(242, 242, 242);
+        padding: 20px;
+        box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 0px;
+        height: 100%;
+        overflow-y: auto;
+        border-radius: 8px;
+    }
+</style>
+
+<div class="new-head container-fluid">
+    <div class="container head">
+        <h1>
+            <i onclick="getback()" style="cursor:pointer; background-color:transparent;" class="fa-solid fa-chevron-left "></i> @Model.CourseName <span class="text-warning">Process</span>
+        </h1>
+    </div>
+</div>
+
+<section class="main-container container-fluid  p-2">
+    <!-- Curriculum Sidebar -->
+    <div class="curriculum">
+        <h5 class="mt-3">Course Materials</h5>
+        @foreach (var item in Model.CourseCurricula)
+        {
+            <div onclick="getContent(@item.CourseCurriculumID,'processes')" class="part">
+                @item.Title
+            </div>
+        }
+    </div>
+
+    <!-- Processes Section -->
+    <div id="processes" class="processes">
+        <!-- Placeholder for future content -->
+        <h4>Selected Content Will Appear Here</h4>
+    </div>
+
+    <!-- Feedback Sidebar -->
+    <div class="feedback">
+        <div class="feedback-list">
+        <h4>Feedback</h4>
+            @foreach (var feedback in Model.Feedbacks)
+            {
+                <div class="feedback-item mb-3">
+                    <p><strong>@feedback.ProviderUser.FullName:</strong> @feedback.Content</p>
+                    @if (User.Identity.Name == feedback.ProviderUser.UserName)
+                    {
+                        <!-- Button to edit feedback -->
+                        <button class="btn btn-warning btn-sm"
+                                onclick="openModalWithBindId(
+                                @feedback.FeedbackID,
+                                @Model.CourseID,
+                                'DashBoard',
+                                'addModal',
+                                'UpsertFeedback',
+                                'Student')">
+                            Edit
+                        </button>
+                        <a asp-action="Delete" asp-route-id="@feedback.FeedbackID" asp-route-Url="/Student/DashBoard/CourseProcess/@Model.CourseID"  class="btn btn-danger btn-sm">Delete</a>
+                       
+                    }
+                </div>
+            }
+        <!-- Button to open modal for adding new feedback -->
+        <button class="btn btn-primary mt-4"
+                onclick="openModalWithBindId(
+                null,
+                @Model.CourseID,
+                'DashBoard',
+                'addModal',
+                'UpsertFeedback',
+                'Student')">
+            New Feedback
+        </button>
+        </div>
+
+    </div>
+</section>
+
+
+<div class="modal fade " id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>

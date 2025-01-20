@@ -1,0 +1,42 @@
+﻿@{
+ 
+    if (User.IsInRole(Banha_UniverCity.StaticData.role_Admin))
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    else if (User.IsInRole(Banha_UniverCity.StaticData.role_Instructor))
+    {
+        Layout = "~/Views/Shared/_InstructorLayout.cshtml";
+
+    }
+    else if (User.IsInRole(Banha_UniverCity.StaticData.role_Student))
+    {
+        Layout = "~/Views/Shared/_StudentLayout.cshtml";
+
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_RegistreationLayout.cshtml";
+
+    }
+
+}
+
+
+<div class="">
+<h1>Manage your account</h1>
+    <h2>Change your account settings</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_ManageNav" />
+        </div>
+        <div class="col-md-9">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

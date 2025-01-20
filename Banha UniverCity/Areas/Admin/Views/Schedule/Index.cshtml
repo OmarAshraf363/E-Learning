@@ -1,0 +1,102 @@
+﻿@model IEnumerable<Banha_UniverCity.Models.ClassSchedule>
+
+@{
+    ViewData["Title"] = "Class Schedule";
+}
+
+    <style>
+        .schedule-table {
+            width: 100%;
+            
+        }
+
+        .schedule-table th, .schedule-table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 15px;
+        }
+
+        .schedule-table th {
+            background-color: #151515;
+            font-weight: bold;
+        }
+
+        .time-slot {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .class-details {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .room-details {
+            font-size: 12px;
+            color: #007bff;
+        }
+
+        .day-navigation {
+            margin-bottom: 20px;
+        }
+
+        media (max-width: 768px) {
+            .schedule-table th, .schedule-table td {
+                font-size: 12px;
+                padding: 10px;
+            }
+        }
+    </style>
+
+
+<div class="container">
+    <h2 class="text-center my-4">Class Schedule</h2>
+
+  
+  
+    <a asp-action="Upsert" class="btn new-course-btn"><i class="fas fa-plus"></i> New Schedual</a>
+
+    <!-- Schedule Table -->
+    <table class="table table-bordered schedule-table">
+        <thead>
+        <tr>
+            <th>Time</th>
+                <th>
+                    Day
+                </th>
+            <th>Course</th>
+            <th>Instructor</th>
+            <th>Room</th>
+        </tr>
+        </thead>
+        <tbody >
+        @foreach (var schedule in Model)
+        {
+            <tr onclick="getUpSert(@schedule.ClassScheduleId)">
+                <td>
+                    @schedule.StartTime.ToString("hh:mm tt") - @schedule.EndTime.ToString("hh:mm tt")
+                </td>
+                    <td>
+                        @schedule.DayOfWeek
+                    </td>
+                <td>
+                    @schedule.Course.CourseName
+                </td>
+                <td>
+                    @schedule.Instructor?.FullName 
+                </td>
+                <td>
+                    @schedule.Room?.Name"
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function getUpSert(id) {
+        window.location.href = `/Admin/Schedule/Upsert/${id}`
+    }
+</script>
+

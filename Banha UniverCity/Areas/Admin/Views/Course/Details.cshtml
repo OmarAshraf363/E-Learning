@@ -1,0 +1,94 @@
+﻿@model Course
+
+@{
+    ViewData["Title"] = "Course Details";
+}
+
+<div class="container mt-4">
+    <h2 class="text-white mb-4">Course Details</h2>
+
+    <div class="card bg-dark text-white">
+        <div class="card-header">
+            <h3 class="card-title">@Model.CourseName</h3>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Course ID:</dt>
+                <dd class="col-sm-9">@Model.CourseID</dd>
+
+                <dt class="col-sm-3">Description:</dt>
+                <dd class="col-sm-9">@Model.Description</dd>
+
+                <dt class="col-sm-3">Credits:</dt>
+                <dd class="col-sm-9">@Model.Credits</dd>
+
+                <dt class="col-sm-3">Instructor:</dt>
+                <dd class="col-sm-9">@Model.Instructor?.UserName</dd>
+
+                <dt class="col-sm-3">Department:</dt>
+                <dd class="col-sm-9">@Model.Department?.DepartmentName</dd>
+
+                <dt class="col-sm-3">Enrollments:</dt>
+                <dd class="col-sm-9">@Model.Enrollments.Count()</dd>
+            </dl>
+        </div>
+        <div class="card-footer">
+            <a asp-action="Upsert" asp-route-id="@Model.CourseID" class="btn btn-warning"><i class="fa-solid fa-pencil-alt"></i> Edit</a>
+            <a asp-action="Index" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
+        </div>
+    </div>
+</div>
+
+<!-- FontAwesome CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<style>
+    .card {
+        border-radius: 8px;
+        border: none;
+    }
+
+    .card-header {
+        background-color: #1e1e1e;
+        border-bottom: 1px solid #333;
+    }
+
+    .card-body {
+        background-color: #121212;
+    }
+
+    .card-footer {
+        background-color: #1e1e1e;
+        border-top: 1px solid #333;
+    }
+
+    .btn {
+        padding-inline: 15px;
+        padding-block: 8px;
+        border: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-warning {
+        background-color: #f0ad4e;
+        color: #333;
+    }
+
+        .btn-warning:hover {
+            background-color: #ec971f;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: #fff;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+    .text-white {
+        color: #fff;
+    }
+</style>

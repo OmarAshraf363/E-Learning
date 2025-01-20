@@ -1,0 +1,59 @@
+﻿@model UserViewModel
+@inject RoleManager<IdentityRole> _roleManager
+@{
+    ViewData["Title"] = Model.Id == null ? "Create User" : "Edit User";
+}
+<style>
+    form input{
+        background:#3d3d3d;
+        color:#eee;
+    }
+</style>
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Upsert" method="post">
+    <div class="form-group">
+        <label asp-for="UserName"></label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    @if (Model.Id == null)
+    {
+        <div class="form-group">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" class="form-control" type="password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+    }
+
+    <div class="form-group">
+        <label asp-for="Role"></label>
+        <select asp-for="Role" class="form-control">
+            <option value="">Select a role</option>
+            @foreach (var role in await _roleManager.Roles.ToListAsync())
+            {
+                if (role.Name == Model.Role)
+                {
+                    <option value="@role.Name" selected >@role.Name</option>
+                }else{
+                    <option value="@role.Name" >@role.Name</option>
+                }
+                
+            }
+        </select>
+        <span asp-validation-for="Role" class="text-danger"></span>
+    </div>
+    <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+    <button type="submit" class="btn btn-primary">@ViewData["Title"]</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

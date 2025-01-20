@@ -1,0 +1,46 @@
+﻿@model Course
+<div id="courseDetailsContent">
+    <ul class="nav nav-tabs" id="courseDetailsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="nav-topics-tab" data-bs-toggle="tab" href="#nav-topics" role="tab" aria-controls="nav-topics" aria-selected="true">Topics</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="nav-objectives-tab" data-bs-toggle="tab" href="#nav-objectives" role="tab" aria-controls="nav-objectives" aria-selected="false">Objectives</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="nav-demo-video-tab" data-bs-toggle="tab" href="#nav-demo-video" role="tab" aria-controls="nav-demo-video" aria-selected="false">Demo Video</a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3" id="courseDetailsTabContent">
+        <div class="tab-pane fade show active" id="nav-topics" role="tabpanel" aria-labelledby="nav-topics-tab">
+            <h5>Topics Covered:</h5>
+            <ul>
+                @foreach (var topic in Model.TopicsCovered)
+                {
+                    <li>@topic.Topic</li>
+                }
+            </ul>
+        </div>
+        <div class="tab-pane fade" id="nav-objectives" role="tabpanel" aria-labelledby="nav-objectives-tab">
+            <h5>Learning Objectives:</h5>
+            <ul>
+                @foreach (var objective in Model.LearningObjectives)
+                {
+                    <li>@objective.Objective</li>
+                }
+            </ul>
+        </div>
+        <div class="tab-pane fade" id="nav-demo-video" role="tabpanel" aria-labelledby="nav-demo-video-tab">
+            <h5>Demo Video:</h5>
+            @if (!string.IsNullOrEmpty(Model.DemoVideoUrl))
+            {
+                <iframe width="560" height="315" src="@Model.DemoVideoUrl" frameborder="0" allowfullscreen></iframe>
+            }
+            else
+            {
+                <p>No demo video available.</p>
+            }
+        </div>
+    </div>
+</div>

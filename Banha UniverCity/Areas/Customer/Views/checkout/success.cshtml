@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Payment Success";
+}
+
+<section class="container py-5 text-center">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm p-4">
+                <div class="card-body">
+                    <h1 class="display-4 text-success mb-4"><i class="fas fa-check-circle"></i> Payment Successful!</h1>
+                    <p class="lead">Thank you for your purchase. Your order has been placed successfully, and your payment is being processed.</p>
+
+                    <div class="order-summary mt-4">
+                        <h5 class="mb-3">Order Summary</h5>
+                        <p><strong>Order Date:</strong> @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+                        <p><strong>Order Total:</strong> $@ViewBag.OrderTotal</p>
+                        <p><strong>Status:</strong> Your order is being processed and will be available shortly.</p>
+                    </div>
+
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-primary mt-4">
+                        Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .lead {
+        font-size: 1.25rem;
+    }
+    .order-summary {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #dee2e6;
+    }
+</style>

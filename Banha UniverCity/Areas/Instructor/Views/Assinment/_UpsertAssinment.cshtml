@@ -1,0 +1,56 @@
+﻿@model BFCAI.Models.Assignment
+<style>
+    .form-group input, .form-group textarea {
+        background-color: #3d3d3d;
+        color: #ccc;
+    }
+</style>
+<div class="modal-header">
+    <h5 class="modal-title">@((Model.AssignmentID == 0 ? "Create New Assignment" : "Edit Assignment"))</h5>
+    <button type="button" class="btn fw-bolder btn-close text-warning" data-bs-dismiss="modal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+
+</div>
+
+<div class="modal-body">
+    <form id="assignmentForm" asp-action="UpSert" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label asp-for="Title">Assignment Title</label>
+            <input asp-for="Title" class="form-control" required />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Content">Assignment Content</label>
+            <input type="file" asp-for="Content" class="form-control" required />
+            <span asp-validation-for="Content" class="text-danger"></span>
+
+        </div>
+
+        <div class="form-group">
+            <label asp-for="DeadLine">DeadLine</label>
+            <input asp-for="DeadLine" class="form-control" required />
+            <span asp-validation-for="DeadLine" class="text-danger"></span>
+
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Description">Description</label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+
+
+
+          <input type="hidden" name="fromCourseArea" value="@ViewBag.fromCourse" />
+
+        <input type="hidden" asp-for="AssignmentID" />
+        <input type="hidden" asp-for="CourseCurriculumID" value="@ViewBag.bindId" />
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" onclick="allConfirm('assignmentForm')" class="btn btn-primary">Save changes</button>
+        </div>
+    </form>
+</div>
+
+
+

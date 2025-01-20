@@ -1,0 +1,336 @@
+﻿@model Banha_UniverCity.Models.Course
+@{
+    bool fromCourse = true;
+}
+<style>
+    .video-container, .reference-container, .assignment-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px; /* Increased gap for better spacing */
+    }
+
+    .video-item, .reference-item, .assignment-item {
+        box-sizing: border-box;
+        background: #f5f5f5; /* Light background color */
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    }
+
+        .video-item:hover, .reference-item:hover, .assignment-item:hover {
+            background-color: #e0e0e0; /* Slightly darker background on hover */
+            box-shadow: 0 6px 14px rgba(0,0,0,0.2); /* Enhanced shadow on hover */
+        }
+
+        .video-item a, .reference-item a, .assignment-item a {
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s ease;
+        }
+
+            .video-item a:hover, .reference-item a:hover, .assignment-item a:hover {
+                color: #007bff; /* Color change on hover */
+            }
+
+    .btn-outline-primary {
+        border-color: #007bff;
+        color: #007bff;
+        background-color: transparent;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+    .btn-outline-secondary {
+        border-color: #6c757d;
+        color: #6c757d;
+        background-color: transparent;
+    }
+
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+    .modal-content {
+        background-color: #ffffff;
+        color: #333333;
+    }
+
+    .modal-header, .modal-footer {
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .modal-title {
+        color: #007bff;
+    }
+</style>
+
+@if (Model.CourseCurricula != null && Model.CourseCurricula.Any())
+{
+    <ul class="list-group">
+        @foreach (var curriculum in Model.CourseCurricula)
+        {
+            <li class="list-group-item mb-4">
+                <h5 class="font-weight-bold">@curriculum.Title</h5>
+                <p>@curriculum.Content</p>
+
+                <!-- عرض الفيديوهات الخاصة بالمنهج -->
+                <div class="mb-4">
+                    @if (curriculum.CourseVideos != null && curriculum.CourseVideos.Any())
+                    {
+                        <h6 class="text-primary">Videos:</h6>
+                        <div class="video-container">
+                            @foreach (var video in curriculum.CourseVideos)
+                            {
+                                <div class="video-item">
+                                    <a href="@video.VideoURL" target="_blank">
+                                        <i class="fa-solid fa-video"></i> @video.VideoTitle
+                                    </a>
+                                    @if (!User.IsInRole(StaticData.role_Student))
+                                    {
+
+                                        <a onclick="openAddToCourseRefOrVideo(@video.CourseCurriculumID,@video.CourseVideoID,'AddVideoModal')" class="btn btn-warning btn-sm ml-auto">
+                                            <i class="fa-solid fa-edit"></i>
+                                        </a>
+                                        <a asp-action="DeleteVideo" asp-route-id="@video.CourseVideoID" asp-route-curriculumId="@video.CourseCurriculumID" asp-route-courseId="@video.CourseID" class="btn btn-danger btn-sm ml-2">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                        <!-- Button to edit video -->
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No videos available for this curriculum.</p>
+                    }
+                </div>
+
+                <!-- عرض المراجع الخاصة بالمنهج -->
+                <div class="mb-4">
+                    @if (curriculum.CourseResources != null && curriculum.CourseResources.Any())
+                    {
+                        <h6 class="text-success">References:</h6>
+                        <div class="reference-container">
+                            @foreach (var reference in curriculum.CourseResources)
+                            {
+                                <div class="reference-item">
+                                    <a href="@reference.ResourceURL" class="btn btn-primary btn-sm text-light" target="_blank">
+                                        <i class="fa-solid fa-book"></i> @reference.ResourceTitle
+                                    </a>
+                                    @if (!User.IsInRole(StaticData.role_Student))
+                                    {
+                                        <a asp-action="DeleteReference" asp-route-id="@reference.CourseResourceID" asp-route-curriculumId="@reference.CourseCurriculumID" class="btn btn-danger btn-sm ml-2">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                        <!-- Button to edit reference -->
+                                        <a onclick="openAddToCourseRefOrVideo(@curriculum.CourseCurriculumID, @reference.CourseResourceID,'AddReferenceModal')" class="btn btn-warning btn-sm ml-2">
+                                            <i class="fa-solid fa-edit"></i>
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No references available for this curriculum.</p>
+                    }
+                </div>
+
+                <!-- عرض المهام الخاصة بالمنهج -->
+                <div class="mb-4">
+                    @if (curriculum.Assignments != null && curriculum.Assignments.Any())
+                    {
+                        <h6 class="text-info">Assignments:</h6>
+                        <div class="assignment-container">
+                            @foreach (var assignment in curriculum.Assignments)
+                            {
+                                <div class="assignment-item">
+                                    <a href="/assignments/@assignment.Content" target="_blank">
+                                        <i class="fa-solid fa-file"></i> @assignment.Title
+                                    </a>
+
+                                    @if (!User.IsInRole(StaticData.role_Student))
+                                    {
+                                        <!-- Button to edit assignment -->
+                                        <a onclick="openAddToCourseRefOrVideo(@curriculum.CourseCurriculumID, @assignment.AssignmentID,'AddAssignmentModal','instructor','Upsert','Assinment')" class="btn btn-warning btn-sm ml-auto">
+                                            <i class="fa-solid fa-edit"></i>
+                                        </a>
+                                        <a asp-action="DeleteConfirmed" asp-controller="assinment" asp-route-id="@assignment.AssignmentID" class="btn btn-danger btn-sm ml-2">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        if (assignment.Submissions.Any(e => e.AssignmentID == assignment.AssignmentID))
+                                        {
+                                            <span class="text-success">
+                                                Submited
+
+                                                <i class="fa-solid fa-check"></i>
+                                            </span>
+                                        }
+                                        else
+                                        {
+
+                                            <a class="btn btn-success btn-sm ml-2" onclick="openModal(@assignment.AssignmentID,'Assinment','AddAssignmentModal','UploadSoluation','Instructor')">
+                                                Upload Solution
+                                            </a>
+                                        }
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No assignments available for this curriculum.</p>
+                    }
+                </div>
+
+
+                <!-- عرض الجزء الخاص بالامتحانات -->
+                <div class="mb-4">
+                    @if (curriculum.Exams != null && curriculum.Exams.Any())
+                    {
+                        <h6 class="text-info">Quizzes & Exams:</h6>
+                        <div class="assignment-container">
+                            <!-- قائمة الاختبارات أو الامتحانات -->
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Date</th>
+
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var exam in curriculum.Exams)
+                                    {
+                                        <tr>
+                                            <td>@exam.Title</td>
+                                            <td>@exam.ExamDate.ToString("MM/dd/yyyy")</td>
+
+                                            <td>
+                                                @if (User.IsInRole(StaticData.role_Instructor))
+                                                {
+
+                                                    <!-- أزرار التحكم -->
+                                                    <a onclick="openModal(@exam.ExamID,'Instructor','genralModal','UpsertQuiz','Instructor')" class="btn btn-warning btn-sm">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <a onclick="openModal(@exam.ExamID, 'Instructor', 'genralModal', 'GetQuestions', 'Instructor')" class="btn btn-secondary btn-sm">
+                                                        <i class="fas fa-eye"></i> Questions
+                                                    </a>
+                                                    <a class="btn btn-danger btn-sm" onclick="customDelete(@exam.ExamID,'/Instructor/Instructor/DeleteQuiz')">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </a>
+                                                }
+                                                else
+                                                {
+
+                                                    <a class="btn btn-danger btn-sm" onclick="customDelete(@exam.ExamID,'/Instructor/Instructor/DeleteQuiz')">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No exams or quizzes available for this curriculum.</p>
+                    }
+
+
+                </div>
+
+
+
+
+
+                @if (!User.IsInRole(StaticData.role_Student))
+                {
+                    <!-- Button to add video -->
+                    <a class="btn btn-outline-primary mt-2" onclick="openAddToCourseRefOrVideo(@curriculum.CourseCurriculumID, null,'AddVideoModal')">
+                        <i class="fa-solid fa-plus"></i> Add Video
+                    </a>
+
+                    <!-- Button to add reference -->
+                    <a class="btn btn-outline-secondary mt-2" onclick="openAddToCourseRefOrVideo(@curriculum.CourseCurriculumID, null,'AddReferenceModal')">
+                        <i class="fa-solid fa-plus"></i> Add Reference
+                    </a>
+
+                    <!-- Button to add assignment -->
+                    <a class="btn btn-outline-info mt-2" onclick="openAddToCourseRefOrVideo(@curriculum.CourseCurriculumID, null,'AddAssignmentModal','instructor','Upsert','Assinment','true')">
+                        <i class="fa-solid fa-plus"></i> Add Assignment
+                    </a>
+
+                    <a class="btn btn-outline-info mt-2" onclick="openAddToCourseRefOrVideo(@curriculum.CourseCurriculumID, null,'AddAssignmentModal','instructor','UpsertQuiz','Instructor')">
+                        <i class="fa-solid fa-plus"></i> Add Quiz
+                    </a>
+                }
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p class="text-muted">No curricula available for this course.</p>
+}
+
+<!-- Modals for Adding/Editing Video, Reference, and Assignment -->
+<div class="modal fade" id="AddVideoModal" tabindex="-1" role="dialog" aria-labelledby="AddVideoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-light">
+            <!-- Content for Add/Edit Video Modal will be loaded here via Ajax -->
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="AddReferenceModal" tabindex="-1" role="dialog" aria-labelledby="AddReferenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-light">
+            <!-- Content for Add/Edit Reference Modal will be loaded here via Ajax -->
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="AddAssignmentModal" tabindex="-1" role="dialog" aria-labelledby="AddAssignmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-light">
+            <!-- Content for Add/Edit Assignment Modal will be loaded here via Ajax -->
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="genralModal" tabindex="-1" role="dialog" aria-labelledby="AddAssignmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-light">
+            <!-- Content for Add/Edit Assignment Modal will be loaded here via Ajax -->
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript to handle modals -->

@@ -1,0 +1,87 @@
+﻿@model BFCAI.Models.ViewModels.QuestionVM
+
+@{
+    ViewData["Title"] = Model.QuestionID == 0 ? "Add Question" : "Edit Question";
+}
+
+    <style>
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+    </style>
+
+
+    <div class="container mt-5">
+        <h1>@ViewData["Title"]</h1>
+
+        <form asp-action="UpSertQuestions" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="QuestionID" />
+           
+           
+            <input asp-for="ExamID" type="hidden" />
+
+            <div class="form-group">
+                <label asp-for="QuestionText" class="control-label"></label>
+                <input asp-for="QuestionText" class="form-control" />
+                <span asp-validation-for="QuestionText" class="text-danger"></span>
+            </div>
+
+            <h4>Choices</h4>
+            <div id="choices-container">
+                @for (var i = 0; i < Model.Choices.Count; i++)
+                {
+                    <div class="form-group">
+                        <label>Choice @i</label>
+                        <input type="text" name="Choices[@i].ChoiceText" class="form-control" value="@Model.Choices[i].ChoiceText" />
+
+                     
+                        
+
+                        <div class="form-check">
+                            <input type="checkbox" name="Choices[@i].IsCorrect" class="form-check-input"   value="true" @(Model.Choices[i].IsCorrect ? "checked" : "") />
+                            <label class="form-check-label">Correct</label>
+                        </div>
+                    </div>
+                }
+            </div>
+
+
+
+            <div class="form-group">
+                <button type="button" class="btn btn-secondary" onclick="addChoice()">Add Choice</button>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function addChoice() {
+            var container = document.getElementById('choices-container');
+            var index = container.children.length;
+
+            var choiceHtml = `
+                <div class="form-group">
+                    <label>Choice ${index}</label>
+                    <input type="text" name="Choices[${index}].ChoiceText" class="form-control" />
+
+                    <!-- Hidden input لضمان إرسال false إذا لم يتم تحديد checkbox -->
+                  
+
+                    <div class="form-check">
+                        <input type="checkbox" name="Choices[${index}].IsCorrect" class="form-check-input" value="true" />
+                        <label class="form-check-label">Correct</label>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', choiceHtml);
+        }
+
+
+    </script>
+
+

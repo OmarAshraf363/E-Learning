@@ -1,0 +1,122 @@
+﻿@model AllModelsVM
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Admin Dashboard</h1>
+    <div class="row">
+        <!-- Student Count Card -->
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-dark">
+                <div class="card-header">Total Students</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.ApplicationUsers.Where(e => e.UserType == "Student").Count()</h5>
+                    <p class="card-text">Total number of students.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructor Count Card -->
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-dark">
+                <div class="card-header">Total Instructors</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.ApplicationUsers.Where(e => e.UserType == "Instructor").Count()</h5>
+                    <p class="card-text">Total number of instructors.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Courses Count Card -->
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-primary">
+                <div class="card-header">Total Courses</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.Courses.Count</h5>
+                    <p class="card-text">Total number of courses available.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Departments Count Card -->
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-secondary">
+                <div class="card-header">Total Departments</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.Departments.Count</h5>
+                    <p class="card-text">Total number of departments.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Details Table -->
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Course Details</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Course ID</th>
+                        <th>Course Name</th>
+                        <th>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var course in Model.Courses)
+                    {
+                        <tr>
+                            <td>@course.CourseID</td>
+                            <td>@course.CourseName</td>
+                            <td>@Model.Departments.FirstOrDefault(d => d.DepartmentID == course.DepartmentId)?.DepartmentName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Statistics Section (Optional) -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            @if (ViewBag.MostPopularCourse != null)
+            {
+                <h3>Most Popular Course</h3>
+                <p>Course ID: @ViewBag.MostPopularCourse.Name</p>
+                <p>Number of Students Enrolled: @ViewBag.MostPopularCourse.EnrollmentCount</p>
+            }
+            else
+            {
+                <p>No enrollments available.</p>
+            }
+
+
+
+        </div>
+       <div class="col-md-6">
+    <h4>Upcoming Events</h4>
+    <ul class="list-group">
+        @foreach (var item in Model.Events)
+        {
+            <li class="bg-dark list-group-item">@item.Name: @item.Date.ToString("dd MMMM yyyy") </li>
+        }
+    </ul>
+</div>
+    </div>
+</div>
+
+<style>
+    table tr {
+        color: #ccc;
+    }
+
+    .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+    }
+
+    h3, h4 {
+        color: #eee;
+    }
+</style>

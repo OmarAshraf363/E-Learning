@@ -1,0 +1,258 @@
+﻿@model Department
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h3>@Model.DepartmentName Details</h3>
+            <a href="@Url.Action("Index", "Department")" class="btn btn-light">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+        <div style="background-color: #202020;" class="card-body">
+            <!-- Department Information -->
+            <div class="container py-4">
+                <div class="row mb-4">
+                    <!-- Department ID -->
+                    <div class="col-md-4 mb-3">
+                        <div class="info-box bg-black text-white p-3 rounded">
+                            <h5>Department ID:</h5>
+                            <p>@Model.DepartmentID</p>
+                        </div>
+                    </div>
+                    <!-- Department Name -->
+                    <div class="col-md-4 mb-3">
+                        <div class="info-box bg-info text-white p-3 rounded">
+                            <h5>Department Name:</h5>
+                            <p>@Model.DepartmentName</p>
+                        </div>
+                    </div>
+                    <!-- Total Students -->
+                    <div class="col-md-4 mb-3">
+                        <div class="info-box bg-success text-white p-3 rounded">
+                            <h5>Total Students:</h5>
+                            <p>@Model.Users.Count(e => e.UserType == StaticData.role_Student)</p>
+                        </div>
+                    </div>
+                    <!-- Total Instructors -->
+                    <div class="col-md-4 mb-3">
+                        <div class="info-box bg-primary text-white p-3 rounded">
+                            <h5>Total Instructors:</h5>
+                            <p>@Model.Users.Count(e => e.UserType == StaticData.role_Instructor)</p>
+                        </div>
+                    </div>
+                    <!-- Total Hours -->
+                    <div class="col-md-4 mb-3">
+                        <div class="info-box bg-dark text-white p-3 rounded">
+                            <h5>Total Hours:</h5>
+                            <p>@Model.Courses.Sum(e => e.Credits)</p>
+                        </div>
+                    </div>
+                    <!-- Total Courses -->
+                    <div class="col-md-4 mb-3">
+                        <div class="info-box bg-secondary text-white p-3 rounded">
+                            <h5>Total Courses:</h5>
+                            <p>@Model.Courses.Where(e=>e.DepartmentId==Model.DepartmentID).Count()</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Courses List -->
+            <div class="mb-4">
+                <div class="card-header  text-white d-flex justify-content-between align-items-center">
+                    <h4 class="">Courses</h4>
+                    <a asp-action="UpSert" asp-controller="Course" asp-route-deptId="@Model.DepartmentID" class="btn btn-light">
+                        Add New Course
+                    </a>
+                </div>
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Course ID</th>
+                            <th>Course Name</th>
+                            <th>Num Of Hours</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Courses != null && Model.Courses.Any())
+                        {
+                            foreach (var course in Model.Courses)
+                            {
+                                <tr>
+                                    <td>@course.CourseID</td>
+                                    <td>@course.CourseName</td>
+                                    <td>@course.Credits</td>
+                                    <td>
+                                        <a href="@Url.Action("Details", "Course", new { id = course.CourseID })" class="btn btn-info btn-sm">Details</a>
+                                        <a href="@Url.Action("Upsert", "Course", new { id = course.CourseID })" class="btn btn-warning btn-sm">Edit</a>
+                                        <a onclick="deleteIt(@course.CourseID,'Course')" class="btn btn-danger btn-sm">Delete</a>
+
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2" class="text-center">No courses available</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Users List -->
+            <div class="mb-4">
+                <h4 class="">Instructors</h4>
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Users != null && Model.Users.Any())
+                        {
+                            foreach (var user in Model.Users.Where(e => e.UserType == StaticData.role_Instructor))
+                            {
+                                <tr>
+                                    <td>@user.Id</td>
+                                    <td>@user.UserName</td>
+                                    <td>@user.Email</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center">No instructors available</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mb-4">
+                <h4 class="">Schadual for @Model.DepartmentName</h4>
+                <table class="table table-bordered schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>
+                                Day
+                            </th>
+                            <th>Course</th>
+                            <th>Instructor</th>
+                            <th>Room</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var schedule in Model.ClassSchedules)
+                        {
+                            <tr onclick="getUpSert(@schedule.ClassScheduleId)">
+                                <td>
+                                    @schedule.StartTime.ToString("hh:mm tt") - @schedule.EndTime.ToString("hh:mm tt")
+                                </td>
+                                <td>
+                                    @schedule.DayOfWeek
+                                </td>
+                                <td>
+                                    @schedule.Course.CourseName
+                                </td>
+                                <td>
+                                    @schedule.Instructor?.FullName
+                                </td>
+                                <td>
+                                    @schedule.Room?.Name"
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+
+
+            <!-- Events List -->
+            <div class="mb-4">
+                <h4 class="">Events</h4>
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Event ID</th>
+                            <th>Event Name</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Events != null && Model.Events.Any())
+                        {
+                            foreach (var even in Model.Events)
+                            {
+                                <tr>
+                                    <td>@even.EventID</td>
+                                    <td>@even.Name</td>
+                                    <td>@even.Date.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center">No events available</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Edit and Delete Buttons -->
+            <div class="d-flex justify-content-end">
+                <a onclick="openModal(@Model.DepartmentID,'Department','addModal','Upsert')" class="btn btn-warning mr-2">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <button class="btn btn-danger" onclick="deleteIt(@Model.DepartmentID,'Department')">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade " id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>
+<style>
+    h4 {
+        color: lightgray;
+    }
+
+
+    .info-box {
+        background-color: #333; /* خلفية داكنة */
+        color: #f8f9fa; /* لون النص الأبيض */
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+        .info-box h5 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+        }
+
+
+
+</style>

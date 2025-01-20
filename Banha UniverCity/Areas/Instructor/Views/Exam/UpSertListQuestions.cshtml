@@ -1,0 +1,91 @@
+﻿@using BFCAI.Models.ViewModels
+@model QuestionsVM
+
+<form id="questionsForm" asp-action="UpSertQuestions" method="post">
+    <div id="questionsContainer">
+        @for (int i = 0; i < Model.Questions.Count; i++)
+        {
+            <div class="question-section mb-4" id="question-@i">
+                <label>Question:</label>
+                <input type="text" asp-for="Questions[@i].QuestionText" class="form-control" />
+
+                <label>Choices:</label>
+                <ul id="choices-@i">
+                    @for (int j = 0; j < Model.Questions[i].Choices.Count; j++)
+                    {
+                        <li>
+                            <input type="text" asp-for="Questions[@i].Choices[@j].ChoiceText" class="form-control" />
+                            <label><input type="checkbox" asp-for="Questions[@i].Choices[@j].IsCorrect" /> Is Correct</label>
+                        </li>
+                    }
+                </ul>
+                <button type="button" class="btn btn-success" onclick="addChoice(@i)">Add Choice</button>
+            </div>
+        }
+    </div>
+
+    <button type="button" class="btn btn-primary" onclick="addQuestion()">Add New Question</button>
+    <button type="submit" class="btn btn-success">Save Questions</button>
+</form>
+
+<script>
+    // عدد الأسئلة الحالية
+    var questionIndex = @Model.Questions.Count;
+    // تخزين عدد الخيارات لكل سؤال
+    var choiceIndex = {};
+
+    // ضبط عدد الخيارات المبدئي لكل سؤال من النموذج
+    @for (int i = 0; i < Model.Questions.Count; i++)
+    {
+        @:choiceIndex[@i] = @Model.Questions[i].Choices.Count;
+    }
+
+        // دالة لإضافة خيار جديد لسؤال محدد
+        function addChoice(questionIdx) {
+            var choicesList = document.querySelector(`#choices-${questionIdx}`);
+
+            // تحقق من وجود اختيار خاص بهذا السؤال
+            if (!choiceIndex[questionIdx]) {
+                choiceIndex[questionIdx] = 0;
+            }
+
+            // إضافة عنصر قائمة جديد للخيار
+            var newChoice = document.createElement("li");
+            newChoice.innerHTML = `
+                <input type="text" name="Questions[${questionIdx}].Choices[${choiceIndex[questionIdx]}].ChoiceText" class="form-control" placeholder="Enter choice" />
+                <label><input type="checkbox" name="Questions[${questionIdx}].Choices[${choiceIndex[questionIdx]}].IsCorrect" /> Is Correct</label>`;
+
+            // إضافة الخيار إلى القائمة
+            choicesList.appendChild(newChoice);
+
+            // زيادة المؤشر الخاص بالخيار
+            choiceIndex[questionIdx]++;
+        }
+
+    // دالة لإضافة سؤال جديد
+    function addQuestion() {
+        var questionsContainer = document.querySelector("#questionsContainer");
+
+        // إنشاء قسم جديد للسؤال
+        var newQuestion = document.createElement("div");
+        newQuestion.classList.add("question-section", "mb-4");
+        newQuestion.id = `question-${questionIndex}`;
+
+        // بناء HTML للسؤال الجديد
+        newQuestion.innerHTML = `
+                <label>Question:</label>
+                <input type="text" name="Questions[${questionIndex}].QuestionText" class="form-control" placeholder="Enter question" />
+                <label>Choices:</label>
+                <ul id="choices-${questionIndex}"></ul>
+                <button type="button" class="btn btn-success" onclick="addChoice(${questionIndex})">Add Choice</button>`;
+
+        // إضافة السؤال الجديد إلى حاوية الأسئلة
+        questionsContainer.appendChild(newQuestion);
+
+        // تهيئة المؤشر الخاص بالاختيارات لهذا السؤال الجديد
+        choiceIndex[questionIndex] = 0;
+
+        // زيادة المؤشر الخاص بالأسئلة
+        questionIndex++;
+    }
+</script>

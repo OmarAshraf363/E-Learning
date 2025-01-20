@@ -1,0 +1,48 @@
+﻿@model IEnumerable<BFCAI.Models.Question>
+
+<div class="modal-header">
+    <h5 class="modal-title text-light">Questions and Choices</h5>
+    <a class="btn btn-outline-secondary" onclick="openModalToAddQuestion(null,@ViewBag.ExamId,'Exam','genralModal','UpSertQuestions','Instructor')">
+        <i class="fas fa-plus"></i> Create New Question
+    </a>
+    <button type="button" class="btn fw-bolder btn-close text-warning" data-bs-dismiss="modal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+
+</div>
+
+<div class="modal-body bg-black">
+    @if (Model != null && Model.Any())
+    {
+        <ul class="list-group bg-black">
+            @foreach (var question in Model)
+            {
+                <li style="background-color:#495057;" class="list-group-item ">
+                    <strong>Question:</strong> @question.QuestionText
+                    <ul class="list-group mt-2">
+                        @foreach (var choice in question.Choices)
+                        {
+                            <li class="list-group-item bg-dark">
+                                <input type="radio" name="question_@question.QuestionID" value="@choice.QuestionChoiceID" disabled />
+                                @choice.ChoiceText
+                                @if (choice.IsCorrect)
+                                {
+                                    <span class="badge badge-success">Correct</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No questions or choices available for this exam.</p>
+    }
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+</div>
+<script>
+
+</script>
