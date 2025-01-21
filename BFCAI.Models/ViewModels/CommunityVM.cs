@@ -13,6 +13,11 @@ namespace BFCAI.Models.ViewModels
         public Community Community { get; set; } = null!;
         public ICollection<Post> Posts { get; set; } = new List<Post>();
         public ICollection<Reaction> Reactions { get; set; }=new List<Reaction>();
+        public ICollection<ApplicationUser> ApplicationUsers { get; set; }=new List<ApplicationUser>();
+        public ApplicationUser SelectedUser { get; set; } = null!;
+
+        public ICollection<ApplicationUser> SearchResult { get; set; }=new List<ApplicationUser>();
         public ApplicationUser ApplicationUser { get; set; }=null!;
+
     }
 }

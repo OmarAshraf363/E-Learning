@@ -152,7 +152,7 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
             return Json(TopicsVM);
         }
 
-        public IActionResult Courses(CoursePageVM model, int? id, int? categoryFilter, int? rate, decimal? price, string? search)
+        public IActionResult Courses(CoursePageVM model,string?instructorId ,int? id, int? categoryFilter, int? rate, decimal? price, string? search)
         {
 
             ViewBag.CourseID = id;
@@ -161,10 +161,11 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
 
                 var listOfCourses = _unitOfWork.courseRepository
                     .Get(null,
-                    expression => expression.Enrollments,
-                    expression => expression.TopicsCovered,
+                    e => e.Enrollments,
+                    e=> e.TopicsCovered,
                     e => e.LearningObjectives,
-                    expression => expression.Department
+                    e => e.Department,
+                    e=>e.Instructor
 
                     );
                 model.DepartmentList = _unitOfWork.departmentRepository.Get().ToList();
@@ -192,12 +193,18 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
                 {
                     model.CourseList = model.CourseList.Where(e => e.Price <= price.Value).ToList();
                 }
+                if (!string.IsNullOrEmpty(instructorId))
+                {
+                    model.CourseList=model.CourseList.Where(e=>e.InstructorId== instructorId).ToList();
+                    ViewBag.InstructorId = instructorId;
+                }
 
                 // set view bags 
                 ViewBag.categoryFilter = categoryFilter;
                 ViewBag.rate = rate;
                 ViewBag.price = price;
                 ViewBag.Search = search?.ToLower();
+                
 
 
                 return View(model);

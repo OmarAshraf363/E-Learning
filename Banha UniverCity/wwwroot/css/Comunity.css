@@ -1,4 +1,4 @@
-.community-main-content {
+﻿.community-main-content {
 }
 main {
     height: calc(100vh - 70px);
@@ -34,21 +34,44 @@ main {
         #content-communites{
             display:flex;
             flex-direction:column;
-            width:23%;
+            width:30%;
             position:sticky;
             top:5%;
+            padding:8px
         }
             
             .community-main-content .content-community-posts {
                 padding: 10px;
+                width:40%;
             }
-
-        .community-main-content .content-community-posts .post {
-            width: 400px;
-            height: max-content;
-            background-color: #eee;
-            border-radius: 0.7rem;
-        }
+            .community-main-content .content-community-posts .filter{
+                display:flex;
+                align-items:center;
+                gap:5px;
+              width:100%;
+              position:sticky;
+              top:4%;
+             z-index:1000;
+           background-color:#eee;
+            }
+                .community-main-content .content-community-posts .filter form {
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    width: 74.2%;
+                }
+                #wordInput {
+                    width: 100%;
+                    background-color: #eee;
+                    border: none;
+                }
+  
+    .community-main-content .content-community-posts .post {
+        width: 400px;
+        height: max-content;
+        background-color: #eee;
+        border-radius: 0.7rem;
+    }
                 .community-main-content .content-community-posts .post-image{
                     padding:10px;
                     border-radius:0.5rem;
@@ -187,4 +210,62 @@ main {
     width:300px;
     z-index: 100000;
     display: none;
+}
+
+
+
+
+/*3 section About Users*/
+.community-main-content .about-users{
+    padding:8px;
+    width:30%;
+    position:sticky;
+    top:4%;
+}
+.community-main-content .about-users form{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+    .community-main-content .about-users form input {
+        background-color: #e2e2e2;
+        border: none;
+    }
+    .community-main-content .about-users form button{
+        background-color:black;
+        color:white;
+    }
+
+
+
+    .community-main-content .about-users .instructor-max-enroll, .community-main-content .about-users .SearchUsers {
+        width: 100%;
+        background-color: #fff;
+        height: max-content;
+        border-radius: 0.5rem;
+        padding: 8px;
+        margin-bottom:1rem;
+    }
+
+    .community-main-content .about-users  .user-pro,.target-user .user-pro{
+        display:flex;
+        gap:8px;
+        margin-bottom:1rem;
+        
+    }
+
+        .community-main-content .about-users .user-pro p,.target-user .user-pro p{
+            font-size:0.8rem
+        }
+
+
+        /*replies Comment*/
+.comments-container .post-reaction{
+    display:flex;
+    align-items:center;
+    gap:30px;
+}
+.comments-container .post-reaction span{
+    font-size:0.8rem;
+    cursor:pointer;
 }

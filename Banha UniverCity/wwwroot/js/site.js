@@ -807,8 +807,92 @@ function addReaction(postId, reactionType, targetType) {
     });
 }
 
+function addReactionForComment(id) {
+    const reactBtn = document.getElementById(`react-btn-${id}`);
+    const reactIcon = document.getElementById(`react-icon-${id}`);
+    const reactionCountElement = document.getElementById(`reaction-count-${id}`);
 
-function showReaction(id) {
+    $.ajax({
+        url: `/Customer/Community/addReactInComment`,
+        type: 'POST',
+        data: { id: id },
+        success: function (data) {
+            if (data.valid) {
+                if (data.state === 'Add') {
+                    reactIcon.classList.remove('fa-regular');
+                    reactIcon.classList.add('fa-solid');
+                } else if (data.state === 'Remove') {
+                    reactIcon.classList.remove('fa-solid');
+                    reactIcon.classList.add('fa-regular');
+                }
+
+                // Update reaction count
+                $.ajax({
+                    url: `/Customer/Community/CountReactionInComment`,
+                    type: 'GET',
+                    data: { id: id },
+                    success: function (result) {
+                        reactionCountElement.innerHTML = " ";
+                        console.log(reactionCountElement)
+                        reactionCountElement.innerHTML = result.count
+                    },
+                    error: function (error) {
+                        console.error("Failed to fetch updated reaction count.", error);
+                    }
+                });
+            } else {
+                alert("Failed to update reaction.");
+            }
+        },
+        error: function (error) {
+            console.error("Error updating reaction.", error);
+        }
+    });
+}
+
+function toggleReplyBox(id) {
+    const replyBox = document.getElementById(`reply-box-${id}`);
+    if (replyBox.style.display === 'none' || replyBox.style.display === '') {
+        replyBox.style.display = 'block';
+    } else {
+        replyBox.style.display = 'none';
+    }
+}
+
+function submitReply(commentId,postId) {
+    const replyText = document.getElementById(`reply-text-${commentId}`).value;
+
+    if (!replyText.trim()) {
+        alert("Reply content cannot be empty.");
+        return;
+    }
+
+    $.ajax({
+        url: '/Customer/Community/AddReply',
+        type: 'POST',
+        data: {
+            commentId: commentId,
+            replyContent: replyText,
+                postId: postId,
+        },
+        success: function (data) {
+            if (data.valid) {
+                alert(data.message);
+
+                // Optionally reload the page or dynamically update the UI
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        },
+        error: function (error) {
+            console.error("Error submitting reply:", error);
+        }
+    });
+}
+
+
+function showReaction(id,actionName) {
     const modalElement = document.getElementById(`modal-${id}`);
     const spanElement = document.getElementById(`Reactions-${id}`);
 
@@ -818,7 +902,7 @@ function showReaction(id) {
     }
 
     $.ajax({
-        url: `/Customer/Community/GetReaction`,
+        url: `/Customer/Community/${actionName}`,
         type: 'GET',
         data: { id: id },
         beforeSend: function () {
@@ -851,4 +935,7 @@ function showHandelMenu(id) {
     }
 
 }
+
+
+
 

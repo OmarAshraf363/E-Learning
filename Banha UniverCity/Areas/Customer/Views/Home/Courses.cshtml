@@ -106,11 +106,11 @@
                         Courses that have <span class="text-warning">@ViewBag.Search</span>
                     </h4>
                 }
-                else
+                else if (ViewBag.InstructorId!=null)
 
                 {
                     
-                <h4>Courses for You</h4>
+                <h4>Courses for You by @Model.CourseList.FirstOrDefault().Instructor.FullName</h4>
                 }
             </div>
             <div id="main" class="top-courses ">

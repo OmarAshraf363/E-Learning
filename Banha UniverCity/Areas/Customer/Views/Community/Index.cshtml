@@ -7,20 +7,20 @@
 
     <div class="content-header mb-3">
         <i onclick="getback()" class="fa  fa-arrow-circle-left"></i>
-      <div class="content-header-newPost">
-    @if (Model.Community!=null)
-    {
-        <input class="form-control" 
-               onclick="openModalWithBind(null, @Model.Community.Id, 'Community', 'UpSertModal', 'UpsertPost', 'Customer')"
+        <div class="content-header-newPost">
+            @if (Model.Community != null)
+            {
+                <input class="form-control"
+                       onclick="openModalWithBind(null, @Model.Community.Id, 'Community', 'UpSertModal', 'UpsertPost', 'Customer')"
                        placeholder="What are you talking about @(Model.Community.Name == null ? "" : Model.Community.Name)?" />
-    }
-    else
-    {
-        <input class="form-control" 
-               onclick="openModal(null, 'Community', 'UpSertModal', 'UpsertPost', 'Customer')" 
-               placeholder="What are you talking about?" />
-    }
-</div>
+            }
+            else
+            {
+                <input class="form-control"
+                       onclick="openModal(null, 'Community', 'UpSertModal', 'UpsertPost', 'Customer')"
+                       placeholder="What are you talking about?" />
+            }
+        </div>
 
         <div class="user-pro">
             <img style="width:50px;height:50px; border-radius:50px;" src="@Model.ApplicationUser.Picture" onclick="goTo('Identity','Account','Manage')" />
@@ -28,194 +28,321 @@
     </div>
     <div class="content-mainContent">
         <div id="content-communites" class="content-communites">
-            @if(Model.Community!=null){
+            @if (Model.Community != null)
+            {
                 <div class="comunity-head-name  mb-2">
                     <h5 class="fw-bold m-0">@Model.Community.Name | <span>@Model.Posts.Count</span> </h5>
-                  
+
                 </div>
                 <div class="p-1  w-100">
                     <p class="m-0 fst-italic w-100">
                         @Model.Community.Description
                     </p>
                 </div>
-            }else{
-
-            @foreach (var item in Model.Communities)
-            {
-                <a asp-action="Index" asp-route-id="@item.Id" class="btn btn-light mb-2 fw-bold">@item.Name</a>
             }
+            else
+            {
+
+                @foreach (var item in Model.Communities)
+                {
+                    <a asp-action="Index" asp-route-id="@item.Id" class="btn btn-dark mb-2 fw-bold">@item.Name</a>
+                }
             }
 
         </div>
         <div class="content-community-posts">
-            @if (Model.Community!= null)
+            <div class="filter mb-3">
+                @if (Model.Community != null)
+                {
+                    <a id="maxReact" asp-action="Index" asp-route-maxReact="@true" asp-route-id="@Model.Community.Id" class="btn  @(ViewBag.maxReact!=null?"btn-dark":"btn-outline-dark")  ">Max React</a>
+
+                }else if(Model.SelectedUser!=null){
+                    <a id="maxReact" asp-action="Index" asp-route-maxReact="@true" asp-route-userId="@Model.SelectedUser.Id" class="btn  @(ViewBag.maxReact!=null?"btn-dark":"btn-outline-dark")  ">Max React</a>
+
+                }
+                else
+                {
+
+                    <a id="maxReact" asp-action="Index" asp-route-maxReact="@true" class="btn  @(ViewBag.maxReact!=null?"btn-dark":"btn-outline-dark")  ">Max React</a>
+                }
+
+                <form asp-action="index" class="filter">
+                    @if (Model.Community != null)
+                    {
+                        <input name="id" value="@Model.Community.Id" type="hidden" />
+                    }
+                    @if(Model.SelectedUser!=null){
+                        <input name="userId" value="@Model.SelectedUser.Id" type="hidden" />
+
+                    }
+                    <input id="wordInput" name="word" class="form-control" value="@(ViewBag.word!=null?ViewBag.word:"")" placeholder="Search as key word " />
+                    <button type="submit" class="btn btn-outline-light">
+                        <i class="fa fa-search text-black"></i>
+                    </button>
+
+                </form>
+            </div>
+
+
+
+            @if (Model.Community != null)
             {
                 <div class="comunity-head-name text-center mb-2">
                     <h4>@Model.Community.Name </h4>
                 </div>
             }
-           @*  <div class="filter-section mb-4">
-                <form id="filterForm" method="get" onsubmit="applyFilters(event)">
-                    <div class="row align-items-center">
-                        <div class="col-md-3">
-                            <input type="text" id="keywordFilter" name="keyword" class="form-control" placeholder="Search by keyword..." />
-                        </div>
-                        <div class="col-md-3">
-                            <input type="date" id="dateFilter" name="date" class="form-control" placeholder="Filter by date" />
-                        </div>
-                        <div class="col-md-3">
-                            <select id="reactionFilter" name="reactions" class="form-select">
-                                <option value="">Filter by reactions</option>
-                                <option value="1">1+ Reactions</option>
-                                <option value="10">10+ Reactions</option>
-                                <option value="50">50+ Reactions</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 text-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-filter"></i> Apply Filters
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="clearFilters()">
-                                <i class="fa fa-times"></i> Clear
-                            </button>
+            @if(Model.SelectedUser!=null){
+                <div class="target-user">
+                    <div class="user-pro">
+                        <img style="width:50px;height:50px; border-radius:50px;" src="@Model.SelectedUser.Picture" />
+                        <div class="user-name">
+                            <div class="d-flex align-items-center gap-4">
+                                <a class="fw-bold text-decoration-none text-black">@Model.SelectedUser.FullName</a>
+                                <span class="badge alert-dark text-black ">@Model.SelectedUser.UserType</span>
+                                <a asp-controller="Home" asp-action="Courses" asp-route-instructorId="@Model.SelectedUser.Id" class="fw-bold badge alert-info text-black">Courses</a>
+
+                            </div>
+                            <p class="m-0 fw-bold">
+
+                                @Model.SelectedUser.JopDescription
+                               @*  @if (Model.SelectedUser.JopDescription != null)
+                                {
+                                    int length = Math.Min(100, Model.SelectedUser.JopDescription.Length);
+                                    @Model.SelectedUser.JopDescription.Substring(0, length)
+                                    if (Model.SelectedUser.JopDescription.Length > 100)
+                                    {
+                                        @:...
+                                    }
+                                }
+                                else
+                                {
+                                    @: <!-- إذا كان الوصف فارغًا -->
+                                } *@
+                            </p>
                         </div>
                     </div>
-                </form>
-            </div> *@
-            @foreach (var post in Model.Posts)
-            {
-                <div class="post mb-3 p-2">
-                    <div class="post-header p-1">
-                        <div class="user-pro">
-                            <img style="width:50px;height:50px; border-radius:50px;" src="@post.User.Picture" onclick="goTo('Identity','Account','Manage')" />
-                            <div class="user-name  ">
-                                <a>@post.User.FullName</a>
-                                <p class="m-0">@post.CreatedAt.ToShortTimeString()</p>
-                            </div>
-                        </div>
-                        <div class="handel handel-@post.Id ">
-                            <i onclick="showHandelMenu(@post.Id)" class="fa-solid fa-bars"></i>
-                            <div class="handel-menu">
-                                @if (post.User.Id == Model.ApplicationUser.Id)
-                                {
-                                    <button onclick="openModal(@post.Id,'Community','UpSertModal','UpsertPost','Customer')" class="btn btn-dark">Edit</button>
-                                    <button onclick="customDelete(@post.Id,'/Customer/Community/DeletePost')" class="btn btn-danger">Delete</button>
-                                }else{
 
-                                <span>"Not show this" is comming soon</span>
+                </div>
+                <div class="text-center">
+                    <h4>@Model.SelectedUser.FullName Posts | @Model.SelectedUser.Posts.Count</h4>
+                </div>
+            }
+            @if (Model.Posts.Any())
+            {
+
+                @foreach (var post in Model.Posts)
+                {
+                    <div class="post mb-3 p-2">
+                        <div class="post-header p-1">
+                            <div class="user-pro">
+                                <img style="width:50px;height:50px; border-radius:50px;" src="@post.User.Picture" />
+                                <div class="user-name  ">
+                                    <a asp-action="index" asp-route-userId="@post.UserId" class="text-decoration-none text-dark fw-bold">@post.User.FullName</a>
+                                    <p class="m-0">@post.CreatedAt.ToShortTimeString()</p>
+                                </div>
+                            </div>
+                            <div class="handel handel-@post.Id ">
+                                <i onclick="showHandelMenu(@post.Id)" class="fa-solid fa-bars"></i>
+                                <div class="handel-menu">
+                                    @if (post.User.Id == Model.ApplicationUser.Id)
+                                    {
+                                        <button onclick="openModal(@post.Id,'Community','UpSertModal','UpsertPost','Customer')" class="btn btn-dark">Edit</button>
+                                        <button onclick="customDelete(@post.Id,'/Customer/Community/DeletePost')" class="btn btn-danger">Delete</button>
+                                    }
+                                    else
+                                    {
+
+                                        <span>"Not show this" is comming soon</span>
+                                    }
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="post-content ">
+                            <p>@post.Content</p>
+                        </div>
+                        @if (post.Attachment != null)
+                        {
+
+                            <div class="post-image ">
+                                <img src="/@post.Attachment" alt="Attachment" />
+
+                            </div>
+                        }
+                        <div class="post-reaction px-3">
+
+
+                            <div class="reaction-count m-0 p-0">
+                                <span id="reaction-count-@post.Id">
+                                    @(post.Reactions.Where(e => e.PostId.HasValue).Count())
+                                </span>
+                                <span id="Reactions-@post.Id" onclick="showReaction(@post.Id,'GetReaction')">Reactions</span>
+
+                                <div class="modal-reaction-details modal-dialog-scrollable modal- p-4" id="modal-@post.Id">
+                                    @* Reaction details will show here *@
+
+                                </div>
+
+                            </div>
+
+
+                            @if (post.Comments.Any())
+                            {
+                                <span onclick="openModal(@post.Id,'Community','UpSertModal','getComments','Customer')">@post.Comments.Count Comment</span>
+
+                            }
+
+                        </div>
+                        <div class="post-controls px-3 ">
+                            <span id="react-part-@post.Id" onclick="addReaction(@post.Id, '❤️', 'Post')" style="position: relative; margin-top: 5px;">
+                                @if (Model.Reactions.Any(e => e.PostId == post.Id && e.UserId == Model.ApplicationUser.Id))
+                                {
+
+                                    <i id="react-place-@post.Id" class=" fa fa-heart fa-solid"></i>
+                                    @:Reacted
+                                }
+                                else
+                                {
+
+                                    <i id="react-place-@post.Id" class=" fa fa-heart fa-regular"></i>
+                                    @:React
+                                }
+                 
+                            </span>
+                            <span onclick="openModalWithBind(null,@post.Id,'Community','UpSertModal','UpsertComment','Customer')">
+                                <i class="fa-regular fa-comment"></i>
+                                Comment
+                            </span>
+                            <span>
+                                <i class="fa-regular fa-share-from-square"></i>
+                                Share
+                            </span>
+                        </div>
+
+                        <div class="post-comment">
+                            <form asp-action="UpsertComment" class="UpsertComment" id="UpsertComment-@post.Id" method="post">
+                                <div>
+
+                                    <input name="UserId" value="@Model.ApplicationUser.Id" type="hidden" />
+                                    <input name="CreatedAt" value="@DateTime.Now" type="hidden" />
+                                    <input name="PostId" value="@post.Id" type="hidden" />
+
+                                    <input type="text"
+                                           id="in-@post.Id"
+                                           class="form-control "
+                                           name="Content"
+                                           oninput="toggleButtonVisibility(@post.Id)"
+                                           placeholder="Write a comment..." />
+                                </div>
+                                <span>
+                                    <buttoan class="inbtn-@post.Id d-none border-0 " type="button" onclick="allConfirm('UpsertComment-@post.Id')">
+                                        <i style="font-size:1.5rem;" class=" fa fa-arrow-circle-right"></i>
+                                    </buttoan>
+                                </span>
+
+                            </form>
+
+                            <div class="comments">
+                                @foreach (var comment in post.Comments)
+                                {
+
                                 }
                             </div>
                         </div>
-
-                    </div>
-                    <div class="post-content ">
-                        <p>@post.Content</p>
-                    </div>
-                    @if (post.Attachment != null)
-                    {
-
-                        <div class="post-image ">
-                            <img src="/@post.Attachment" alt="Attachment" />
-
-                        </div>
-                    }
-                    <div class="post-reaction px-3">
-
-
-                        <div class="reaction-count m-0 p-0">
-                            <span id="reaction-count-@post.Id">
-                                @(post.Reactions.Where(e => e.PostId.HasValue).Count())
-                            </span>
-                            <span id="Reactions-@post.Id" onclick="showReaction(@post.Id)">Reactions</span>
-
-                            <div class="modal-reaction-details modal- p-4" id="modal-@post.Id" >
-                                @* Reaction details will show here *@
-
-                            </div>
-
-                        </div>
-
-
-                        @if (post.Comments.Any())
-                        {
-                            <span onclick="openModal(@post.Id,'Community','UpSertModal','getComments','Customer')">@post.Comments.Count Comment</span>
-
-                        }
-
-                    </div>
-                    <div class="post-controls px-3 ">
-                        <span id="react-part-@post.Id" onclick="addReaction(@post.Id, '❤️', 'Post')" style="position: relative; margin-top: 5px;">
-                            @if (Model.Reactions.Any(e => e.PostId == post.Id && e.UserId == Model.ApplicationUser.Id))
-                            {
-
-                                <i id="react-place-@post.Id" class=" fa fa-heart fa-solid"></i>
-                                @:Reacted
-                            }
-                            else
-                            {
-
-                                <i id="react-place-@post.Id" class=" fa fa-heart fa-regular"></i>
-                                @:React
-                            }
-                            @*   <span class="reaction-menu" id="reaction-menu-@post.Id" style="display: none; position: absolute; background-color: #f1f1f1; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
-                        <a onclick="addReaction(@post.Id, '😊', 'Post')">😊</a>
-                        <a onclick="addReaction(@post.Id, '👍', 'Post')">👍</a>
-                        <a onclick="addReaction(@post.Id, '❤️', 'Post')">❤️</a>
-                        <a onclick="addReaction(@post.Id, '😢', 'Post')">😢</a>
-
-
-                        </span> *@
-                        </span>
-                        <span onclick="openModalWithBind(null,@post.Id,'Community','UpSertModal','UpsertComment','Customer')">
-                            <i class="fa-regular fa-comment"></i>
-                            Comment
-                        </span>
-                        <span>
-                            <i class="fa-regular fa-share-from-square"></i>
-                            Share
-                        </span>
                     </div>
 
-                    <div class="post-comment">
-                        <form asp-action="UpsertComment" class="UpsertComment" id="UpsertComment-@post.Id" method="post">
-                            <div>
-
-                                <input name="UserId" value="@Model.ApplicationUser.Id" type="hidden" />
-                                <input name="CreatedAt" value="@DateTime.Now" type="hidden" />
-                                <input name="PostId" value="@post.Id" type="hidden" />
-
-                                <input type="text"
-                                       id="in-@post.Id"
-                                       class="form-control "
-                                       name="Content"
-                                       oninput="toggleButtonVisibility(@post.Id)"
-                                       placeholder="Write a comment..." />
-                            </div>
-                            <span>
-                                <buttoan class="inbtn-@post.Id d-none border-0 " type="button" onclick="allConfirm('UpsertComment-@post.Id')">
-                                    <i style="font-size:1.5rem;" class=" fa fa-arrow-circle-right"></i>
-                                </buttoan>
-                            </span>
-
-                        </form>
-
-                        <div class="comments">
-                            @foreach (var comment in post.Comments)
-                            {
-
-                            }
-                        </div>
-                    </div>
-                </div>
-
+                }
+            }
+            else
+            {
+                <h5>
+                    Not found posts
+                </h5>
             }
         </div>
-        <div class="notifications">
+        <div class="about-users">
+            <form asp-action="index" class="search-useers mb-3">
 
+                <input id="userName" name="userName" class="form-control" value="@(ViewBag.userName!=null?ViewBag.userName:"")" placeholder="Search as User Name " />
+                <button type="submit" class="btn btn-outline-light">
+                    <i class="fa fa-search "></i>
+                </button>
+
+            </form>
+            <div class="instructor-max-enroll">
+                <div class="text-center">
+                    <h4>Top instructors</h4>
+                </div>
+                @foreach (var user in Model.ApplicationUsers)
+                {
+                    <div class="user-pro">
+                        <img style="width:50px;height:50px; border-radius:50px;" src="@user.Picture" />
+                        <div class="user-name">
+                            <div class="d-flex align-items-center gap-4">
+                                <a asp-action="index" asp-route-userId="@user.Id" class="fw-bold text-decoration-none text-black">@user.FullName</a>
+                                <span class="badge alert-dark text-black ">@user.UserType</span>
+                            </div>
+                            <p class="m-0">
+                                @if (user.JopDescription != null)
+                                {
+                                    int length = Math.Min(100, user.JopDescription.Length);
+                                    @user.JopDescription.Substring(0, length)
+                                    if (user.JopDescription.Length > 100)
+                                    {
+                                        @:...
+                                    }
+                                }
+                                else
+                                {
+                                    @: <!-- إذا كان الوصف فارغًا -->
+                                }
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+            @if(Model.SearchResult.Any()){
+                <div class="SearchUsers">
+                    <div class="text-center">
+                        <h4>Search Result</h4>
+                    </div>
+                    @foreach (var user in Model.SearchResult)
+                    {
+                        <div class="user-pro">
+                            <img style="width:50px;height:50px; border-radius:50px;" src="@user.Picture" />
+                            <div class="user-name">
+                                <div class="d-flex align-items-center gap-4">
+                                    <a asp-action="index" asp-route-userId="@user.Id" class="fw-bold text-decoration-none text-black">@user.FullName</a>
+                                    <span class="badge alert-dark text-black ">@user.UserType</span>
+                                </div>
+                                <p class="m-0">
+                                    @if (user.JopDescription != null)
+                                    {
+                                        int length = Math.Min(100, user.JopDescription.Length);
+                                        @user.JopDescription.Substring(0, length)
+                                        if (user.JopDescription.Length > 100)
+                                        {
+                                            @:...
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @: <!-- إذا كان الوصف فارغًا -->
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+       
 
         </div>
     </div>
 </section>
+
+
+
 <script>
     function toggleButtonVisibility(id) {
         let btn = document.querySelector(`.inbtn-${id}`);

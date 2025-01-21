@@ -25,7 +25,7 @@ namespace Banha_UniverCity.Models
         public ICollection<StudentCourseProgress> StudentCourseProgresses { get; set; }=new List<StudentCourseProgress>();
 
 
-
+        public ICollection <Post> Posts { get; set; }=new List<Post>();
 
 
         public ICollection<Cart> Carts { get; set; } = new List<Cart>();

@@ -70,16 +70,17 @@
             align-items: center;
             gap: 5px;
         }
-      .comments-container  img{
-            border-radius:50%;
-            width:30px;
-            height:30px;
-        }
-         
 
-        .comment-actions .reply-box {
-            margin-top: 10px;
-        }
+    .comments-container img {
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+    }
+
+
+    .comment-actions .reply-box {
+        margin-top: 10px;
+    }
 
     .no-comments {
         text-align: center;
@@ -89,7 +90,9 @@
     }
 </style>
 
-<div class="comments-container">
+
+
+<div class="modal-body comments-container">
     @if (Model != null && Model.Any())
     {
         foreach (var comment in Model)
@@ -112,44 +115,17 @@
                         <span id="reaction-count-@comment.Id">
                             @(comment.Reactions.Where(e => e.CommentId.HasValue).Count())
                         </span>
-                        <span id="Reactions-@comment.Id" onclick="showReaction(@comment.Id,'GetCommentReaction')">Reactions</span>
-
-                        <div class="modal-reaction-details modal- p-4" id="modal-@comment.Id">
-                            @* Reaction details will show here *@
-
-                        </div>
+                 
 
                     </div>
 
 
-                    @if (comment.Replies.Any())
-                    {
-                        <span onclick="openModal(@comment.Id,'Community','UpSertModal','GetReplies','Customer')">@comment.Replies.Count Replies</span>
-
-                    }
+                  
 
                 </div>
-                <div class="comment-actions">
-                    <button id="react-btn-@comment.Id" class="react-btn" onclick="addReactionForComment('@comment.Id')">
-                        @if(comment.Reactions.Any(e=>e.User.UserName==User.Identity.Name)){
-
-                        <i id="react-icon-@comment.Id" class="fa fa-solid fa-heart"></i> @:Love
-                        }else{
-                            <i id="react-icon-@comment.Id" class="fa fa-regular fa-heart"></i> @:Love
-
-                        }
-                      
-                    </button>
-                    <button onclick="toggleReplyBox('@comment.Id')">
-                        <i class="fa fa-reply"></i> Reply
-                    </button>
-                </div>
-                <div id="reply-box-@comment.Id" class="reply-box" style="display: none;">
-                    <textarea id="reply-text-@comment.Id" class="form-control mb-2" placeholder="Write a reply..."></textarea>
-                    <button class="btn btn-primary btn-sm" onclick="submitReply('@comment.Id','@comment.PostId')">Post Reply</button>
-                </div>
+       
             </div>
-           
+
 
         }
 

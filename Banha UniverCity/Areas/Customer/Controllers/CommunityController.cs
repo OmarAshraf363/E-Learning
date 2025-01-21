@@ -4,8 +4,10 @@ using BFCAI.Models;
 using BFCAI.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System.Net.Mail;
+using System.Security.Claims;
 
 namespace Banha_UniverCity.Areas.Customer.Controllers
 {
@@ -21,7 +23,7 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index(int? id ,string?word)
+        public IActionResult Index(int? id ,string?word, bool? maxReact,string?userName,string? userId)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -43,20 +45,56 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
             {
                 postsQuery = postsQuery.Where(e => e.CommunityId == id);
             }
+            if (maxReact==true)
+            {
+                postsQuery=postsQuery.OrderByDescending(e => e.Reactions.Count);
+                ViewBag.maxReact = maxReact;
+            }
+            if (!string.IsNullOrEmpty(word))
+            {
+                var postIdesFromKewWordTaple=_unitOfWork.keyWordRepository.Get(e=>e.Name.ToLower().Contains(word.ToLower())).Select(e=>e.PostId).ToList();
+                postsQuery = postsQuery.Where(e => e.Content.ToLower().Contains(word.ToLower()) || postIdesFromKewWordTaple.Contains(e.Id));
+                ViewBag.word = word;
+            }
+            if (!string.IsNullOrEmpty(userId))
+            {
+              
+                postsQuery=postsQuery.Where(e=>e.UserId==userId);
+                
+            }
+
+            //users anf get users that have max enrollments
+            var users=StaticData.GetUsers(_userManager);
+            var instructorIdesThatHaveMaxEnrollments=_unitOfWork.courseRepository.Get(null).OrderByDescending(e=>e.Enrollments.Count).Select(e=>e.InstructorId).ToList();
+
+          
             var model = new CommunityVM
             {
                 Communities = communties,
                 Posts = postsQuery.ToList(),
                 Reactions = _unitOfWork.reactionRepository.Get().ToList(),
+                ApplicationUsers=users.Where(e=>e.UserType==StaticData.role_Instructor&&instructorIdesThatHaveMaxEnrollments.Contains(e.Id)).ToList(),
+                
             };
+            if (!string.IsNullOrEmpty(userId)) {
+                model.SelectedUser = _userManager.Users.FirstOrDefault(e=>e.Id==userId)as ApplicationUser ;
+            }
+            if (!string.IsNullOrEmpty(userName))
+            {
+                model.SearchResult = users.Where(e => e.FullName.ToLower().Contains(userName.ToLower())).ToList();
+                ViewBag.userName = userName;
+            }
             if (id.HasValue)
             {
                 model.Community = _unitOfWork.communityRepository.GetOne(e => e.Id == id);
             }
             // Add user-specific data
             var currentUserId = _userManager.GetUserId(User);
+            if (!string.IsNullOrEmpty(currentUserId))
+            {
 
-            model.ApplicationUser = _userManager.Users.FirstOrDefault(e => e.Id == currentUserId) as ApplicationUser;
+                model.ApplicationUser = _userManager.Users.FirstOrDefault(e => e.Id == currentUserId) as ApplicationUser;
+            }
             return View(model);
         }
         public IActionResult UpsertPost(int? id, int? bindId)
@@ -264,16 +302,100 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
             var postReaction = _unitOfWork.reactionRepository.Get(e => e.PostId == id , e => e.User);
             return PartialView(postReaction);
         }
+
+        public IActionResult GetCommentReaction(int id)
+        {
+            var commentReaction = _unitOfWork.reactionRepository.Get(e => e.CommentId == id, e => e.User);
+            return PartialView(commentReaction);
+        }
+
+        [HttpPost]
+        public IActionResult addReactInComment(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                var react = _unitOfWork.reactionRepository.GetOne(e => e.CommentId == id
+                &&
+                e.UserId == _userManager.GetUserId(User));
+                if (react == null)
+                {
+
+                    Reaction reaction = new Reaction()
+                    {
+                        CommentId = id,
+
+                        Type = "Love",
+                        UserId = _userManager.GetUserId(User)
+
+                    };
+                    _unitOfWork.reactionRepository.Create(reaction);
+                    _unitOfWork.Commit();
+
+                    return Json(new { state = "Add", typeReact = "Love", valid = true });
+
+                }
+                _unitOfWork.reactionRepository.Delete(react);
+                _unitOfWork.Commit();
+                return Json(new { state = "Remove", valid = true });
+
+
+            }
+            return Json(new { valid = false });
+        }
+
+
         public IActionResult GetComments(int id)
         {
-            var comments = _unitOfWork.commentRepository.Get(e => e.PostId == id, e => e.User);
+            var comments = _unitOfWork.commentRepository.Get(e => e.PostId == id&&e.ParentCommentId==null, e => e.User,expression=>expression.Reactions);
             return PartialView(comments);
+        }
+        public IActionResult GetReplies(int id)
+        {
+            var replies = _unitOfWork.commentRepository.Get(e => e.ParentCommentId == id, e => e.User);
+            return PartialView(replies);
         }
         [HttpGet]
         public IActionResult CountReaction(int id)
         {
             var count = _unitOfWork.reactionRepository.Get(e => e.PostId == id).Count();
             return Json(new { count = count });
+        }
+        [HttpGet]
+        public IActionResult CountReactionInComment(int id)
+        {
+            var count = _unitOfWork.reactionRepository.Get(e => e.CommentId == id).Count();
+            return Json(new { count = count });
+        }
+
+        [HttpPost]
+        public IActionResult AddReply(int commentId,int postId, string replyContent)
+        {
+            if (string.IsNullOrWhiteSpace(replyContent))
+            {
+                return Json(new { valid = false, message = "Reply content cannot be empty." });
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Current logged-in user
+            var user = _userManager.Users.FirstOrDefault(e=>e.Id==userId);
+
+            if (user == null)
+            {
+                return Json(new { valid = false, message = "User not found." });
+            }
+
+            var reply = new Comment
+            {
+                ParentCommentId = commentId,
+                Content = replyContent,
+                UserId = userId,
+                CreatedAt = DateTime.Now,
+                PostId = postId,
+            };
+
+           _unitOfWork.commentRepository.Create(reply);
+            _unitOfWork.Commit();
+
+            return Json(new { valid = true, message = "Reply added successfully." });
         }
 
         public IActionResult DeletePost(int id,int? comId) 
