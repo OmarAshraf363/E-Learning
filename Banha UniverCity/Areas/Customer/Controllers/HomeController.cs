@@ -3,14 +3,20 @@ using Banha_UniverCity.Models;
 using Banha_UniverCity.Repository.IRepository;
 using Banha_UniverCity.ViewModels;
 using BFCAI.Models.ViewModels;
+using BFCAI.Utility.Helper;
+using BFCAI.Utility.Shared;
+using DataAccess.Repository.IRepository.Service;
 using DataAccess.Repository.ModelsRepository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol;
 using Stripe;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Banha_UniverCity.Areas.Customer.Controllers
 {
@@ -20,39 +26,85 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ICourseService _courseService;
+        private readonly ICacheService _cacheService;
 
-        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ICourseService courseService, ICacheService cacheService)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _courseService = courseService;
+            this._cacheService = cacheService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(PaginationParam? param)
         {
             AllModelsVM model = new AllModelsVM();
-            model.Courses = _unitOfWork.courseRepository.Get(null,
-                e => e.CourseCurricula,
-                e => e.TopicsCovered,
-                e => e.LearningObjectives,
-                expression => expression.Department, expression => expression.Enrollments, e => e.Instructor).ToList();
-            model.Departments = _unitOfWork.departmentRepository.Get(null, e => e.Courses).ToList();
-            model.Feedbacks = _unitOfWork.feedbackRepository.Get(null, e => e.Course, e => e.ProviderUser).ToList();
-            model.Events = _unitOfWork.eventRepository.Get(null, e => e.CreatedBy, e => e.Department).ToList();
-            model.Tracks = _unitOfWork.trackRepository.Get(null, e => e.Courses).ToList();
-            model.Enrollments = _unitOfWork.enrollmentRepository.Get().ToList();
+            var cachTopCoursesResult = await _cacheService.GetAsync<List<CourseDetailViewModel>>("top-courses");
+            if (cachTopCoursesResult != null)
+            {
+
+                model.MaxEnrollmentCourses = cachTopCoursesResult;
+            }
+            else
+            {
+
+                var topCourses = await _courseService.GetCoursesWIthMaxEnrollments();
+                model.MaxEnrollmentCourses = topCourses;
+
+                // Add to cache for 30 minutes (or your preferred duration)
+                await _cacheService.SetAsync("top-courses", topCourses, TimeSpan.FromMinutes(30));
+            }
+            var cachTopDepartmentsResult = await _cacheService.GetAsync<List<Department>>("top-departments");
+            if (cachTopDepartmentsResult != null)
+            {
+                model.Departments = cachTopDepartmentsResult;
+            }
+            else
+            {
+                var topDepartments = await _unitOfWork.departmentRepository.GetTopDepartments();
+                model.Departments = topDepartments.ToList();
+                // Add to cache for 30 minutes (or your preferred duration)
+                await _cacheService.SetAsync("top-departments", topDepartments.ToList(), TimeSpan.FromMinutes(30));
+            }
+            var cachTopTracksResult = await _cacheService.GetAsync<List<TrackDetailsVIewModel>>("top-tracks-v2");
+
+            if (cachTopTracksResult != null)
+            {
+                model.Tracks = cachTopTracksResult;
+            }
+            else
+            {
+                var topTracks = await _unitOfWork.trackRepository.GetTopTracksAsync();
+                model.Tracks = topTracks;
+                // Add to cache for 30 minutes (or your preferred duration)
+                await _cacheService.SetAsync("top-tracks", topTracks, TimeSpan.FromMinutes(30));
+            }
+
+
+            model.Feedbacks = await _unitOfWork.feedbackRepository.GetAllAsync(null, null, true, e => e.Course, e => e.ProviderUser);
+            model.Events = await _unitOfWork.eventRepository.GetAllAsync(null, null, true, e => e.CreatedBy, e => e.Department);
+            model.Enrollments = await _unitOfWork.enrollmentRepository.GetAllAsync();
+            if (param != null)
+            {
+                model.PagedCourses = await _unitOfWork.courseRepository.GetListOfCoursesDetailsWithPagination(param: param);
+
+            }
+            else
+            {
+                model.PagedCourses = await _unitOfWork.courseRepository.GetListOfCoursesDetailsWithPagination();
+
+            }
+
+
+
 
             if (User.IsInRole(StaticData.role_Student))
             {
 
-                var coursesEnrolledByStudent = _unitOfWork.enrollmentRepository.Get(e => e.StudentId == _userManager.GetUserId(User)).Select(e => e.Course).ToList();
-                var trackIdes = coursesEnrolledByStudent.Select(e => e.TrackID).ToList();
-                var StudentTrackCourses = _unitOfWork.trackRepository.GetOne(e => trackIdes.Contains(e.Id))?.Courses;
-                if (StudentTrackCourses != null)
-                {
-
-                    model.RecommendationCourses = StudentTrackCourses;
-                }
+                var recommendationCourses = await _courseService.GetRecommendationCoursesforSpacifcStudent(_userManager.GetUserId(User));
+                model.RecommendationCourses = recommendationCourses;
             }
 
             if (User.IsInRole(StaticData.role_Admin))
@@ -67,72 +119,41 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetByDepTId(int? id)
+        public async Task<IActionResult> GetByDepTId(int? id, PaginationParam? param)
         {
-            var deptDescription = _unitOfWork.departmentRepository.GetOne(e => e.DepartmentID == id)?.DepartmentDescription;
-            var courses = _unitOfWork.courseRepository.Get(null,
-                e => e.CourseCurricula,
-                e => e.TopicsCovered,
-                e => e.LearningObjectives,
-                expression => expression.Department, expression => expression.Enrollments, e => e.Instructor);
-            if (id != 0 && id != null)
+            var model = new CoursesByDepartmentVM();
+            var courses = id == null || id == 0 ? await _unitOfWork.courseRepository.GetListOfCoursesDetailsWithPagination(param: param) : await _unitOfWork.courseRepository.GetListOfCoursesDetailsWithPagination(
+                    e => e.DepartmentId == id, param);
+
+            model.Courses = courses;
+
+            if (id != null && id != 0)
             {
-
-                courses = courses.Where(e => e.DepartmentId == id);
-
-
-                var courseVMs = courses.Select(course => new
+                var department = _unitOfWork.departmentRepository.GetOne(e => e.DepartmentID == id);
+                if (department != null)
                 {
-                    course.CourseID,
-                    course.CourseName,
-                    course.ImgCover,
-                    course.Department?.DepartmentName,
-                    departmentDescription = deptDescription,
-                    Instructor = course.Instructor != null ? course.Instructor.FullName : "Unknown",
-                    course.Price,
-                    course.Description,
-                    Rate = course.Rate ?? 0,
-                    EnrollmentsCount = course.Enrollments.Count,
-                    videosCount = course.CourseCurricula.Count,
-                    TopicsCovered = course.TopicsCovered?.Select(topic => topic.Topic),
-                    LearningObjectives = course.LearningObjectives?.Select(obj => obj.Objective)
-                }).ToArray();
-
-                return Json(courseVMs);
+                    model.DepartmentName = department.DepartmentName;
+                    model.DepartmentDescription = department.DepartmentDescription;
+                }
             }
-            else
-            {
-                var courseVMs = courses.Select(course => new
-                {
-                    course.CourseID,
-                    course.CourseName,
-                    course.Department?.DepartmentName,
-                    course.ImgCover,
-                    departmentDescription = "",
-                    Instructor = course.Instructor != null ? course.Instructor.FullName : "Unknown",
-                    course.Price,
-                    course.Description,
-                    Rate = course.Rate ?? 0,
-                    EnrollmentsCount = course.Enrollments.Count,
-                    videosCount = course.CourseCurricula.Count,
-                    TopicsCovered = course.TopicsCovered?.Select(topic => topic.Topic),
-                    LearningObjectives = course.LearningObjectives?.Select(obj => obj.Objective)
-                }).ToArray();
-                return Json(courseVMs);
 
-            }
+            return PartialView("_partialCoursesbyDeoartment", model);
         }
 
-        public IActionResult Details(int id)
+
+        public async Task<IActionResult> Details(int id,int? starFilter)
         {
             var course = _unitOfWork.courseRepository.GetCourseCurriculum(id);
+            var studentId = _userManager.GetUserId(User);
             var model = new DetailsVM()
             {
                 Course = course,
-                RelatedCourses = _unitOfWork.courseRepository.Get(e => e.DepartmentId == course.DepartmentId && e.CourseID != course.CourseID).ToList(),
-                InstructorCourses = _unitOfWork.courseRepository
-                .Get(e => e.InstructorId == course.InstructorId && e.CourseID != course.CourseID).ToList(),
+                RelatedCourses = await _courseService.GetRelatedCourses(id, studentId),
+                InstructorCourses = await _unitOfWork.courseRepository
+                .Get(e => e.InstructorId == course.InstructorId && e.CourseID != course.CourseId).PrepareCoursesToViewDetailAsync().ToListAsync(),
+                 Feedbacks=await _courseService.GetCourseFeedbackAndReviews(id,starFilter)
             };
+            ViewBag.star=starFilter;
             return View(model);
         }
         public IActionResult GetObjectives(int? id)
@@ -152,89 +173,25 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
             return Json(TopicsVM);
         }
 
-        public IActionResult Courses(CoursePageVM model,string?instructorId ,int? id, int? categoryFilter, int? rate, decimal? price, string? search)
+        public async Task<IActionResult> Courses(CourseParam param, PaginationParam? pageParam)
         {
 
-            ViewBag.CourseID = id;
-            if (id == null)
-            {
+            var model = new CoursePageVM();
 
-                var listOfCourses = _unitOfWork.courseRepository
-                    .Get(null,
-                    e => e.Enrollments,
-                    e=> e.TopicsCovered,
-                    e => e.LearningObjectives,
-                    e => e.Department,
-                    e=>e.Instructor
+            // Fetch all departments for filter sidebar
+            model.DepartmentList = await _unitOfWork.departmentRepository.Get().ToListAsync();
 
-                    );
-                model.DepartmentList = _unitOfWork.departmentRepository.Get().ToList();
-                model.CourseList = listOfCourses.ToList();
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    var lowerSearch = search.ToLower();
-                    model.CourseList = model.CourseList.Where(e => e.CourseName.ToLower().IndexOf(lowerSearch, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
-                }
+            // Filter + Project + Paginate
+            var filteredCourses = _unitOfWork.courseRepository.GetFilteredCourses(param);
+            var projectedCourses = await _unitOfWork.courseRepository.GetListOfCoursesDetailsWithPagination(param: pageParam);
 
-                // Rate filter
-                if (rate.HasValue)
-                {
-                    model.CourseList = model.CourseList.Where(e => e.Rate >= rate.Value).ToList();
-                }
-
-                // Category filter
-                if (categoryFilter.HasValue)
-                {
-                    model.CourseList = model.CourseList.Where(e => e.DepartmentId == categoryFilter.Value).ToList();
-                }
-
-                // Price filter
-                if (price.HasValue)
-                {
-                    model.CourseList = model.CourseList.Where(e => e.Price <= price.Value).ToList();
-                }
-                if (!string.IsNullOrEmpty(instructorId))
-                {
-                    model.CourseList=model.CourseList.Where(e=>e.InstructorId== instructorId).ToList();
-                    ViewBag.InstructorId = instructorId;
-                }
-
-                // set view bags 
-                ViewBag.categoryFilter = categoryFilter;
-                ViewBag.rate = rate;
-                ViewBag.price = price;
-                ViewBag.Search = search?.ToLower();
-                
+            model.PagedCourseList = projectedCourses;
 
 
-                return View(model);
 
+            ViewBag.Filters = param;
 
-            }
-            else
-            {
-                var course = _unitOfWork.courseRepository.GetCourseCurriculum(id);
-                var modelDetails = new DetailsVM()
-                {
-                    Course = course,
-                    RelatedCourses = _unitOfWork.courseRepository.Get(e => e.DepartmentId == course.DepartmentId,e=>e.LearningObjectives).ToList(),
-                    InstructorCourses = _unitOfWork.courseRepository
-                    .Get(e => e.InstructorId == course.InstructorId && e.CourseID != course.CourseID,e=>e.LearningObjectives).ToList(),
-                };
-                if (course.TrackID != null)
-                {
-                    var sameCoursesInTrack = _unitOfWork.trackRepository.GetOne(e => e.Id == course.TrackID)?.Courses;
-                    if (sameCoursesInTrack != null)
-                    {
-
-                        modelDetails.RelatedCourses.AddRange(sameCoursesInTrack);
-                        modelDetails.RelatedCourses=modelDetails.RelatedCourses.Distinct().ToList();
-                    }
-                }
-                return View("Details", modelDetails);
-            }
-
-
+            return View(model);
         }
 
         public IActionResult Category(int? id)
@@ -267,11 +224,15 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
 
         public IActionResult TopicCourse(string? word)
         {
+            if (string.IsNullOrWhiteSpace(word))
+            {
+                return RedirectToAction("Index");
+            }
             var wordToLowwer = word.ToLower();
             var ides = _unitOfWork.keyWordRepository
                 .Get(e => e.Name.ToLower().Contains(wordToLowwer)).Select(e => e.CourseId);
             var listOfCourses = _unitOfWork.courseRepository
-                .Get(e => ides.Contains(e.CourseID) || e.CourseName.ToLower().Contains(wordToLowwer));
+                .Get(e => ides.Contains(e.CourseID) || e.CourseName.ToLower().Contains(wordToLowwer)).PrepareCoursesToViewDetailAsync().ToList();
             ViewBag.word = word;
             return View(listOfCourses);
         }
@@ -283,14 +244,13 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
             return View(courses);
         }
 
-        public IActionResult TrackDetails(int id)
+        public async Task<IActionResult> TrackDetails(int id)
         {
-            var track = _unitOfWork.trackRepository.GetOne(e => e.Id == id,
-                e=>e.Courses);
-            var trackCoursesIdes = _unitOfWork.courseRepository.Get(e => e.TrackID == id).Select(e=>e.CourseID).ToList();
-            ViewBag.count=_unitOfWork.enrollmentRepository.Get(e=>trackCoursesIdes.Contains((int)e.CourseID)).Count();
-            
-            return View("~/Views/Shared/Details.cshtml", track);
+            var studentId = User.IsInRole(StaticData.role_Student) ? _userManager.GetUserId(User) : null;
+
+            var track = studentId == null ? await _unitOfWork.trackRepository.TrackDetailsProjection(trackId: id) :
+                await _unitOfWork.trackRepository.TrackDetailsProjection(trackId: id, studentId: studentId);
+            return View(track);
         }
 
         public IActionResult GetRegister()
@@ -334,7 +294,7 @@ namespace Banha_UniverCity.Areas.Customer.Controllers
                     // في حالة وجود أخطاء في إنشاء المستخدم، قم بإضافة الأخطاء إلى ModelState
                     foreach (var error in result.Errors)
                     {
-                        ModelState.AddModelError("Email", error.Description);
+                        ModelState.AddModelError("glb", error.Description);
                     }
                     check = StaticData.CheckValidation(ModelState, Request, false);
                     return check;

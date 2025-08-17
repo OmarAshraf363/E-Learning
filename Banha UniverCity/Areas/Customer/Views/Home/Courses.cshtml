@@ -1,9 +1,13 @@
-﻿@model BFCAI.Models.ViewModels.CoursePageVM
+﻿@using BFCAI.Utility.Shared
+@model BFCAI.Models.ViewModels.CoursePageVM
 
 @{
     Layout = "_RegistreationLayout";
 }
 <style>
+    body{
+                background-color: #fff;
+    }
     h6 {
         font-weight: bold;
     }
@@ -19,8 +23,7 @@
     }
 
     .courses{
-       
-        overflow:auto;
+        width: 75%;
     }
 
 
@@ -28,74 +31,10 @@
 <section class="coursesPage d-flex container">
 
     <div class="filterPart">
+        @await Html.PartialAsync("_partialFilterView", (CourseParam)ViewBag.Filters)
 
-        <form method="get" action="@Url.Action("Courses", "Home")">
-            <div class="container-fluid d-flex">
-                <!-- Filtration Section -->
-                <div class=" p-2 mt-3 border-end">
-                    <h5 class="fw-bold">Filters</h5>
-
-                    <!-- Category Filter -->
-                    <div class="mb-4">
-                        <h6>Category</h6>
-                        <ul class="list-unstyled">
-                            @foreach (var category in Model.DepartmentList)
-                            {
-                                <li>
-                                    <input type="radio" name="categoryFilter" id="category-@category.DepartmentID" value="@category.DepartmentID"
-                                           class="filter-checkbox" @(ViewBag.categoryFilter == category.DepartmentID ? "checked" : "") />
-                                    <label for="category-@category.DepartmentID">@category.DepartmentName</label>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-
-                 
-                    <!-- Rating Filter -->
-                    <div class="mb-4">
-                        <h6>Rating</h6>
-                        <ul class="list-unstyled">
-                            @for (int i = 5; i >= 1; i--)
-                            {
-                                <li>
-                                    <input type="radio" name="rate" id="rating-@i" value="@i"
-                                           class="filter-checkbox" @(ViewBag.rate == i ? "checked" : "") />
-                                    <label for="rating-@i">
-                                        @for (int j = 0; j < i; j++)
-                                        {
-                                            <i class="fa-solid fa-star text-warning"></i>
-                                        }
-                                        & Up
-                                    </label>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-
-                    <!-- Price Range Filter -->
-                    <div class="mb-4">
-                        <h6>Price Range</h6>
-                        <input type="range" id="price-range" name="price" class="form-range" min="0" max="1000" step="50"
-                               value="@ViewBag.price" oninput="updatePriceLabel(this.value)" />
-                        <div class="d-flex justify-content-between">
-                            <span>$0</span>
-                            <span id="price-range-label">$@(ViewBag.price==null?"500":ViewBag.price)</span>
-                        </div>
-                    </div>
-                    <script>
-                        function updatePriceLabel(value) {
-                            document.getElementById("price-range-label").textContent = "$" + value;
-                        }
-
-                    </script>
-                    <!-- Buttons for Applying and Clearing Filters -->
-                    <button type="submit" class="btn btn-outline-primary">Apply Filters</button>
-                    <a href="@Url.Action("Courses", "Home")" class="btn btn-outline-secondary ms-2">Clear Filters</a>
-                </div>
-            </div>
-        </form>
     </div>
-    <div id="courses" class="courses d-flex justify-content-between align-items-center container p-3 mb-5">
+    <div id="courses" class="courses d-flex justify-content-between align-items-center container p-1 mb-5">
 
         <div class=" p-3 courseSection ">
 
@@ -110,25 +49,25 @@
 
                 {
                     
-                <h4>Courses for You by @Model.CourseList.FirstOrDefault().Instructor.FullName</h4>
+                <h4>Courses for You by @Model.PagedCourseList.Items.FirstOrDefault().InstructorName</h4>
                 }
             </div>
             <div id="main" class="top-courses ">
-                @if(Model.CourseList.Any()){
-                    @foreach (var course in Model.CourseList)
+                @if(Model.PagedCourseList.Items.Any()){
+                    @foreach (var course in Model.PagedCourseList.Items)
                     {
 
 
 
-                        <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Courses',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
+                        <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','details',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
                             <div class="course-video mb-3">
-                                <img src="/Covers/@course.ImgCover" alt="Alternate Text" />
+                                <img src="/Covers/@course.Image" alt="Alternate Text" />
                             </div>
                             <div class="course-title">
-                                <h5>@course.CourseName</h5>
+                                <h5>@course.Title</h5>
                             </div>
                             <div class="w-75 instructor">
-                                <h6>@course.Instructor?.FullName</h6>
+                                <h6>@course.InstructorName</h6>
                             </div>
 
                             <!-- Rating -->
@@ -152,18 +91,18 @@
                             <div class="modal-test p-4" id="modal-main-@course.CourseID">
                                 <!-- Course Name Section -->
                                 <div class="modal-course-header ">
-                                    <h3 class="modal-course-name mb-3">@course.CourseName</h3>
-                                    <h5>by <span>@course.Instructor?.FullName</span></h5>
+                                    <h3 class="modal-course-name mb-3">@course.Title</h3>
+                                    <h5>by <span>@course.InstructorName</span></h5>
                                 </div>
 
                                 <!-- Course Stats Section -->
                                 <div class="modal-course-details d-flex justify-content-between mb-2">
                                     <div class="course-videos">
-                                        <span><i class="fas fa-play-circle me-2"></i>@course.CourseCurricula.Count Videos</span>
+                                        <span><i class="fas fa-play-circle me-2"></i>@course.VideosCount Videos</span>
                                     </div>
 
                                     <div class="course-enrollments">
-                                        <span><i class="fas fa-users me-2"></i>@course.Enrollments.Count Enrolled</span>
+                                        <span><i class="fas fa-users me-2"></i>@course.NumOfEnrolments Enrolled</span>
                                     </div>
                                 </div>
 
@@ -184,7 +123,7 @@
 
                                                     <i class="fas fa-check-circle text-success me-2"></i>
 
-                                                    <p class="m-1"> @item.Objective</p>
+                                                    <p class="m-1"> @item</p>
 
 
                                                 </li>

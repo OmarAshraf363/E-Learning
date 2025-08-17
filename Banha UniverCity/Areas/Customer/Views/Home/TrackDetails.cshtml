@@ -1,0 +1,274 @@
+﻿@using BFCAI.Models.ViewModels
+@model TrackDetailsVIewModel
+
+@{
+    ViewData["Title"] = "Track Details - " + Model.Title;
+}
+
+<div class="container my-5">
+    <!-- Track Overview Section -->
+    <div class="track-overview mb-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-center text-lg-start">
+                <h1 class="display-4 fw-bold text-primary">@Model.Title</h1>
+                <p class="lead text-muted">
+                    <strong>@Model.Description</strong>
+                </p>
+            </div>
+            <div class="col-lg-6">
+                <img src="/Covers/@Model.Cover" alt="@Model.Title" class="img-fluid rounded shadow-sm">
+            </div>
+        </div>
+    </div>
+
+    @* <!-- Track Details Section -->
+    <div class="track-details bg-light p-4 rounded shadow-sm mb-5">
+        <h3 class="text-secondary fw-bold mb-3">Track Details</h3>
+        <dl class="row">
+            <dt class="col-sm-4">Track Name:</dt>
+            <dd class="col-sm-8">@Model.Title</dd>
+
+            <dt class="col-sm-4">Description:</dt>
+            <dd class="col-sm-8">@Model.Description</dd>
+
+            <dt class="col-sm-4">Number of Courses:</dt>
+            <dd class="col-sm-8">@Model.NumOfCourses</dd>
+
+            <dt class="col-sm-4">Total Enrollments:</dt>
+            <dd class="col-sm-8">@Model.NUMOfEnrollments</dd>
+        </dl>
+    </div> *@
+
+    @if (Model.CoursesThatLoginStudentNotHave.Any())
+    {
+        <section id="courses" class="courses container p-3 mb-5">
+            <div class="mb-1">
+                <h4>Enroll in this courses now to achive <span class="text-primary">@Model.Title</span>  track now</h4>
+            </div>
+            <div class="progress progress-custom">
+                @{
+                    var progressPercent = (Model.NumOfCourses == 0) ? 0 : (int)Math.Round((double)(Model.NumOfCoursesThatLoginStudentHave * 100) / Model.NumOfCourses);
+                }
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
+                     role="progressbar"
+                     style="width: @progressPercent%;"
+                     aria-valuenow="@progressPercent"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+                    @progressPercent%
+                </div>
+            </div>
+            <div id="main" class="top-courses ">
+                @foreach (var course in Model.CoursesThatLoginStudentNotHave)
+                {
+
+                    <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Details',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
+                        <div class="course-video mb-3">
+                            <img src="/Covers/@course.Image" alt="Alternate Text" />
+                        </div>
+                        <div class="course-title">
+                            <h5>@course.Title</h5>
+                        </div>
+                        <div class="w-75 instructor">
+                            <h6>@course.InstructorName</h6>
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="rating">
+                            @for (int i = 0; i < course.Rate; i++)
+                            {
+                                <span class="fa fa-star"></span>
+                            }
+                            @for (int i = 0; i < (5 - course.Rate); i++)
+                            {
+                                <span class="fa fa-star-o"></span>
+                            }
+                        </div>
+
+                        <!-- Price -->
+                        <div class="price">
+                            <span> $@course.Price</span>
+                        </div>
+
+
+
+                        <!-- Hidden modal for each course -->
+                        <div class="modal-test p-4" id="modal-main-@course.CourseID" style="max-width: 700px; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff;">
+                            <!-- Course Name Section -->
+                            <div class="modal-course-header ">
+                                <h3 class="modal-course-name mb-3">@course.Title</h3>
+                                <h5>by <span>@course.InstructorName</span></h5>
+                            </div>
+
+                            <!-- Course Stats Section -->
+                            <div class="modal-course-details d-flex justify-content-between mb-2">
+                                <div class="course-videos">
+                                    <span><i class="fas fa-play-circle me-2"></i>@course.VideosCount Videos</span>
+                                </div>
+
+                                <div class="course-enrollments">
+                                    <span><i class="fas fa-users me-2"></i>@course.NumOfEnrolments Enrolled</span>
+                                </div>
+                            </div>
+
+                            <!-- Course Description Section -->
+                            <div class="modal-course-description mb-2">
+                                <p> @course.Description</p>
+                            </div>
+
+                            <!-- Course Topics and Objectives Section -->
+                            <div class="modal-course-about ">
+
+                                <div class="course-objectives ">
+
+                                    <ul class="list-unstyled">
+                                        @foreach (var item in course.LearningObjectives)
+                                        {
+                                            <li class="d-flex justify-content-start align-items-baseline gap-1">
+
+                                                <i class="fas fa-check-circle text-success me-2"></i>
+
+                                                <p class="m-1"> @item</p>
+
+
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Course Call to Action -->
+                            <div class="d-flex justify-content-center mt-2">
+                                <a asp-controller="Cart" asp-action="AddToCart" asp-route-courseId="@course.CourseID" asp-route-quantity="1" class="btn cus-btn px-5 py-2" style="border-radius: 5px; font-size: 1.1rem;">Add to Cart</a>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+
+
+
+
+
+
+
+                }
+            </div>
+        </section>
+
+    }
+
+
+
+    <!-- Courses Section -->
+
+    <section id="courses" class="courses container p-3 mb-5">
+        <div class="mb-4">
+            <h4>Track Courses</h4>
+        </div>
+        <div id="main" class="top-courses ">
+            @foreach (var course in Model.Courses)
+            {
+
+
+
+                <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Courses',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
+                    <div class="course-video mb-3">
+                        <img src="/Covers/@course.Image" alt="Alternate Text" />
+                    </div>
+                    <div class="course-title">
+                        <h5>@course.Title</h5>
+                    </div>
+                    <div class="w-75 instructor">
+                        <h6>@course.InstructorName</h6>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="rating">
+                        @for (int i = 0; i < course.Rate; i++)
+                        {
+                            <span class="fa fa-star"></span>
+                        }
+                        @for (int i = 0; i < (5 - course.Rate); i++)
+                        {
+                            <span class="fa fa-star-o"></span>
+                        }
+                    </div>
+
+                    <!-- Price -->
+                    <div class="price">
+                        <span> $@course.Price</span>
+                    </div>
+
+
+
+                    <!-- Hidden modal for each course -->
+                    <div class="modal-test p-4" id="modal-main-@course.CourseID" style="max-width: 700px; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff;">
+                        <!-- Course Name Section -->
+                        <div class="modal-course-header ">
+                            <h3 class="modal-course-name mb-3">@course.Title</h3>
+                            <h5>by <span>@course.InstructorName</span></h5>
+                        </div>
+
+                        <!-- Course Stats Section -->
+                        <div class="modal-course-details d-flex justify-content-between mb-2">
+                            <div class="course-videos">
+                                <span><i class="fas fa-play-circle me-2"></i>@course.VideosCount Videos</span>
+                            </div>
+
+                            <div class="course-enrollments">
+                                <span><i class="fas fa-users me-2"></i>@course.NumOfEnrolments Enrolled</span>
+                            </div>
+                        </div>
+
+                        <!-- Course Description Section -->
+                        <div class="modal-course-description mb-2">
+                            <p> @course.Description</p>
+                        </div>
+
+                        <!-- Course Topics and Objectives Section -->
+                        <div class="modal-course-about ">
+
+                            <div class="course-objectives ">
+
+                                <ul class="list-unstyled">
+                                    @foreach (var item in course.LearningObjectives)
+                                    {
+                                        <li class="d-flex justify-content-start align-items-baseline gap-1">
+
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+
+                                            <p class="m-1"> @item</p>
+
+
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Course Call to Action -->
+                        <div class="d-flex justify-content-center mt-2">
+                            <a asp-controller="Cart" asp-action="AddToCart" asp-route-courseId="@course.CourseID" asp-route-quantity="1" class="btn cus-btn px-5 py-2" style="border-radius: 5px; font-size: 1.1rem;">Add to Cart</a>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
+
+
+
+
+
+
+            }
+        </div>
+    </section>
+
+
+</div>

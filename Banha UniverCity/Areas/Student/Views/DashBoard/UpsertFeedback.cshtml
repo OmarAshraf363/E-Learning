@@ -1,0 +1,54 @@
+﻿@model Banha_UniverCity.Models.Feedback
+
+<form asp-action="UpsertFeedback" method="post" id="feedback-form">
+    <input asp-for="FeedbackID" type="hidden" />
+    <input asp-for="CourseId" type="hidden" />
+    <input asp-for="CourseCurriculumId" type="hidden" />
+
+    <input asp-for="ProviderUserId" type="hidden" />
+
+    <div class="w-100 mb-3 d-flex justify-content-center align-items-center">
+        <div class="star-rating">
+            @for (int i = 5; i >= 1; i--)
+            {
+                <input type="radio" id="star-@i" name="Rating" value="@i" />
+                <label for="star-@i" title="@i stars">&#9733;</label>
+            }
+        </div>
+        <span asp-validation-for="Rating" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Content" class="form-label">Review</label>
+        <textarea asp-for="Content" class="form-control" rows="4" placeholder="Write your feedback..."></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+
+
+
+    <button type="button" onclick="allConfirm('feedback-form')" class="w-100 btn btn-dark">Submit</button>
+</form>
+
+<style>
+    .star-rating {
+        direction: rtl;
+        display: flex;
+        justify-content: start;
+        gap: 5px;
+    }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            font-size: 2rem;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+            .star-rating input:checked ~ label,
+            .star-rating label:hover,
+            .star-rating label:hover ~ label {
+                color: gold;
+            }
+</style>

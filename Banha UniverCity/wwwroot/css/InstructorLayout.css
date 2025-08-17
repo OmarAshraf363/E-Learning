@@ -1,0 +1,174 @@
+﻿main {
+    overflow: auto;
+    flex: 1 1 auto;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: white; /* Light gray background for the body */
+}
+header{
+    background-color:#e2e2e2;
+}
+.navbar-custom {
+    background-color: transparent; /* Dark blue for the navbar */
+}
+
+    .navbar-custom a.navbar-brand {
+        color: #ffffff; /* White text for the navbar brand */
+    }
+
+    .navbar-custom .nav-link {
+        color: #ffffff; /* White text for the navbar links */
+    }
+
+        .navbar-custom .nav-link:hover {
+            color: #ffcc00; /* Gold color on hover */
+        }
+
+.sidebar {
+    height: 100vh;
+    background-color: #2d2f31; /* Even darker blue for the sidebar */
+    padding-top: 20px;
+    width: 250px;
+}
+
+    .sidebar a {
+        color: #dcdcdc; /* Light gray text for sidebar links */
+        padding: 10px;
+        display: block;
+        text-decoration: none;
+    }
+
+        .sidebar a:hover {
+            background-color: #004080; /* Slightly lighter blue for hover effect */
+            color: #ffffff; /* White text on hover */
+        }
+
+.content-wrapper {
+    margin-left: 250px; /* Adjust margin to account for the fixed sidebar */
+    padding: 20px;
+    min-height: 100vh; /* Ensure the content area covers the full viewport height */
+}
+
+footer {
+    background-color: #003366; /* Matching dark blue for the footer */
+    color: white;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    width: calc(100% - 250px); /* Adjust width to account for the sidebar */
+    bottom: 0;
+    left: 250px; /* Align footer with the content wrapper */
+}
+
+/* Add a hover effect for the sidebar links */
+.sidebar a:hover {
+    background-color: #004080;
+    color: #ffffff;
+    border-radius: 4px;
+}
+
+/* Add some padding to the footer */
+footer p {
+    margin: 0;
+}
+
+a {
+    cursor: pointer; /* Change cursor to pointer for links */
+}
+
+
+.ms-250 {
+    margin-left: 250px;
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-left: 3px solid #fff;
+}
+
+
+
+/*Upser Course Part */
+
+.card {
+    background-color: #212325;
+    border-radius: 8px;
+    border: none;
+}
+
+h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #f8f9fa; /* Light text color for headings */
+}
+
+.form-label {
+    color: #adb5bd;
+}
+
+.form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background-color: #1c1a1a;
+    color: white;
+}
+
+    .form-control:focus {
+        background-color: #111315;
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        color: white;
+    }
+
+.btn-outline-info {
+    color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+    .btn-outline-info:hover {
+        background-color: #17a2b8;
+        color: #fff;
+    }
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+.btn-dark {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+    .btn-dark:hover {
+        background-color: #23272b;
+        border-color: #1d2124;
+    }
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+
+.text-danger {
+    color: #dc3545;
+}
+/*Upser Course Part */

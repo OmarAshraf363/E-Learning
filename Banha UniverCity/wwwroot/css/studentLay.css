@@ -1,0 +1,1135 @@
+﻿
+
+/*Layout part*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ffc107;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #e0a800;
+    }
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #ffc107 #f1f1f1;
+}
+
+header {
+    background-color: rgb(83, 42, 164);
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+}
+
+    header h1 {
+        margin: 0;
+        font-size: 2rem;
+    }
+
+    header span {
+        color: #ffc107;
+    }
+
+    header .head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    /* Navigation Bar */
+    header nav ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+        header nav ul li {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        header nav ul a {
+            text-decoration: none;
+            color: #ccc;
+            transition: color 0.3s ease;
+        }
+
+            header nav ul a:hover {
+                color: #ffc107;
+            }
+
+
+/*End Layout part*/
+
+
+/* Styling for Section Titles */
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    color: #333;
+}
+
+    .section-title i {
+        margin-right: 10px;
+    }
+
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+/* Resource and Assignment List Styling */
+.resource-list, .assignment-list {
+    margin-top: 10px;
+    padding-left: 0;
+}
+
+.resource-link, .assignment-link {
+    display: flex;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+    .resource-link:hover, .assignment-link:hover {
+        background-color: #e0e0e0;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+.assignment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.due-date {
+    font-size: 0.9rem;
+    color: #777;
+    margin-left: 10px;
+    font-weight: 500;
+}
+
+/* Exam Button Styling */
+.start-exam-btn {
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    border: 2px solid #dc3545;
+    border-radius: 8px;
+    color: #dc3545;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+    .start-exam-btn i {
+        margin-right: 8px;
+    }
+
+    .start-exam-btn:hover {
+        background-color: #dc3545;
+        color: #fff;
+        border-color: #dc3545;
+    }
+
+/* URL Submission Form Styling */
+.url-form {
+    display: flex;
+    align-items: center;
+}
+
+.input-group {
+    display: flex;
+    width: 100%;
+}
+
+    .input-group input[type="url"] {
+        flex-grow: 1;
+    }
+
+.input-group-append button {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 0 4px 4px 0;
+}
+
+    .input-group-append button:hover {
+        background-color: #218838;
+    }
+
+
+
+
+
+table {
+    width: 100%;
+    margin-top: 15px;
+}
+
+    table th {
+        background-color: #f8f9fa;
+        color: #333;
+    }
+
+    table tr {
+        color: black;
+        transition: background-color 0.3s ease;
+    }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        table tr td {
+            color: #555;
+            font-size: 14px;
+            padding: 10px;
+        }
+
+.table > :not(caption) > * > * {
+    padding: 7px 5px;
+    border-block-width: 0px;
+}
+
+table tr {
+    color: black;
+}
+
+    table tr td {
+        color: gray;
+        font-size: 14px;
+    }
+
+
+
+/*QuickAccess*/
+
+.curriculum-section {
+    margin-bottom: 40px;
+}
+
+.curriculum-section h5 {
+    font-weight: bold;
+    color: #2c3e50;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.resource-card {
+    background-color: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+    .resource-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    .resource-card i {
+        margin-right: 10px;
+        color: #007bff;
+    }
+
+    .resource-card a {
+        text-decoration: none;
+        font-weight: 500;
+        color: #333;
+        transition: color 0.3s ease;
+    }
+
+        .resource-card a:hover {
+            color: #007bff;
+        }
+
+.no-data {
+    color: #aaa;
+    font-style: italic;
+    padding: 10px;
+}
+
+.list-group-item {
+    background-color: #fdfdfd;
+    border: none;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+}
+
+
+
+/*End QuickAccess*/
+
+
+/*Main dashboard*/
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 25% 50% 25%;
+    height: 85vh;
+    gap: 20px;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.dashboard-section {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow-y: auto;
+}
+
+    .dashboard-section h5 {
+        font-weight: bold;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #a511d5;
+        padding-bottom: 10px;
+        color: #293139;
+    }
+
+.course-details ul,
+.feedback-list ul {
+    padding-left: 0;
+    list-style: none;
+}
+
+.feedback-card {
+    border-radius: 1rem;
+    background-color: #fff;
+    transition: all 0.3s ease-in-out;
+}
+
+.feedback-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.user-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border: 2px solid #eee;
+}
+
+.rating .fa-star {
+    color: #ddd;
+    font-size: 1rem;
+    margin-right: 2px;
+}
+
+    .rating .fa-star.checked {
+        color: #f5b50a;
+    }
+
+.feedback-text {
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.dashboard-section h4 {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.feedback-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+
+
+
+.list-group-item {
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid #ddd;
+}
+
+.table {
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+    .table th, .table td {
+        vertical-align: middle;
+    }
+
+.btn-outline-info i {
+    margin-right: 6px;
+}
+
+/* Scrollbars */
+.dashboard-section::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dashboard-section::-webkit-scrollbar-thumb {
+    background: #007bff;
+    border-radius: 4px;
+}
+
+.dashboard-section::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+@media (max-width: 991px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .dashboard-section {
+        max-height: none;
+    }
+}
+
+
+
+.main-container {
+    display: flex;
+    gap: 20px;
+    padding: 25px;
+    flex-wrap: wrap;
+}
+
+.curriculum,
+.processes,
+.feedback {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    max-height: 80vh; /* adjust as needed */
+    overflow-y: auto;
+    padding-right: 8px; /* avoid content under scrollbar */
+}
+
+.curriculum {
+    flex: 1;
+    min-width: 200px;
+    max-width: 20%;
+}
+
+    .curriculum h5 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .curriculum .part {
+        background: #f7f7f7;
+        margin-bottom: 10px;
+        padding: 12px 15px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+        .curriculum .part:hover {
+            background: #e0e0e0;
+        }
+
+.processes {
+    flex: 2;
+    min-width: 300px;
+}
+
+    .processes h4 {
+        text-align: center;
+        margin-top: 30%;
+        color: #888;
+    }
+
+.feedback {
+    flex: 1;
+    min-width: 280px;
+}
+
+    .feedback h5 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+.feedback-card {
+    border: none;
+    border-radius: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    transition: 0.3s;
+}
+
+    .feedback-card:hover {
+        background: #f1f1f1;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+.user-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+}
+
+.rating {
+    color: #ffd700;
+}
+
+    .rating .fa-star {
+        margin-right: 2px;
+        font-size: 1rem;
+        transition: transform 0.2s ease;
+    }
+
+        .rating .fa-star:hover {
+            transform: scale(1.2);
+        }
+
+.feedback-text {
+    font-size: 0.95rem;
+    color: #333;
+}
+.new-head {
+    background-color: rgb(83, 42, 164);
+    color: #fff;
+    padding: 15px;
+    border-radius: 15px;
+}
+
+    .new-head h1 {
+        font-size: 1.8rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+        .new-head h1 i {
+            margin-right: 10px;
+        }
+
+@media screen and (max-width: 992px) {
+    .main-container {
+        flex-direction: column;
+    }
+
+    .curriculum,
+    .processes,
+    .feedback {
+        max-width: 100%;
+    }
+    .for-student{
+        flex-direction:column;
+        height:max-content !important;
+    }
+    .recommended-section, .posts {
+        max-width: 100%;
+        max-height: 100% !important;
+    }
+  
+    .posts {
+        flex-direction: column;
+        max-width: 100%;
+    }
+    
+    .recom-community{
+        width:100% !important;
+    }
+    .course-card, .community-card {
+        flex-direction: column;
+        max-width: 100%;
+        height: 80% !important;
+    }
+        .course-card img {
+            width: 100% !important;
+        }
+    .post-container{
+        width:100% !important;
+    }
+}
+
+.for-student {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    height: 500px;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.recommended-section {
+    width: 45%;
+    background-color: #f5f5f5;
+    height: 100%;
+    padding: 1.5rem;
+    min-width:300px;
+}
+
+    .recommended-section h4 {
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+    .recommended-section .course-card {
+        display: flex;
+        align-items:start;
+        background-color: #fff;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        padding: 0.8rem;
+        gap: 1rem;
+        transition: box-shadow 0.3s ease;
+        height:100px;
+        cursor:pointer;
+        overflow:hidden;
+    }
+
+        .recommended-section .course-card:hover {
+            background-color:#f6e2;
+        }
+
+        .recommended-section .course-card img {
+            width: 120px;
+            height: 100%;
+            object-fit: cover;
+        }
+
+.course-content {
+    
+}
+
+.course-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+}
+
+.course-description {
+    font-size: 0.9rem;
+    color: #555;
+    max-height: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width:230px;
+}
+
+.checked{
+    color:gold;
+}
+
+.posts {
+    width: 60%;
+    background-color: #fff;
+    height: 100%;
+    padding: 1.5rem;
+    display: flex;
+    align-items: start;
+    gap: 0.5rem;
+    min-width: 300px;
+}
+    .posts h4 {
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+.community-card {
+    transition: 0.3s ease;
+    border-left: 4px solid #007bff;
+    cursor:pointer;
+}
+
+    .community-card:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-2px);
+    }
+
+
+/*End Main dashboard*/
+/* ✅ Media Query for Tablets and Mobile */
+@media (max-width: 768px) {
+    .head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+        .head nav {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+            .head nav ul {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+        .head h1 {
+            font-size: 24px;
+        }
+}
+
+/* ✅ Extra small screens (phones) */
+@media (max-width: 480px) {
+    .head h1 {
+        font-size: 20px;
+    }
+
+    .head nav ul {
+        gap: 8px;
+    }
+
+        .head nav ul li a,
+        .head nav ul a {
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+}
+
+:root {
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+
+
+.content-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    margin: 0 auto;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.content-container .course-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+    position: relative;
+    width: 100%;
+}
+
+
+
+    .content-container .course-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .content-container .course-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .content-container .content-section {
+        padding: 2rem;
+    }
+
+    .content-container .section-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+        border: 1px solid var(--gray-200);
+        transition: all 0.3s ease;
+    }
+
+        .content-container .section-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+    .content-container .section-header {
+        background: var(--gray-50);
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--gray-200);
+        border-radius: 16px 16px 0 0;
+    }
+
+    .content-container .section-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .content-container .section-title i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+    .content-container .section-body {
+        padding: 2rem;
+    }
+
+/* Video Section Styles */
+    .content-container .video-dropdown {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border: none;
+        border-radius: 12px;
+        color: white;
+        padding: 1rem 1.5rem;
+        font-weight: 500;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+    }
+
+        .content-container .video-dropdown:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .content-container  .video-dropdown:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+
+    .content-container .video-player {
+        background: var(--gray-100);
+        border-radius: 12px;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-600);
+        font-size: 1.1rem;
+        margin-top: 1rem;
+    }
+
+/* Resource Styles */
+    .content-container .resource-item {
+        background: var(--gray-50);
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary-color);
+    }
+
+        .content-container .resource-item:hover {
+            background: white;
+            box-shadow: var(--shadow-sm);
+            transform: translateX(4px);
+        }
+
+    .content-container .resource-link {
+        color: var(--gray-800);
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .content-container .resource-link i {
+            color: var(--primary-color);
+        }
+
+/* Assignment Styles */
+    .content-container .assignment-item {
+        background: white;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .content-container .assignment-item:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-md);
+        }
+
+    .content-container .assignment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .content-container .assignment-link {
+        color: var(--gray-800);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .content-container .assignment-link i {
+            color: var(--primary-color);
+        }
+
+    .content-container .due-date {
+        background: var(--warning-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .content-container .submitted-badge {
+        background: var(--success-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .content-container .submission-form {
+        margin-top: 1rem;
+    }
+
+        .content-container .submission-form .input-group {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .content-container .submission-form input {
+            border: 1px solid var(--gray-300);
+            border-right: none;
+        }
+
+    .content-container .submit-btn {
+        background: var(--success-color);
+        border: 1px solid var(--success-color);
+        color: white;
+        font-weight: 500;
+    }
+
+/* Feedback Styles */
+    .content-container .feedback-card {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: 12px;
+        padding: 1.5rem;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+        .content-container .feedback-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+    .content-container .feedback-user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .content-container .user-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--gray-200);
+    }
+
+    .content-container .user-info h6 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--gray-800);
+    }
+
+    .content-container .user-info small {
+        color: var(--gray-600);
+    }
+
+    .content-container .rating {
+        margin-bottom: 1rem;
+    }
+
+    .content-container .star {
+        color: var(--warning-color);
+        margin-right: 2px;
+    }
+
+        .content-container .star.empty {
+            color: var(--gray-300);
+        }
+
+/* Exam Section */
+.start-exam-btn {
+    background: linear-gradient(135deg, var(--danger-color), #dc2626);
+    border: none;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+}
+
+    .start-exam-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: white;
+    }
+
+.add-feedback-btn {
+    background: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+    .add-feedback-btn:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+.no-feedback {
+    background: linear-gradient(135deg, #e0f2fe, #b3e5fc);
+    border: none;
+    color: #0277bd;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.progress-indicator {
+    background: var(--gray-200);
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+    height: 100%;
+    width: 65%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .processes {
+        max-width: 100% !important;
+        padding:0
+    }
+    .content-container {
+        max-width: 100% !important;
+
+    }
+
+.course-header {
+    padding: 2rem 1rem;
+}
+
+.course-title {
+    font-size: 2rem;
+    max-width:100% !important;
+}
+.section-body{
+    padding:5px !important;
+}
+    .assignment-item{
+        flex-direction:column;
+    }
+    .content-container .content-section {
+        max-width: 100% !important;
+        padding: 5px;
+    }
+    .content-container .content-section .section-card {
+        max-width: 100% !important;
+    }
+    .fed{
+        flex-direction:column;
+        gap:10px;
+    }
+
+    .section-body {
+        padding: 1rem;
+        width: 100% !important;
+    }
+
+.assignment-header {
+    flex-direction: column;
+    align-items: start;
+}
+
+}

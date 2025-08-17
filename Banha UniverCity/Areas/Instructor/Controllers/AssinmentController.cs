@@ -1,6 +1,7 @@
 ﻿using Banha_UniverCity.Models;
 using Banha_UniverCity.Repository.IRepository;
 using BFCAI.Models;
+using DataAccess.Repository.IRepository.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,11 +13,14 @@ namespace Banha_UniverCity.Areas.Instructor.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<IdentityUser> _userManger;
+        private readonly IAssinmentService _assinmentService;
 
-        public AssinmentController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManger)
+
+        public AssinmentController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManger, IAssinmentService assinmentService)
         {
             _unitOfWork = unitOfWork;
             _userManger = userManger;
+            _assinmentService = assinmentService;
         }
 
         public IActionResult Index(int? courseId)
@@ -40,11 +44,12 @@ namespace Banha_UniverCity.Areas.Instructor.Controllers
 
         }
         [HttpGet]
-        public IActionResult UpSert(int? id, int? curriculumId,string?fromCourseArea)
+        public IActionResult UpSert(int? id, int curriculumId)
         {
-            ViewBag.bindId = curriculumId;
+            
             Assignment? assignment = new();
-            ViewBag.fromCourse= fromCourseArea;
+            assignment.CourseCurriculumID = curriculumId;
+          
             if (id == 0 || id == null)
             {
                 return PartialView("_UpsertAssinment", assignment);
@@ -55,74 +60,23 @@ namespace Banha_UniverCity.Areas.Instructor.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpSert(Assignment assignment, IFormFile Content, string? fromCourseArea)
+        public async Task<IActionResult> UpSert(Assignment assignment, IFormFile Content)
         {
+            JsonResult result;
 
             if (!ModelState.IsValid)
             {
-                var validationErrorResult = StaticData.CheckValidation(ModelState, Request, false);
-                if (validationErrorResult != null)
-                {
-                    return validationErrorResult;
-                }
-                return BadRequest();
+                result = StaticData.CheckValidation(ModelState, Request, false);
+                return result;
             }
-            // تحقق من وجود ملف مرفوع
-            if (Content != null)
+           var msg=await _assinmentService.UploadAssignmentAsync(Content);
+            if (msg == null)
             {
-                // التحقق من حجم الملف (حد أقصى 5MB)
-                if (Content.Length > 5 * 1024 * 1024) // 5 MB
-                {
-                    ModelState.AddModelError("Content", "File size exceeds the limit of 5MB.");
-                    var resultFile = StaticData.CheckValidation(ModelState, Request, false);
-                    if (resultFile != null)
-                    {
-                        return resultFile;
-                    }
-                    return View(assignment);
-                }
-
-                // التحقق من نوع الملف إذا كان مطلوبًا (مثال: PDF فقط)
-                if (Content.ContentType != "application/pdf")
-                {
-                    ModelState.AddModelError("Content", "Only PDF files are allowed.");
-                    var resultFile = StaticData.CheckValidation(ModelState, Request, false);
-                    if (resultFile != null)
-                    {
-                        return resultFile;
-                    }
-                    return View(assignment);
-                }
-
-                // تحديد مسار التخزين في مجلد wwwroot/assignments
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/assignments", Content.FileName);
-
-                // التحقق من وجود ملف بنفس الاسم لمنع الكتابة فوقه
-                if (System.IO.File.Exists(filePath))
-                {
-                    ModelState.AddModelError("Content", "A file with the same name already exists.");
-                    var resultFile = StaticData.CheckValidation(ModelState, Request, false);
-                    if (resultFile != null)
-                    {
-                        return resultFile;
-                    }
-                    return View(assignment);
-                }
-                var result = StaticData.CheckValidation(ModelState, Request, true);
-                if (result != null)
-                {
-                    return result;
-                }
-
-                // حفظ الملف بشكل غير متزامن
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await Content.CopyToAsync(stream);
-                }
-
-                // تخزين اسم الملف في خاصية داخل الموديل
-                assignment.Content = Content.FileName;
+                ModelState.AddModelError("Content", "Invalid file format or size. Please upload a valid file.");
+                result = StaticData.CheckValidation(ModelState, Request, false);
+                return result;
             }
+            assignment.Content = msg; 
 
             // إنشاء أو تعديل الـ Assignment بناءً على وجود ID
             if (assignment.AssignmentID == 0)
@@ -134,22 +88,15 @@ namespace Banha_UniverCity.Areas.Instructor.Controllers
                 _unitOfWork.assinmentRepository.Edit(assignment);
             }
 
-            // التحقق من الفاليديشن حسب الـ StaticData (إن وجد)
          
-            // تنفيذ التغييرات في قاعدة البيانات
+         
+          
             _unitOfWork.Commit();
-            if (fromCourseArea!=null)
-            {
-                return RedirectToAction("Courses", "Instructor");
 
-            }
-            else
-            {
-
-            return RedirectToAction("Index");
-            }
+          result= StaticData.CheckValidation(ModelState, Request, true);
+            return result;
         }
-        // POST: Assignment/Delete/5
+        
 
         public IActionResult DeleteConfirmed(int id)
         {
@@ -205,49 +152,23 @@ namespace Banha_UniverCity.Areas.Instructor.Controllers
             return NotFound();
         }
 
+
+
+
+
         [HttpGet]
-        public IActionResult UploadSoluation(int id)
+        public IActionResult GetSubmitions(int id)
         {
-            var assignment = new AssignmentSubmission()
-            {
-                AssignmentID = id,
-                SubmissionDate = DateTime.Now,
-                ApplicationUserID = _userManger.GetUserId(User)
-                
-            };
-            
-            return PartialView("_UploadSoluation",assignment);
-        }
+            var submissions = _unitOfWork.assinmentSubmitionRepository.Get(e => e.AssignmentID == id, e => e.ApplicationUser);
+            //if (submissions == null || !submissions.Any())
+            //{
+            //    return NotFound("No submissions found for this assignment.");
+            //}
+            return PartialView("_SubmissionsPartial", submissions); // Partial view for displaying submissions
 
-        [HttpPost]
-        public IActionResult UploadSoluation(AssignmentSubmission model ,string url) 
-        {
-            
-            
-            if (ModelState.IsValid)
-            {
-                
-                _unitOfWork.assinmentSubmitionRepository.Create(model);
-                var result = StaticData.CheckValidation(ModelState, Request, true);
-                if (result != null)
-                {
-                    return result;
-                }
 
-                _unitOfWork.Commit();
-                TempData["success"] = "Your assignment has been successfully submitted!";
-                return Redirect(url);
-            }
-            else
-            {
-                var result = StaticData.CheckValidation(ModelState, Request, false);
-                if (result != null)
-                {
-                    return result;
-                }
-                return BadRequest();
 
-            }
+
 
         }
 
@@ -262,43 +183,5 @@ namespace Banha_UniverCity.Areas.Instructor.Controllers
 
 
 
-
-
-
-
-
-
-
-
-
-        //[HttpPost]
-        //public IActionResult UpSert(Assignment assignment)
-        //{
-        //    if(ModelState.IsValid)
-        //    {
-        //        if (assignment.AssignmentID == 0)
-        //        {
-        //            _unitOfWork.assinmentRepository.Create(assignment);
-
-        //        }
-        //        else
-        //        {
-        //            _unitOfWork.assinmentRepository.Edit(assignment);
-
-        //        }
-        //        var result=StaticData.CheckValidation(ModelState,Request,true);
-        //        if(result!=null) { return result; }
-        //        _unitOfWork.Commit();
-        //        return RedirectToAction("Index");
-        //    }
-        //    else
-        //    {
-        //        var result = StaticData.CheckValidation(ModelState, Request, false);
-        //        if (result != null) { return result; }
-        //        return BadRequest();
-        //    }
-        //}
-
-
-    }
+        }
 }

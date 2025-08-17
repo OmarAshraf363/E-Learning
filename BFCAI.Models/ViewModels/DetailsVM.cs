@@ -9,9 +9,10 @@ namespace BFCAI.Models.ViewModels
 {
     public class DetailsVM
     {
-        public Course? Course { get; set; }
-        public List<Course> RelatedCourses { get; set; }=new List<Course>();
-        public List<Course> InstructorCourses { get; set; } = new List<Course>();
+        public CourseDetailPageViewModel? Course { get; set; }
+        public List<CourseDetailViewModel> RelatedCourses { get; set; }=new List<CourseDetailViewModel>();
+        public IReadOnlyList<CourseDetailViewModel> InstructorCourses { get; set; } = new List<CourseDetailViewModel>();
+        public CourseReviewSectionVM Feedbacks { get; set; }=new CourseReviewSectionVM();
 
     }
 }

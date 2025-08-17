@@ -65,8 +65,9 @@
                                            
                                             @if (!string.IsNullOrEmpty(assignment.Content))
                                             {
-                                                <a href="/assignments/@assignment.Content" target="_blank">@assignment.Title</a>
-                                                <a onclick="openAssignmentModal(@assignment.AssignmentID)" class="btn btn-info btn-sm ml-2">Details</a>
+                                                <a href="@assignment.Content" target="_blank">@assignment.Title</a>
+                                                <a  onclick="openAssignmentModal(@assignment.AssignmentID)"  class="ml-2">Details</a>
+                                                <a onclick="getSubmitions(@assignment.AssignmentID)"class="ml-2" > Submitions</a>
 
                                             }
                                             else
@@ -82,7 +83,7 @@
                                 <span>No assignments available for this curriculum. <i class="ms-3 fa-solid fa-arrow-right"></i> </span>
                             }
                         </td>
-                        <td><a onclick="openAddToCourseRefOrVideo(@curriculum.CourseCurriculumID, null, 'addModal', 'Instructor', 'Upsert', 'Assinment')" class="btn btn-success btn-sm">Create New</a></td>
+                        <td><a onclick="UploadAssinment(null,@curriculum.CourseCurriculumID)" class="btn btn-success btn-sm">Create New</a></td>
                     </tr>
                 }
             </tbody>

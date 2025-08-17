@@ -1,8 +1,10 @@
 ﻿using Banha_UniverCity.Models;
 using Banha_UniverCity.Repository.IRepository;
 using Banha_UniverCity.ViewModels;
+using DataAccess.Repository.IRepository.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Banha_UniverCity.Areas.Admin.Controllers
 {
@@ -11,18 +13,20 @@ namespace Banha_UniverCity.Areas.Admin.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ICourseService _courseService;
 
-        public DashBoardController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
+        public DashBoardController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ICourseService courseService)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _courseService = courseService;
         }
 
-        public IActionResult Index(AllModelsVM models)
+        public async Task<IActionResult> Index(AllModelsVM models)
         {
             var allUsers = _userManager.Users.ToList();
 
-            models.Courses = _unitOfWork.courseRepository.Get().ToList();
+            models.PagedCourses = await _unitOfWork.courseRepository.GetListOfCoursesDetailsWithPagination();
             models.Departments=_unitOfWork.departmentRepository.Get().ToList();
             foreach(var user in allUsers)
             {
@@ -30,14 +34,7 @@ namespace Banha_UniverCity.Areas.Admin.Controllers
             }
             models.Enrollments=_unitOfWork.enrollmentRepository.Get().ToList();
             models.Events=_unitOfWork.eventRepository.Get(null,e=>e.CreatedBy).ToList();
-           ViewBag.MostPopularCourse = _unitOfWork.enrollmentRepository.Get()
-     .GroupBy(e => e.CourseID)
-     .OrderByDescending(g => g.Count())
-     .Select(g => new {
-         Name=_unitOfWork.courseRepository.GetOne(e=>e.CourseID==g.Key)?.CourseName,
-         EnrollmentCount = g.Count()
-     })
-     .FirstOrDefault();
+            models.MaxEnrollmentCourses = await _courseService.GetCoursesWIthMaxEnrollments();
 
 
             return View(models);

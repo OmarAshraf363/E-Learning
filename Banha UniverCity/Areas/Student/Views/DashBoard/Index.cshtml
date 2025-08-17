@@ -6,457 +6,221 @@
         color: #333;
     }
 
-    .first {
+    .post-feed {
         display: flex;
-        justify-content: space-between;
-        padding-block: 10px;
-        gap: 20px;
+        flex-direction: column;
     }
 
-        .first .part {
-            flex: 1;
-            min-width: 25%;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 8px;
-            border: 1px solid rgb(214, 214, 214);
-            padding: 20px;
-            transition: transform 0.3s ease;
-            overflow:auto;
+    .post-card {
+        background: #fafafa;
+        border: 1px solid #e0e0e0;
+        transition: box-shadow 0.2s ease;
+    }
+
+        .post-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         }
 
-            .first .part:hover {
-                transform: scale(1.02);
-            }
-
-            .first .part h5 {
-                font-size: 1.25rem;
-                color: #2c3e50;
-            }
-
-        .first .about-my-course {
-            flex: 2;
-        }
-
-    table {
-        width: 100%;
-        margin-top: 15px;
+    .post-content p {
+        margin-bottom: 0.5rem;
     }
 
-        table th {
-            background-color: #f8f9fa;
-            color: #333;
-        }
-
-        table tr {
-            color: black;
-            transition: background-color 0.3s ease;
-        }
-
-            table tr:hover {
-                background-color: #f1f1f1;
-            }
-
-            table tr td {
-                color: #555;
-                font-size: 14px;
-                padding: 10px;
-            }
-
-    .table > :not(caption) > * > * {
-        padding: 7px 5px;
-        border-block-width: 0px;
-    }
-
-    table tr {
-        color: black;
-    }
-
-        table tr td {
-            color: gray;
-            font-size: 14px;
-        }
-
-    .progress {
-        background-color: #e9ecef;
-        border-radius: 12px;
-        height: 20px;
-        width: 100%;
-        margin: 0;
-    }
-
-    .progress-bar {
-        background-color: #28a745;
-        height: 100%;
-        border-radius: 12px;
-        text-align: center;
-        color: white;
-        font-size: 12px;
-    }
-
-    .card-body h5 {
-        margin-top: 20px;
-        margin-bottom: 10px;
-        font-size: 1.1rem;
-        color: #333;
-    }
 </style>
 
-<section class="first container-fluid mt-1">
-    <div class="part shadual">
-        <div class="course-schedule">
-            @foreach (var course in Model.Courses)
+
+<div class="dashboard-layout container-fluid">
+
+    <!-- Course Schedule -->
+    <div class="dashboard-section">
+        <h5>Course Schedule</h5>
+        @foreach (var course in Model.Courses)
+        {
+            @foreach (var schedule in Model.ClassSchedule.Where(s => s.CourseId == course.CourseID))
             {
-                <h5>Course Appointment</h5>
-                <div class="course-details mb-4">
-                    <ul class="list-group">
-                        @foreach (var schedule in Model.ClassSchedule.Where(s => s.CourseId == course.CourseID))
-                        {
-                            <li class="list-group-item">
-                                <h6>@course.CourseName</h6>
-                                <strong>Date:</strong> @schedule.StartTime.ToShortDateString() -
-                                <strong>Time:</strong> @schedule.StartTime.ToString(@"hh\:mm")
-                            </li>
-                        }
-                    </ul>
+                <div class="list-group-item">
+                    <h6>@course.CourseName</h6>
+                    <strong>Date:</strong> @schedule.StartTime.ToShortDateString()<br />
+                    <strong>Time:</strong> @schedule.StartTime.ToString(@"hh\:mm")
                 </div>
             }
-        </div>
+        }
     </div>
 
-    <div class="part about-my-course">
+    <!-- Planned Courses (Middle Section) -->
+    <div class="dashboard-section">
         <h5>Your Planned Courses</h5>
-
-        <table class="table ">
+        <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>Course ID</th>
-                    <th>Course Name</th>
-                    <th>DeadLine</th>
 
-                   <th>Course Status </th>
-
-                    <th>Course Status </th>
-                    <th>All Matrial</th>
-
-                    <th>Quick Access  </th>
+                    <th>Name</th>
+                    <th>Deadline</th>
+                    <th>Status</th>
+                    <th>Material</th>
+                    <th>Quick</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var course in Model.Courses)
                 {
                     <tr>
-                        <td>@course.CourseID</td>
+
                         <td>@course.CourseName</td>
-                        <td>@course.EndDate</td>
+                        <td>@course.EndDate?.ToShortDateString()</td>
                         <td>
                             @if (course.StartDate > DateTime.Now)
                             {
-                                <span class="text-warning"> @StaticData.Comming_Status</span>
+                                <span class="text-warning">@StaticData.Comming_Status</span>
                             }
                             else
                             {
-                                <span class="text-primary"> @StaticData.In_Process_Status</span>
-
+                                <span class="text-success">@StaticData.In_Process_Status</span>
                             }
-
                         </td>
-
-
-                        <td> <a onclick="openCourseCurriculum(@course.CourseID)" class="btn btn-outline-info"><i class="fas fa-eye"></a></td>
-
+                        <td>
+                            <a asp-action="CourseProcess" asp-route-id="@course.CourseID" class="btn btn-outline-primary btn-sm">Material</a>
+                        </td>
+                        <td>
+                            <a onclick="QuickAccessToSpacifcCourse(@course.CourseID)" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
                     </tr>
-
                 }
             </tbody>
         </table>
     </div>
 
-    <div class="part feedback">
-        <h5>Feedback</h5>
+    <!-- Feedback Section -->
+    <div class="dashboard-section">
+        <h5 class="mb-4">Student Feedback</h5>
 
-        <div class="feedback-list">
-            @if (Model.Feedbacks.Any())
-            {
-                <ul class="list-group">
-                    @foreach (var feedback in Model.Feedbacks)
-                    {
-                        <li class="list-group-item">
-                            <p><strong>Date:</strong> @feedback.FeedbackDate.ToShortDateString()</p>
-                            <p class="mb-1"><strong>Content:</strong> @feedback.Content</p>
-                            <p style="font-size:0.8rem;" class="mx-2"><strong>By:</strong> @feedback.ProviderUser?.FullName</p>
-
-
-                        </li>
-                    }
-                </ul>
-            }
-            else
-            {
-                <p>No feedback available.</p>
-            }
-        </div>
-    </div>
-
-</section>
-
-
-<section class="first container-fluid py-2 ">
-
-    <div class="part about-my-course">
-        <h5>Some Available Courses</h5>
-
-        <table class="table ">
-            <thead>
-                <tr>
-                    <th>Course ID</th>
-                    <th>Course Name</th>
-                    <th>Deadline</th>
-                    <th>Instructor</th>
-                    <th>About Course</th>
-                    <th>Course Status</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var course in Model.SomeAvailableCourse)
+        @if (Model.Feedbacks.Any())
+        {
+            <div class="feedback-list">
+                @foreach (var feedback in Model.Feedbacks)
                 {
-                    <tr>
-                        <td>@course.CourseID</td>
-                        <td>@course.CourseName</td>
-                        <td>@(course.EndDate == null ? "Not Set" : course.EndDate)</td>
-                        <td>@course.Instructor.FullName</td>
-                        <td>
-                            <a class="btn btn-info" onclick="openDetails(@course.CourseID,'courseDetailsModal')">Get</a>
-                        </td>
-                        <td>
-                            @if (Model.Enrollments.Where(e => e.CourseID == course.CourseID).Count() > course.NumOfEnrollments)
-                            {
-                                <span class="text-dark text-decoration-line-through"> @StaticData.Full_Status</span>
-                            }
-                            else
-                            {
-                                <span class="text-primary"> @StaticData.Available_Status</span>
-                            }
-                        </td>
-                        <td>
-                            @if (Model.Enrollments.Where(e => e.CourseID == course.CourseID).Count() > course.NumOfEnrollments)
-                            {
-                                <a class="btn btn-primary">Enroll To Access Material</a>
-                            }
-                            else
-                            {
-                                <a class="btn btn-primary">Enroll</a>
-                            }
-                        </td>
-                    </tr>
+                    <div class="card feedback-card shadow-sm mb-3">
+                        <div class="card-body d-flex">
+                            <!-- User Picture -->
+                            <div class="me-3">
+                                <img src="@feedback.ProviderUser?.Picture" class="rounded-circle user-img" alt="User" />
+                            </div>
+
+                            <!-- Feedback Content -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <h6 class="mb-0">@feedback.ProviderUser?.FullName</h6>
+                                    <small class="text-muted">@feedback.FeedbackDate.ToString("dd MMM yyyy")</small>
+                                </div>
+
+                                <!-- Star Rating -->
+                                <div class="rating mb-2">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <span class="fa fa-star @(i <= feedback.Rating ? "checked" : "")"></span>
+                                    }
+                                </div>
+
+                                <p class="feedback-text mb-0">@feedback.Content</p>
+                            </div>
+                        </div>
+                    </div>
                 }
-            </tbody>
-        </table>
-
-
-
-
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-light border text-muted">No feedback available.</div>
+        }
     </div>
 
 
-</section>
+</div>
+<section class="for-student container-fluid py-3">
+    <div class="recommended-section p-3">
+        <h4>Recommended Courses</h4>
 
-<!-- Modal -->
-<div class="modal fade" id="courseDetailsModal" tabindex="-1" aria-labelledby="courseDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="courseDetailsModalLabel">Course Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="courseDetailsContent">
-                    <!-- Content will be loaded here via AJAX -->
+        @foreach (var course in Model.SomeAvailableCourse)
+        {
+            <div onclick="goTo('customer','home','details',@course.CourseID)" class=" course-card shadow-sm rounded">
+                <img src="/Covers/@course.Image" alt="@course.Title" />
+
+                <div class="course-content">
+                    <p class="course-title">@course.Title</p>
+                    <p class="course-description">@course.Description</p>
+
                 </div>
+                <div class="me-2 d-flex align-items-center">
+                    <span class="rating-number">@course.Rate</span>
+                    <span class="fa fa-star  checked"></span>
+
+
+                </div>
+                <div class="me-2 d-flex align-items-center">
+                    <span class="fa fa-user "></span>
+                    <span>@course.NumOfEnrolments </span>
+                </div>
+                <span>@course.Price </span>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
+        }
+    </div>
+
+    <div class="posts">
+        <!-- You can add related blog posts, updates, or announcements here -->
+        <div class="post-container w-50">
+            <h4>Posts Apout Your Intersting</h4>
+            @foreach (var post in Model.Posts)
+            {
+                <div class="post-card  shadow-sm rounded p-3 mb-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="@post.UserProfilePic" alt="@post.UserName" class="rounded-circle me-2" style="width:40px;height:40px;object-fit:cover;">
+                        <div>
+                            <strong>@post.UserName</strong><br />
+                            <small class="text-muted">@post.CreatedAt.ToString("MMM dd, yyyy - hh:mm tt")</small>
+                        </div>
+                    </div>
+                    <div class="post-content mb-2">
+                        <p>@post.Content</p>
+                        @if (!string.IsNullOrEmpty(post.Attachment))
+                        {
+                            <img src="/@post.Attachment" alt="Attachment" class="img-fluid rounded" />
+                        }
+                    </div>
+                    <div class="text-end">
+                        <button class="btn btn-sm btn-outline-secondary me-2"><i class="fa fa-comment"></i> Comment</button>
+                        <button class="btn btn-sm btn-outline-primary"><i class="fa fa-thumbs-up"></i> Like</button>
+                    </div>
+                </div>
+            }
         </div>
-    </div>
-</div>
+        <div class="recom-community w-50 bg-light" >
+            <h4 class="">Suggested Communities</h4>
 
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="modal fade" id="curriculumModal" tabindex="-1" aria-labelledby="curriculumModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div style="background-color:purple;" class="modal-header d-flex align-items-center justify-content-between text-light">
-                <h5 class="modal-title text-light" id="curriculumModalLabel">Course Curriculum</h5>
-                <input type="search" class="search w-50 form-control mx-4 " placeholder="Search about Topic..." />
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Content will be loaded via AJAX -->
-            </div>
+            @foreach (var community in Model.Communities)
+            {
+                <div onclick="goTo('customer','community','index',`?id=@community.Id`)" class="community-card shadow-sm p-3 mb-3 rounded bg-white">
+                    <h5 class="mb-1">@community.Name</h5>
+                    <p class="mb-0 text-muted">@community.Description.Substring(1,community.Description.Length/3)</p>
+                </div>
+            }
         </div>
+     
     </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@*
-@model BFCAI.Models.ViewModels.HomeStudentViewModels
-<section class="first container-fluid mt-5">
-    <div class="part shadual">
-
-
-
-    </div>
-
-    <div  class="part about-my-course">
-        <h5 >Your Planed Course</h5>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Course ID</th>
-                    <th>Course Name</th>
-                    <th>Process</th>
-
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var course in Model.Courses)
-                {
-                    <tr>
-                        <td>@course.CourseID</td>
-                        <td>@course.CourseName</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <div class="part feedback  "></div>
-
 </section>
 
-<style>
-    body{
-        background-color: rgb(242, 242, 242);
-        font-family: Poppins;
-    }
-    .first{
-        display:flex;
-        justify-content:space-between;
-        padding-block:30px;
-
-    }
-    .first .part{
-        width:25%;
-        height:340px;
-            background-color: rgb(255, 255, 255);
-            border-radius: 12px;
-            box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 0px;
-            border: 1px solid rgb(214, 214, 214);
-            padding:10px;
-        }
-        .first .part h4{
-            color:darkslategray;
-        }
-
-        .first .about-my-course{
-            width:45%;
-        }
-
-    .table > :not(caption) > * > *{
 
 
-            padding:0;
-            border-block-width:0px;
-    }
-    table tr{
-        color:black;
 
-    }
-    table tr td{
-        color:gray;
-            font-size: 14px;
-    }
 
-</style> *@
+
+
+
+
+
+
+
+
+
+
+

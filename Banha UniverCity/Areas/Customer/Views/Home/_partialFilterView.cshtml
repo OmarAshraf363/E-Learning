@@ -1,0 +1,65 @@
+﻿@using Banha_UniverCity.Repository.IRepository
+@model BFCAI.Utility.Shared.CourseParam
+@inject IUnitOfWork UnitOfWork
+
+<form method="get" asp-action="Courses" asp-controller="Home">
+    <div class="container-fluid p-2 mt-3">
+        <h5 class="fw-bold">Filters</h5>
+
+        <!-- Category Filter -->
+        <div class="mb-4">
+            <h6>Category</h6>
+            <ul class="list-unstyled">
+                @foreach (var category in UnitOfWork.departmentRepository.Get().ToList())
+                {
+                    <li>
+                        <input type="radio" name="CategoryId" id="category-@category.DepartmentID" value="@category.DepartmentID"
+                               @(Model.CategoryId == category.DepartmentID ? "checked" : "") />
+                        <label for="category-@category.DepartmentID">@category.DepartmentName</label>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <!-- Rating Filter -->
+        <div class="mb-4">
+            <h6>Rating</h6>
+            <ul class="list-unstyled">
+                @for (int i = 5; i >= 1; i--)
+                {
+                    <li>
+                        <input type="radio" name="Rate" id="rating-@i" value="@i" @(Model.Rate == i ? "checked" : "") />
+                        <label for="rating-@i">
+                            @for (int j = 0; j < i; j++)
+                            {
+                                <i class="fa-solid fa-star text-warning"></i>
+                            }
+                            & Up
+                        </label>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <!-- Price Range Filter -->
+        <div class="mb-4">
+            <h6>Price Range</h6>
+            <input type="range" id="price-range" name="Price" class="form-range" min="0" max="1000" step="50"
+                   value="@Model.Price" oninput="updatePriceLabel(this.value)" />
+            <div class="d-flex justify-content-between">
+                <span>$0</span>
+                <span id="price-range-label">$@Model.Price</span>
+            </div>
+        </div>
+
+        <script>
+            function updatePriceLabel(value) {
+                document.getElementById("price-range-label").textContent = "$" + value;
+            }
+        </script>
+
+        <!-- Action Buttons -->
+        <button type="submit" class="btn btn-outline-primary">Apply Filters</button>
+        <a href="@Url.Action("Courses", "Home")" class="btn btn-outline-secondary ms-2">Clear Filters</a>
+    </div>
+</form>

@@ -1,0 +1,49 @@
+﻿@model IEnumerable<BFCAI.Models.AssignmentSubmission>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning text-center">
+        Not Found any thing .
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Student Name</th>
+                    <th>Date</th>
+                    <th>Soloution</th>
+                    <th>Rate</th>
+                    <th>Ferdback</th>
+                </tr>
+            </thead>
+            @if (Model.Any())
+            {
+
+                <tbody>
+                    @foreach (var submission in Model)
+                    {
+                        <tr>
+                            <td>@submission.AssignmentSubmissionID</td>
+                            <td>@(submission.ApplicationUser?.FullName ?? "—")</td>
+                            <td>@submission.SubmissionDate.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td><a href="@submission.Content" target="_blank">solution</a></td>
+                            <td>@(submission.Grade.HasValue? submission.Grade.Value.ToString() : "—")</td>
+                            <td>@submission.Feedback</td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+        <tr>
+            <td colspan="5">No found any submitions</td>
+        </tr>
+                
+                }
+        </table>
+    </div>
+}

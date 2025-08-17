@@ -5,5 +5,7 @@ namespace DataAccess.Repository.IRepository
 {
     public interface IEnrollmentRepository : IGenralRepository<Enrollment>
     {
+        Task<IReadOnlyList<Course>> GetStudentCourses(string studentId);
+        Task EnrollUserInCourses(string studentId, List<int?> courseIds);
     }
 }

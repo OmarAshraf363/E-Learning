@@ -213,7 +213,7 @@ namespace Banha_UniverCity.Migrations
                         {
                             Id = 1,
                             Content = "Thank you for this platform!",
-                            CreatedAt = new DateTime(2025, 1, 19, 12, 52, 25, 795, DateTimeKind.Utc).AddTicks(8097),
+                            CreatedAt = new DateTime(2025, 8, 4, 8, 43, 32, 506, DateTimeKind.Utc).AddTicks(8064),
                             PostId = 1,
                             UserId = "123548458"
                         },
@@ -221,7 +221,7 @@ namespace Banha_UniverCity.Migrations
                         {
                             Id = 2,
                             Content = "Excited to be part of this community.",
-                            CreatedAt = new DateTime(2025, 1, 19, 12, 52, 25, 795, DateTimeKind.Utc).AddTicks(8100),
+                            CreatedAt = new DateTime(2025, 8, 4, 8, 43, 32, 506, DateTimeKind.Utc).AddTicks(8068),
                             PostId = 1,
                             UserId = "123548458"
                         });
@@ -376,6 +376,7 @@ namespace Banha_UniverCity.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("PostId")
@@ -502,14 +503,14 @@ namespace Banha_UniverCity.Migrations
                         {
                             Id = 1,
                             Content = "Welcome to the B FCAI Platform Community!",
-                            CreatedAt = new DateTime(2025, 1, 19, 12, 52, 25, 795, DateTimeKind.Utc).AddTicks(7820),
+                            CreatedAt = new DateTime(2025, 8, 4, 8, 43, 32, 506, DateTimeKind.Utc).AddTicks(7952),
                             UserId = "123548458"
                         },
                         new
                         {
                             Id = 2,
                             Content = "Here's a guide to using the platform effectively.",
-                            CreatedAt = new DateTime(2025, 1, 19, 12, 52, 25, 795, DateTimeKind.Utc).AddTicks(7824),
+                            CreatedAt = new DateTime(2025, 8, 4, 8, 43, 32, 506, DateTimeKind.Utc).AddTicks(7957),
                             UserId = "123548458"
                         });
                 });
@@ -1116,6 +1117,9 @@ namespace Banha_UniverCity.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("CourseCurriculumId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("CourseId")
                         .HasColumnType("int");
 
@@ -1126,10 +1130,15 @@ namespace Banha_UniverCity.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int?>("Rating")
+                        .HasColumnType("int");
+
                     b.Property<string>("TargetStudentUserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("FeedbackID");
+
+                    b.HasIndex("CourseCurriculumId");
 
                     b.HasIndex("CourseId");
 
@@ -1145,7 +1154,7 @@ namespace Banha_UniverCity.Migrations
                             FeedbackID = 1,
                             Content = "Great course!",
                             CourseId = 1,
-                            FeedbackDate = new DateTime(2025, 1, 19, 14, 52, 25, 795, DateTimeKind.Local).AddTicks(6714),
+                            FeedbackDate = new DateTime(2025, 8, 4, 11, 43, 32, 506, DateTimeKind.Local).AddTicks(6933),
                             ProviderUserId = "1",
                             TargetStudentUserId = "1"
                         },
@@ -1154,7 +1163,7 @@ namespace Banha_UniverCity.Migrations
                             FeedbackID = 2,
                             Content = "Need improvement on some topics.",
                             CourseId = 2,
-                            FeedbackDate = new DateTime(2025, 1, 19, 14, 52, 25, 795, DateTimeKind.Local).AddTicks(6804),
+                            FeedbackDate = new DateTime(2025, 8, 4, 11, 43, 32, 506, DateTimeKind.Local).AddTicks(7073),
                             ProviderUserId = "2",
                             TargetStudentUserId = "1"
                         });
@@ -1514,14 +1523,14 @@ namespace Banha_UniverCity.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e609e3f6-909e-4877-827d-220b2789f38f",
+                            ConcurrencyStamp = "1ef031ae-ce6c-41df-8db3-70c19780350a",
                             Email = "student1@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "STUDENT1@EXAMPLE.COM",
                             NormalizedUserName = "STUDENT1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "966510bf-86a9-4a6f-8f7c-a162a9e1b83b",
+                            SecurityStamp = "a09e59de-af32-48fe-aaab-02da69763312",
                             TwoFactorEnabled = false,
                             UserName = "student1",
                             AvailableCreditHours = 0,
@@ -1534,14 +1543,14 @@ namespace Banha_UniverCity.Migrations
                         {
                             Id = "2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8f4f0e6d-5cfb-4421-824c-0474e9f11fa7",
+                            ConcurrencyStamp = "aa14c0f9-f6ef-4db1-a40f-e2ec45fc2107",
                             Email = "instructor1@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "INSTRUCTOR1@EXAMPLE.COM",
                             NormalizedUserName = "INSTRUCTOR1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "b580e67b-adc8-4579-bcc7-e5660109de09",
+                            SecurityStamp = "8aa0c3dc-66a2-4470-9e78-32ed819bca24",
                             TwoFactorEnabled = false,
                             UserName = "instructor1",
                             AvailableCreditHours = 0,
@@ -1554,15 +1563,15 @@ namespace Banha_UniverCity.Migrations
                         {
                             Id = "123548458",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "03461d48-1cff-44e6-9956-e9c00a3956d1",
+                            ConcurrencyStamp = "442b7053-a69a-45f0-b0c6-2928501bb299",
                             Email = "Admin@gmail.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEAimo7E6kFMuqEHQHYT6BfLsF8F4x0TnEN+4xMurCVdicW8XnFcQLVm4AqTjFrKObQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOKMejFTYeiJ5hgZ5smhv+Lh8ceqasjM9aKaTgN50y2M9lt+j74g2+MXuDkYxXTlYA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "251a5884-2a62-4927-b638-e65168023f09",
+                            SecurityStamp = "4e1cc11b-e68d-4d2b-9eb8-281c07b006e1",
                             TwoFactorEnabled = false,
                             UserName = "Admin@gmail.com",
                             AvailableCreditHours = 0,
@@ -1778,7 +1787,7 @@ namespace Banha_UniverCity.Migrations
                         .HasForeignKey("CommunityId");
 
                     b.HasOne("Banha_UniverCity.Models.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("Posts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1977,6 +1986,11 @@ namespace Banha_UniverCity.Migrations
 
             modelBuilder.Entity("Banha_UniverCity.Models.Feedback", b =>
                 {
+                    b.HasOne("Banha_UniverCity.Models.CourseCurriculum", "CourseCurriculum")
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("CourseCurriculumId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("Banha_UniverCity.Models.Course", "Course")
                         .WithMany("Feedbacks")
                         .HasForeignKey("CourseId");
@@ -1993,6 +2007,8 @@ namespace Banha_UniverCity.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Course");
+
+                    b.Navigation("CourseCurriculum");
 
                     b.Navigation("ProviderUser");
 
@@ -2181,6 +2197,8 @@ namespace Banha_UniverCity.Migrations
                     b.Navigation("CourseVideos");
 
                     b.Navigation("Exams");
+
+                    b.Navigation("Feedbacks");
                 });
 
             modelBuilder.Entity("Banha_UniverCity.Models.Department", b =>
@@ -2222,6 +2240,8 @@ namespace Banha_UniverCity.Migrations
                     b.Navigation("FeedbacksReceived");
 
                     b.Navigation("Orders");
+
+                    b.Navigation("Posts");
 
                     b.Navigation("Schedules");
 

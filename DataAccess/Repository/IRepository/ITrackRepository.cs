@@ -1,5 +1,6 @@
 ﻿using Banha_UniverCity.Repository.IRepository;
 using BFCAI.Models;
+using BFCAI.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,7 @@ namespace DataAccess.Repository.IRepository
 {
    public interface ITrackRepository:IGenralRepository<Track>
     {
+        Task<TrackDetailsVIewModel> TrackDetailsProjection(int trackId, string? studentId=null);
+        Task<IReadOnlyList<TrackDetailsVIewModel>> GetTopTracksAsync();
     }
 }

@@ -15,6 +15,13 @@
 </style>
 
 <section class="container py-5">
+    @if (TempData["Error"]!=null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+        
+    }
     <div class="row">
         <!-- Cart Items Section -->
         <div class="col-lg-8 mb-4">
@@ -40,8 +47,8 @@
                             <div class="col-md-3 d-flex align-items-center justify-content-center">
                                 <div class="d-flex flex-column align-items-center">
                                     <!-- Quantity Control -->
-                             
-                                    <form method="post" asp-action="RemoveFromCart" asp-route-id="@item.Id">
+
+                                    <form  asp-action="RemoveFromCart" asp-route-id="@item.Id">
                                         <button class="btn btn-light offset-lg-6 btn-sm" type="submit"><i class="text-danger fa-solid fa-xmark"></i></button>
                                     </form>
                                 </div>
@@ -105,13 +112,13 @@
 
                     <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Courses',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
                         <div class="course-video mb-3">
-                            <img src="/Covers/@course.ImgCover" alt="Alternate Text" />
+                            <img src="/Covers/@course.Image" alt="Alternate Text" />
                         </div>
                         <div class="course-title">
-                            <h5>@course.CourseName</h5>
+                            <h5>@course.Title</h5>
                         </div>
                         <div class="w-75 instructor">
-                            <h6>@course.Instructor?.FullName</h6>
+                            <h6>@course.InstructorName</h6>
                         </div>
 
                         <!-- Rating -->
@@ -135,18 +142,18 @@
                         <div class="modal-test p-4" id="modal-main-@course.CourseID" style="max-width: 700px; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff;">
                             <!-- Course Name Section -->
                             <div class="modal-course-header ">
-                                <h3 class="modal-course-name mb-3">@course.CourseName</h3>
-                                <h5>by <span>@course.Instructor?.FullName</span></h5>
+                                <h3 class="modal-course-name mb-3">@course.Title</h3>
+                                <h5>by <span>@course.InstructorName</span></h5>
                             </div>
 
                             <!-- Course Stats Section -->
                             <div class="modal-course-details d-flex justify-content-between mb-2">
                                 <div class="course-videos">
-                                    <span><i class="fas fa-play-circle me-2"></i>@course.CourseCurricula.Count Videos</span>
+                                    <span><i class="fas fa-play-circle me-2"></i>@course.VideosCount Videos</span>
                                 </div>
 
                                 <div class="course-enrollments">
-                                    <span><i class="fas fa-users me-2"></i>@course.Enrollments.Count Enrolled</span>
+                                    <span><i class="fas fa-users me-2"></i>@course.NumOfEnrolments Enrolled</span>
                                 </div>
                             </div>
 
@@ -167,7 +174,7 @@
 
                                                 <i class="fas fa-check-circle text-success me-2"></i>
 
-                                                <p class="m-1"> @item.Objective</p>
+                                                <p class="m-1"> @item</p>
 
 
                                             </li>

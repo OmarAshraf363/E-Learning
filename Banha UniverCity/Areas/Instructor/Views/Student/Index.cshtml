@@ -1,12 +1,74 @@
-﻿
-@model  IEnumerable<ApplicationUser>
-<div class="container p-3">
-    <h2>Manage Students for Your Courses</h2>
+﻿@model IEnumerable<ApplicationUser>
+@{
+    ViewData["Title"] = "Manage Students";
+}
 
+<!-- Styling -->
+<style>
+    main {
+        background-color: #1f1f1f;
+        color: #f1f1f1;
+    }
+
+  
+
+    .student-card {
+        background-color: #2e2e2e;
+        border-radius: 10px;
+        padding: 20px;
+        color: white;
+        transition: transform 0.2s ease;
+        height: 100%;
+    }
+
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 10px rgba(23, 162, 184, 0.2);
+        }
+
+    .student-card img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #17a2b8;
+    }
+
+    .student-info {
+        margin-top: 15px;
+    }
+
+    .btn-dark {
+        background-color: #343a40;
+        border-color: #343a40;
+    }
+
+        .btn-dark:hover {
+            background-color: #23272b;
+        }
+
+    .form-select,
+    .form-control {
+        background-color: #343a40;
+        color: white;
+        border: 1px solid #555;
+    }
+
+        .form-select:focus,
+        .form-control:focus {
+            border-color: #17a2b8;
+            box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+        }
+</style>
+
+<div class="container mt-5">
+    <h2 class="mb-4"><i class="fas fa-users-cog"></i> Manage Students</h2>
+
+    <!-- Course Filter -->
     <form method="get" asp-action="Index">
-        <div class="form-group">
-            <label for="Course">Select Course</label>
-            <select id="Course" name="courseId" class="form-control" onchange="this.form.submit()">
+        <div class="mb-4">
+            <label for="Course" class="form-label">Select Course</label>
+            <select id="Course" name="courseId" class="form-select" onchange="this.form.submit()">
                 <option value="">-- Select Course --</option>
                 @foreach (var course in ViewBag.listOfCourses)
                 {
@@ -14,8 +76,10 @@
                     {
 
                         <option selected value="@course.Value">@course.Text</option>
-                    }else{
-                        <option value="@course.Value" >@course.Text</option>
+                    }
+                    else
+                    {
+                        <option value="@course.Value">@course.Text</option>
 
                     }
                 }
@@ -23,40 +87,45 @@
         </div>
     </form>
 
-    <!-- عرض الطلاب المسجلين في الكورس المحدد -->
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Student Name</th>
-                <th>Email</th>
-                <th>Gpa</th>
-                <th>Controll</th>
-
-                
-            </tr>
-        </thead>
-        <tbody>
+    <!-- Student Cards Grid -->
+    @if (Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             @foreach (var student in Model)
             {
-                <tr>
-                    <td>@student.FullName</td>
-                    <td>@student.Email</td>
-                    <td>@student.Gpa</td>
-                    <td>
-                        <a onclick="openModal('@student.Id','Student','addModal','InsertFeedBack','Instructor')" class="btn btn-dark">Add FeedBack</a>
-                    </td>
-                </tr>
+                <div class="col">
+                    <div class="student-card text-center h-100">
+                        <img src="@(string.IsNullOrEmpty(student.Picture) ? "/images/default-avatar.png" : student.Picture)" alt="Avatar" />
+
+                        <div class="student-info mt-3">
+                            <h5 class="fw-bold">@student.FullName</h5>
+                            <p class="mb-1"><i class="fas fa-envelope text-info"></i> @student.Email</p>
+                            <p class="mb-2"><i class="fas fa-graduation-cap text-warning"></i> GPA: <strong>@student.Gpa</strong></p>
+
+                            <a href="javascript:void(0);" class="btn btn-dark btn-sm mt-2"
+                               onclick="openModal('@student.Id', 'Student', 'addModal', 'InsertFeedBack', 'Instructor')">
+                                <i class="fas fa-comment-alt"></i> Add Feedback
+                            </a>
+                        </div>
+                    </div>
+                </div>
             }
-        </tbody>
-    </table>
-
-
- 
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info mt-3">No students found for the selected course.</div>
+    }
 </div>
 
-<div class="modal fade " id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+            <!-- Dynamic content will load here -->
         </div>
     </div>
 </div>
+
+<!-- Optional: FontAwesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />

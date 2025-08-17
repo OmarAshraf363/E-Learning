@@ -14,5 +14,6 @@ namespace DataAccess.Repository.ModelsRepository
         public PostRepository(ApplicationDbContext context) : base(context)
         {
         }
+        
     }
 }

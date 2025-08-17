@@ -93,6 +93,8 @@
             <h1>Teach In BFCAI</h1>
             <p>Please put your information </p>
         </div>
+        <span  class="glb text-danger"></span>
+
         <div class="form-login">
             <form class="shadow-lg p-4 rounded bg-white " asp-action="PostRegister" id="account" method="post">
                 <div class="form-floating mb-3">
@@ -128,7 +130,6 @@
     </div>
 </div>
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+   <partial name="_ValidationScriptsPartial" />
+
 }

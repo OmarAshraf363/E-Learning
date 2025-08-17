@@ -33,7 +33,7 @@
             <div class="card text-white bg-primary">
                 <div class="card-header">Total Courses</div>
                 <div class="card-body">
-                    <h5 class="card-title">@Model.Courses.Count</h5>
+                    <h5 class="card-title">@Model.PagedCourses.Items.Count</h5>
                     <p class="card-text">Total number of courses available.</p>
                 </div>
             </div>
@@ -64,12 +64,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var course in Model.Courses)
+                    @foreach (var course in Model.PagedCourses.Items)
                     {
                         <tr>
                             <td>@course.CourseID</td>
-                            <td>@course.CourseName</td>
-                            <td>@Model.Departments.FirstOrDefault(d => d.DepartmentID == course.DepartmentId)?.DepartmentName</td>
+                            <td>@course.Title</td>
+                            @* <td>@Model.Departments.FirstOrDefault(d => d.DepartmentID == course.DepartmentId)?.DepartmentName</td> *@
                         </tr>
                     }
                 </tbody>

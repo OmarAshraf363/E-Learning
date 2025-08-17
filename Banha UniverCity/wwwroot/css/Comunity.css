@@ -269,3 +269,53 @@ main {
     font-size:0.8rem;
     cursor:pointer;
 }
+
+.content-communites-neView{
+    display:none;
+}
+@media (max-width: 1100px) {
+    .content-communites-neView {
+        display: block;
+    }
+    .content-communites {
+        display: none;
+    }
+    .community-main-content {
+        max-width: 100%;
+    }
+    .content-header{
+        width:100%;
+    }
+    .content-header-newPost{
+        width:65%;
+    }
+    .content-header-newPost input{
+        width:100% !important;
+    }
+    .community-main-content .content-mainContent {
+        flex-direction: column-reverse;
+        align-items: center;
+    }
+    #content-communites {
+        width: 100%;
+        position: static;
+    }
+    .community-main-content .content-community-posts {
+        width: 100%;
+    }
+    .community-main-content .about-users {
+        position: static;
+                width: 100%;
+    }
+    .community-main-content .content-community-posts .post{
+        width:100%;
+    }
+    .modal-reaction-details {
+        left: -30px ;
+        top: -156px;
+    }
+    .handel-menu {
+        right: -9px !important;
+        top: -45px !important;
+    }
+}

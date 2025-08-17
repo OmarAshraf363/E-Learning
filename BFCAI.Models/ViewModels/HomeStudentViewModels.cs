@@ -13,8 +13,10 @@ namespace BFCAI.Models.ViewModels
         public List<CourseCurriculum> CourseCurricula { get; set; } =new List<CourseCurriculum>();
         public List<Enrollment> Enrollments { get; set; }= new List<Enrollment>();
         public List<ClassSchedule> ClassSchedule { get; set; } = new List<ClassSchedule>(); 
-        public List<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-        public List<Course> SomeAvailableCourse { get; set; } = new List<Course>();
+        public IReadOnlyList<Feedback> Feedbacks { get; set; } = new List<Feedback>();
+        public IReadOnlyList<CourseDetailViewModel> SomeAvailableCourse { get; set; } = new List<CourseDetailViewModel>();
+        public IReadOnlyList<PostVM> Posts { get; set; }=new List<PostVM>();
+        public IReadOnlyList<Community> Communities { get; set; }=new List<Community>();
         
     }
 }

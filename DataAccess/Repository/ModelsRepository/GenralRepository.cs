@@ -18,9 +18,9 @@ namespace DataAccess.Repository.ModelsRepository
             dbSet = context.Set<T>();
         }
 
-        public IEnumerable<T> Get(Expression<Func<T, bool>>? expression = null, params Expression<Func<T, object>>[] includeProperties)
+        public IQueryable<T> Get(Expression<Func<T, bool>>? expression = null, params Expression<Func<T, object>>[] includeProperties)
         {
-            IQueryable<T> query = dbSet;
+            IQueryable<T> query = dbSet.AsNoTracking();
 
             if (expression != null)
             {
@@ -32,7 +32,7 @@ namespace DataAccess.Repository.ModelsRepository
                 query = query.Include(includeProperty);
             }
 
-            return query.ToList();
+            return query;
         }
         public void AddRange(IEnumerable<T> entities)
         {
@@ -72,6 +72,86 @@ namespace DataAccess.Repository.ModelsRepository
         public T GetOneWithNoTrack(Expression<Func<T, bool>> expression)
         {
            return dbSet.Where(expression).AsNoTracking().FirstOrDefault();
+        }
+
+        public async Task<IReadOnlyList<T>> GetAllAsync(
+        Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        bool asNoTracking = true,
+        params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = dbSet;
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            if (filter != null)
+                query = query.Where(filter);
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            if (orderBy != null)
+                query = orderBy(query);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<T?> GetOneAsync(
+            Expression<Func<T, bool>> filter,
+            bool asNoTracking = true,
+            params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = dbSet;
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            query = query.Where(filter);
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+        public async Task AddAsync(T entity)
+        {
+            await dbSet.AddAsync(entity);
+        }
+
+        public Task UpdateAsync(T entity)
+        {
+            dbSet.Attach(entity);
+            context.Entry(entity).State = EntityState.Modified;
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteAsync(T entity)
+        {
+            dbSet.Remove(entity);
+            return Task.CompletedTask;
+        }
+
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await dbSet.AddRangeAsync(entities);
+        }
+
+        public Task UpdateRangeAsync(IEnumerable<T> entities)
+        {
+            dbSet.UpdateRange(entities);
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteRangeAsync(IEnumerable<T> entities)
+        {
+            dbSet.RemoveRange(entities);
+            return Task.CompletedTask;
         }
     }
 }

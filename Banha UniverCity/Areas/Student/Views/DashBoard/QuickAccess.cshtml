@@ -1,0 +1,86 @@
+﻿@model BFCAI.Models.ViewModels.CourseCurriculumViewModel
+
+
+
+
+<ul class="list-group">
+    <li class="list-group-item mb-4">
+        <h3> @Model.CourseName</h3>
+        </li>
+    @foreach (var curriculum in Model.sUbCurrculas)
+    {
+        <li class="list-group-item mb-4">
+           # <h5 class="font-weight-bold">@curriculum.Title</h5>
+            <p>@curriculum.Content</p>
+
+            <!-- عرض الفيديوهات الخاصة بالمنهج -->
+            <div class="curriculum-section">
+                <h5>Videos</h5>
+                @if (curriculum.Videos != null && curriculum.Videos.Any())
+                {
+                    <div class="resource-grid">
+                        @foreach (var video in curriculum.Videos)
+                        {
+                            <div class="resource-card">
+                                <a href="/@video.Url" target="_blank">
+                                    <i class="fa-solid fa-video"></i> @video.Title
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="no-data">No videos available for this curriculum.</div>
+                }
+            </div>
+
+
+            <!-- عرض المراجع الخاصة بالمنهج -->
+            <div class="curriculum-section">
+                <h5>References</h5>
+                @if (curriculum.Resources != null && curriculum.Resources.Any())
+                {
+                    <div class="resource-grid">
+                        @foreach (var reference in curriculum.Resources)
+                        {
+                            <div class="resource-card">
+                                <a href="@reference.Url" target="_blank">
+                                    <i class="fa-solid fa-book"></i> @reference.Title
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="no-data">No references available for this curriculum.</div>
+                }
+            </div>
+
+
+            <!-- عرض المهام الخاصة بالمنهج -->
+            <div class="curriculum-section">
+                <h5>Assignments</h5>
+                @if (curriculum.Assignments != null && curriculum.Assignments.Any())
+                {
+                    <div class="resource-grid">
+                        @foreach (var assignment in curriculum.Assignments)
+                        {
+                            <div class="resource-card">
+                                <a href="@assignment.Url" target="_blank">
+                                    <i class="fa-solid fa-file"></i> @assignment.Title
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="no-data">No assignments available for this curriculum.</div>
+                }
+            </div>
+        </li>
+    }
+</ul>
+

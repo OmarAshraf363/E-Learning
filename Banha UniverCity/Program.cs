@@ -7,6 +7,9 @@ using DataAccess.Repository.ModelsRepository;
 
 using Stripe;
 using BFCAI.Models;
+using DataAccess.Repository.IRepository.Service;
+using DataAccess.Repository.ModelsRepository.Service;
+using DataAccess;
 
 
 namespace Banha_UniverCity
@@ -20,9 +23,9 @@ namespace Banha_UniverCity
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
+            builder.Services.RegisterDbContext(builder.Configuration);
+            builder.Services.RegisterCacheService(builder.Configuration);
 
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-           options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultUI().AddDefaultTokenProviders();
 
 
@@ -30,6 +33,7 @@ namespace Banha_UniverCity
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 
+            builder.Services.RegisterInfrastructure(builder.Configuration);
 
             //builder.Services.AddAuthentication().AddGoogle(googleOptions =>
             //{
@@ -45,7 +49,6 @@ namespace Banha_UniverCity
             //});
 
             //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             var app = builder.Build();
 
 

@@ -211,8 +211,8 @@ function openAddToCourseRefOrVideo(curriculumId, bindId, modalName, area, action
             fromCourseArea: fromCourse || null
         },
         success: function (data) {
-            $(`#${modalName} .modal-content`).html(data);
-            $(`#${modalName}`).modal('show');
+            $('#contentModal #modalContentBody').html(data);
+            $('#contentModal').modal('show');
 
         },
         error: function (xhr, status, error) {
@@ -254,8 +254,8 @@ function openAssignmentModal(assignmentId) {
         type: 'GET',
         data: { id: assignmentId },
         success: function (data) {
-            $('#assignmentDetailsContent').html(data);
-            $('#assignmentDetailsModal').modal('show');
+            $('#contentModal #modalContentBody').html(data);
+            $('#contentModal').modal('show');
         },
         error: function () {
             alert('Failed to load assignment details.');
@@ -263,19 +263,7 @@ function openAssignmentModal(assignmentId) {
     });
 }
 
-function openCourseCurriculum(courseId) {
-    $.ajax({
-        url: `/Instructor/Instructor/GetCourseCurriculum?courseId=${courseId}`,
-        type: 'GET',
-        success: function (data) {
-            $('#curriculumModal .modal-body').html(data);
-            $('#curriculumModal').modal('show');
-        },
-        error: function (xhr, status, error) {
-            console.log(error);
-        }
-    });
-}
+
 
 function openDetails(courseId, modalName) {
 
@@ -318,18 +306,20 @@ function getContent(curculamId, divId) {
 
 //get one video to show it 
 function getVideo(id, divId) {
+    document.querySelector(`#${divId}`).innerHTML = `<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>`; // Show loading spinner)
     $.ajax({
 
-        url: `/Student/DashBoard/GetVideo`,
+        url: `/Student/DashBoard/getvideo`,
         type: 'GET',
         data: { id: id },
         success: function (data) {
-            let videocontent = `<video   id="myVideo" width="100%" controls>
-                        <source  src="${data.videoURL}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <p>${data.VideoTitle}</p>`
-            $(`#${divId}`).html(videocontent)
+            document.querySelector(`#${divId}`).innerHTML = ""; // Clear the loading spinner"
+            const content = `<video id="myVideo" class="w-100" controls>
+            
+            <source src="http://localhost:5197/${data}" type="video/mp4">
+                Your browser does not support the video tag.
+                </video>`;
+            $(`#${divId}`).html(content)
         },
         error: function (erorr) {
             alert(erorr);
@@ -337,6 +327,12 @@ function getVideo(id, divId) {
 
 
     })
+
+  
+    
+
+
+  
 
 }
 
@@ -355,30 +351,7 @@ function getback() {
 
 
 //when hover in course-card
-function openModalWhenHover(courseID, sectionId) {
-    const courseElement = document.getElementById(`modal-${sectionId}-${courseID}`);
-    const courseCard = document.querySelector(`#${sectionId} #card-${courseID}`);
 
-    // Get the course card position relative to the window
-    const rect = courseCard.getBoundingClientRect();
-    const isNearRightEdge = window.innerWidth - rect.right < 400; // 320px for the modal width
-
-    // Adjust modal position based on the course card's position
-    if (isNearRightEdge) {
-        courseElement.classList.add('modal-left');
-        courseElement.classList.remove('modal-right');
-    } else {
-        courseElement.classList.add('modal-right');
-        courseElement.classList.remove('modal-left');
-    }
-
-    courseElement.style.display = 'block';
-}
-
-function closeModal(courseID, sectionId) {
-    const courseElement = document.getElementById(`modal-${sectionId}-${courseID}`);
-    courseElement.style.display = 'none';
-}
 
 
 
@@ -387,153 +360,8 @@ function closeModal(courseID, sectionId) {
 
 
 //api to get courses in home page by spacifc category
-function getSpacifcCourses(id) {
-    let btns = document.querySelectorAll(".category-list ul .btn");
-
-    btns.forEach(e => {
-        btns.forEach(l => {
-            l.classList.remove("active")
-        })
-    })
-    let btn = document.getElementById(`btn-${id}`)
-    btn.classList.add("active");
-    let actionUrl = `Customer/Home/GetByDepTId`;
-
-    $.ajax({
-        url: actionUrl,
-        type: 'GET',
-        data: {
-            id: id || 0,
-        },
-        success: function (data) {
-            // Clear the current courses
-            $('#specific').empty();
-            console.log(data)
-
-            let description = ` <div class="department-Description">
-                    
-                <p class="w-75">
-                    ${data[0].departmentDescription}
-                </p>
-                </div>`
-
-            $('#specific').html(description);
-
-            // Loop through the fetched courses and render them
-            data.forEach(function (course) {
-
-                let objectivesHtml = '';
-                course.learningObjectives.forEach(function (objective) {
-                    objectivesHtml += `
- 
-                     <li class="d-flex justify-content-start align-items-baseline gap-1">
-
-                                           <i class="fas fa-check-circle text-success me-2"></i>
-
-                                           <p class="m-1"> ${objective}</p>
 
 
-                                        </li>
-
-                    `;
-                });
-
-
-
-                let courseHtml = `
-
-              
-
-
-            <div id="card-${course.courseID}" class="one-course" onclick="goTo('Customer','Home','Courses',${course.courseID})" onmouseover="openModalWhenHover(${course.courseID}, 'specific')" onmouseleave="closeModal(${course.courseID}, 'specific')">
-                <div class="course-video mb-3">
-                    <img src="/Covers/${course.imgCover}" alt="${course.courseName}" />
-                </div>
-                <div class="course-title">
-                    <h5>${course.courseName}</h5>
-                </div>
-                <div class="w-75 instructor">
-                    <h6>${course.instructor}</h6>
-                </div>
-
-                <!-- Rating -->
-                <div class="rating">`;
-
-                // Generate stars for the rating
-                for (let i = 0; i < course.rate; i++) {
-                    courseHtml += `<span class="fa fa-star"></span>`;
-                }
-                for (let i = 0; i < (5 - course.rate); i++) {
-                    courseHtml += `<span class="fa fa-star-o"></span>`;
-                }
-
-                courseHtml += `
-                </div>
-
-                <!-- Price -->
-                <div class="price">
-                    <span>$${course.price}</span>
-                </div>
-
-
-                <div class="modal-test p-4" id="modal-specific-${course.courseID}" style="max-width: 700px; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff;">
-                        <!-- Course Name Section -->
-                        <div class="modal-course-header ">
-                        <h3 class="modal-course-name mb-3">${course.courseName}</h3>
-                            <h5>by <span>${course.instructor}e</span></h5>
-                        </div>
-
-                        <!-- Course Stats Section -->
-                        <div class="modal-course-details d-flex justify-content-between mb-2">
-                            <div class="course-videos">
-                                <span><i class="fas fa-play-circle me-2"></i>${course.videosCount} Videos</span>
-                            </div>
-
-                            <div class="course-enrollments">
-                                <span><i class="fas fa-users me-2"></i>${course.enrollmentsCount} Enrolled</span>
-                            </div>
-                        </div>
-
-                        <!-- Course Description Section -->
-                        <div class="modal-course-description mb-2">
-                            <p> ${course.description}</p>
-                        </div>
-
-                        <!-- Course Topics and Objectives Section -->
-                        <div class="modal-course-about ">
-
-                            <div class="course-objectives ">
-
-                                <ul class="list-unstyled">
-
-
-                               ${objectivesHtml}
-
-                                
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Course Call to Action -->
-                        <div class="d-flex justify-content-center mt-2">
-                            <button class="btn cus-btn px-5 py-2" style="border-radius: 5px; font-size: 1.1rem;">Add to Cart</button>
-                        </div>
-                    </div>
-
-
-
-
-        `;
-
-                $('#specific').append(courseHtml);
-            });
-        },
-
-        error: function (error) {
-            console.error("Error fetching courses:", error);
-        }
-    });
-}
 
 
 //api to getObjectives for one course
@@ -922,6 +750,11 @@ function showReaction(id,actionName) {
             spanElement.textContent = 'Reactions'; // Reset text after completion
         }
     });
+}
+
+
+function toggleMobileMenu() {
+    document.querySelector('.nav-wrapper').classList.toggle('activeed');
 }
 
 

@@ -16,6 +16,7 @@ namespace Banha_UniverCity.Models
         public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
         public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
         public ICollection<Exam> Exams { get; set; }= new List<Exam>();
+        public ICollection<Feedback> Feedbacks { get; set; }=new List<Feedback>();
 
 
     }

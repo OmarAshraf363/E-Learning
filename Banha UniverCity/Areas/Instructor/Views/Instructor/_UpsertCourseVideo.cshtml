@@ -1,6 +1,6 @@
-﻿@model Banha_UniverCity.Models.CourseVideo
+﻿@model BFCAI.Models.ViewModels.UpsertVideoVM
 
-<form id="formVideo" asp-action="UpsertCourseVideo" method="post">
+<form id="formVideo" asp-action="UploadVedio" enctype="multipart/form-data" method="post">
     <div class="modal-header">
         <h5 class="modal-title text-light">Add Video</h5>
         <button type="button" class="btn fw-bolder btn-close text-warning" data-bs-dismiss="modal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
@@ -8,20 +8,21 @@
     </div>
     <div class="modal-body">
         <div class="form-group">
-            <label asp-for="VideoTitle">Video Title</label>
-            <input type="text" class="form-control bg-dark text-light"asp-for="VideoTitle" required />
-            <span asp-validation-for="VideoTitle" class="text-danger"></span>
+            <label asp-for="Title">Video Title</label>
+            <input type="text" class="form-control bg-dark text-light" asp-for="Title" required />
+            <span asp-validation-for="Title" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="VideoURL">Video URL</label>
-            <input type="url" class="form-control  bg-dark text-light" asp-for="VideoURL" required />
-            <span asp-validation-for="VideoURL" class="text-danger"></span>
+            <label asp-for="VedioUrl">Video URL</label>
+            <input type="file" class="form-control  bg-dark text-light" asp-for="VedioUrl" required />
+            <span asp-validation-for="VedioUrl" class="text-danger"></span>
         </div>
     </div>
     <div class="modal-footer">
-        <input type="hidden" asp-for="CourseCurriculumID" />
-        <input type="hidden" asp-for="CourseID" />
-        <input type="hidden" asp-for="CourseVideoID" />
+        <input type="hidden" asp-for="CurriculumId" />
+        <input type="hidden" asp-for="CourseId" />
+
+     
 
 
         <button type="button" onclick="allConfirm('formVideo')" class="btn btn-primary">Save</button>

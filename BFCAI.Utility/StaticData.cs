@@ -11,6 +11,8 @@ namespace Banha_UniverCity
     public static class StaticData
     {
 
+        public static int StaticDataPageSize = 6;
+
         public static string StaticDataSuccessPayment = "Success-Confirmed";
         public static string StaticDataRefundedPayment = "Payment-Refunded";
         public static string StaticDataInProcessPayment = "In-Process";

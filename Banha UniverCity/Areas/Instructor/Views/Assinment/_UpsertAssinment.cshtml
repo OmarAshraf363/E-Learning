@@ -1,10 +1,10 @@
 ﻿@model BFCAI.Models.Assignment
-<style>
+@* <style>
     .form-group input, .form-group textarea {
         background-color: #3d3d3d;
         color: #ccc;
     }
-</style>
+</style> *@
 <div class="modal-header">
     <h5 class="modal-title">@((Model.AssignmentID == 0 ? "Create New Assignment" : "Edit Assignment"))</h5>
     <button type="button" class="btn fw-bolder btn-close text-warning" data-bs-dismiss="modal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
@@ -39,10 +39,10 @@
 
 
 
-          <input type="hidden" name="fromCourseArea" value="@ViewBag.fromCourse" />
+         
 
         <input type="hidden" asp-for="AssignmentID" />
-        <input type="hidden" asp-for="CourseCurriculumID" value="@ViewBag.bindId" />
+        <input type="hidden" asp-for="CourseCurriculumID"  />
         </div>
 
         <div class="modal-footer">

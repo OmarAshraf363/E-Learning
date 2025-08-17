@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Banha_UniverCity.Models.Department>
+
+<ul class="dropdown-menu">
+
+    @foreach (var category in Model)
+    {
+
+        <li class="dropdown-submenu">
+            <a class="dropdown-item dropdown-toggle" href="#">
+                @category.DepartmentName
+            </a>
+            <ul class="sub-nav dropdown-menu">
+                @foreach (var course in category.Courses)
+                {
+                    <li>
+                        <a onclick="goTo('Customer','Home','Details',@course.CourseID)" class="dropdown-item">
+                            @course.CourseName
+                        </a>
+                    </li> 
+                    <br />
+                }
+            </ul>
+        </li>
+
+
+    }
+</ul>

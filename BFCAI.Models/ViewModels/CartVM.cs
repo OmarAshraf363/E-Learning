@@ -10,6 +10,6 @@ namespace BFCAI.Models.ViewModels
     public class CartVM
     {
         public List<CartItems> CartItems { get; set; }= new List<CartItems>();
-        public List<Course> Courses { get; set; } = new List<Course>();
+        public List<CourseDetailViewModel> Courses { get; set; } = new List<CourseDetailViewModel>();
     }
 }

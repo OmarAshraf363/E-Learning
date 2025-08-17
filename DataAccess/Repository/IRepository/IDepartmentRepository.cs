@@ -7,5 +7,6 @@ namespace DataAccess.Repository.IRepository
     {
         Department getSpacifcDetails(int id);
         public Department getDepartmentCourses(int id);
+        Task<IReadOnlyList<Department>> GetTopDepartments();
     }
 }

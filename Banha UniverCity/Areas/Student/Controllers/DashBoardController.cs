@@ -2,9 +2,11 @@
 using Banha_UniverCity.Repository.IRepository;
 using BFCAI.Models;
 using BFCAI.Models.ViewModels;
+using DataAccess.Repository.IRepository.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Banha_UniverCity.Areas.Student.Controllers
 {
@@ -13,50 +15,44 @@ namespace Banha_UniverCity.Areas.Student.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ICourseService _courseService;
+        private readonly IPostService _postService;
 
-        public DashBoardController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
+        public DashBoardController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ICourseService courseService, IPostService postService)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _courseService = courseService;
+            _postService = postService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var studentId = _userManager.GetUserId(User);
+            if (studentId == null)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
 
-           
-            var listOfStudentCourse = _unitOfWork.enrollmentRepository
-                .Get(e => e.StudentId == studentId,e=>e.Course).AsQueryable()
-                .Include(e => e.Course) // تضمين الكورس
-                    .ThenInclude(c => c.CourseCurricula) // تضمين المنهج
-                    .ThenInclude(cc => cc.CourseResources) // تضمين الموارد
-                .Include(e => e.Course) // تضمين الكورس
-                    .ThenInclude(c => c.CourseCurricula) // تضمين المنهج
-                    .ThenInclude(cc => cc.CourseVideos) // تضمين الفيديوهات
-                .Include(e => e.Course) // تضمين الكورس
-                    .ThenInclude(c => c.CourseCurricula) // تضمين المنهج
-                    .ThenInclude(cc => cc.Assignments) // تضمين الواجبات
-                .Select(e => e.Course) // الحصول على الكورس بعد تضمين العلاقات
+            var listOfStudentCourse = await _unitOfWork.enrollmentRepository.GetStudentCourses(studentId);
 
-             
 
-                .ToList();
+
 
 
             var coursIds = listOfStudentCourse.Select(e => e.CourseID);
 
 
 
-            var courseSchedules =_unitOfWork.classSchedulere.Get(e=>coursIds.Contains(e.CourseId));
-         
+            var courseSchedules = _unitOfWork.classSchedulere.Get(e => coursIds.Contains(e.CourseId));
 
-        
+
+
             var sortedSchedules = courseSchedules
-                .OrderBy(s => s.StartTime) 
-                .ThenBy(s => s.StartTime)  
+                .OrderBy(s => s.StartTime)
+                .ThenBy(s => s.StartTime)
                 .ToList();
 
-            var listOfNonEnrolledCourse = _unitOfWork.courseRepository.Get(e => !coursIds.Contains(e.CourseID), e => e.Instructor).ToList();
 
 
 
@@ -64,72 +60,100 @@ namespace Banha_UniverCity.Areas.Student.Controllers
             {
                 Courses = listOfStudentCourse,
                 ClassSchedule = sortedSchedules,
-                Feedbacks = _unitOfWork.feedbackRepository.Get(e => e.TargetStudentUserId == studentId,e=>e.ProviderUser).ToList(),
-                SomeAvailableCourse = listOfNonEnrolledCourse,
-                Enrollments=_unitOfWork.enrollmentRepository.Get().ToList()
-                
+                Feedbacks = await _unitOfWork.feedbackRepository.GetAllAsync(e => e.TargetStudentUserId == studentId, includes: e => e.ProviderUser),
+                SomeAvailableCourse = await _courseService.GetRecommendationCoursesforSpacifcStudent(studentId),
+                Enrollments = _unitOfWork.enrollmentRepository.Get().ToList(),
+                Posts = await _postService.GetRelatedPostsByKeyWordsAsync(studentId)
+
             };
+            var postsIdes = model.Posts.Select(e => e.CommunityId).ToList();
+            model.Communities = await _unitOfWork.communityRepository.GetAllAsync(e => postsIdes.Contains(e.Id));
 
             return View(model);
         }
 
         public IActionResult CourseDetails(int? id)
         {
-            var course=_unitOfWork.courseRepository.GetOne(e=>e.CourseID== id,e=>e.LearningObjectives,expression=>expression.TopicsCovered);
-            return PartialView(course);
+            var course = _unitOfWork.courseRepository.GetOne(e => e.CourseID == id, e => e.LearningObjectives, expression => expression.TopicsCovered);
+            return View(course);
         }
 
+        public async Task<IActionResult> CourseProcess(int id)
+        {
+            var result = await _unitOfWork.courseRepository
+             .GetProcess(id);
+
+
+
+
+            return View(result);
+
+        }
 
         [HttpGet]
-        public IActionResult GetContent(int? id)
+        public async Task<IActionResult> GetContent(int id)
         {
-            var content = _unitOfWork.curriculumRepository.GetCurriculumWithIncluded(id);
-          
+            var content = await _unitOfWork.curriculumRepository.GetCurriculumContentAsync(id);
+
             return PartialView(content);
         }
         public IActionResult GetVideo(int? id)
         {
             var video = _unitOfWork.courseVideoRepository.GetOne(e => e.CourseVideoID == id);
-            return Json(video);
+            return Json(video.VideoURL);
         }
 
         [HttpGet]
-        public IActionResult UpsertFeedback(int? id, int courseId)
+        public async Task<IActionResult> UpsertFeedback(int? id, int? courseId, int? curriculumId)
         {
-            Feedback feedback;
-            if (id == null||id==0)
+            Feedback feedback = new Feedback();
+            if (id == null || id == 0)
             {
+                var userId = _userManager.GetUserId(User);
+                if (userId == null)
+                {
+                    return RedirectToAction("Login", "Account", new { area = "Identity" });
+
+                }
                 feedback = new Feedback()
                 {
-                    CourseId = courseId,
-                    ProviderUserId = _userManager.GetUserId(User),
-                    FeedbackDate = DateTime.Now,
+                    CourseId = courseId ?? null,
+                    CourseCurriculumId = curriculumId ?? null,
+                    ProviderUserId = userId,
 
                 };
-                return PartialView("_UpsertFeedback", feedback);
+                return PartialView(feedback);
             }
-            feedback = _unitOfWork.feedbackRepository.GetOne(e => e.FeedbackID == id);
-            return feedback == null ? NotFound() : View("_UpsertFeedback", feedback);
+            feedback = await _unitOfWork.feedbackRepository.GetOneAsync(e => e.FeedbackID == id);
+            return feedback == null ? NotFound() : PartialView(feedback);
         }
         [HttpPost]
-        public IActionResult UpsertFeedback(Feedback feedback)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpsertFeedback(Feedback feedback)
         {
             JsonResult result;
-            if(ModelState.IsValid)
+
+            if (ModelState.IsValid)
             {
                 if (feedback.FeedbackID == 0)
                 {
-                    _unitOfWork.feedbackRepository.Create(feedback);
-                    TempData["success"] = "Added Successfully";
+                    feedback.FeedbackDate = DateTime.Now;
+                    await _unitOfWork.feedbackRepository.AddAsync(feedback);
+                    TempData["success"] = "Feedback added successfully.";
                 }
                 else
                 {
-                    _unitOfWork.feedbackRepository.Edit(feedback);
-                    TempData["success"] = "Added Successfully";
+                    await _unitOfWork.feedbackRepository.UpdateAsync(feedback);
+                    TempData["success"] = "Feedback updated successfully.";
+                }
+
+                _unitOfWork.Commit();
+                result = StaticData.CheckValidation(ModelState, Request, true);
+                if (feedback.CourseId != null)
+                {
+                    await _courseService.EditRatingCourseBasedOnReviews((int)feedback.CourseId);
 
                 }
-                _unitOfWork.Commit();
-                 result = StaticData.CheckValidation(ModelState, Request, true);
                 return result;
             }
             else
@@ -138,10 +162,12 @@ namespace Banha_UniverCity.Areas.Student.Controllers
                 return result;
             }
 
+
         }
 
 
-    
+        [HttpGet]
+
 
         [HttpGet]
         public IActionResult GetQuestions(int id)
@@ -154,11 +180,11 @@ namespace Banha_UniverCity.Areas.Student.Controllers
 
             var questions = _unitOfWork.qusetionRepository
                 .Get(e => e.ExamID == exam.ExamID, e => e.Choices);
-                
-            var questionsVM=questions.Select(e => new
+
+            var questionsVM = questions.Select(e => new
             {
                 e.QuestionText,
-               choices=e.Choices.Select(e=>e.ChoiceText).ToArray()
+                choices = e.Choices.Select(e => e.ChoiceText).ToArray()
             });
             if (questions == null || !questions.Any())
             {
@@ -169,7 +195,7 @@ namespace Banha_UniverCity.Areas.Student.Controllers
         }
         public IActionResult GetOne(int id)
         {
-            var question = _unitOfWork.qusetionRepository.Get(e => e.QuestionID == id,e=>e.Choices);
+            var question = _unitOfWork.qusetionRepository.Get(e => e.QuestionID == id, e => e.Choices);
             if (question == null)
             {
                 return NotFound(new { message = "Question not found" });
@@ -183,13 +209,30 @@ namespace Banha_UniverCity.Areas.Student.Controllers
         }
 
 
-        public IActionResult Delete(int id,string Url)
+        public IActionResult Delete(int id, string Url)
         {
             var item = _unitOfWork.feedbackRepository.GetOne(e => e.FeedbackID == id);
             if (item == null) { return NotFound(); }
             _unitOfWork.feedbackRepository.Delete(item);
             _unitOfWork.Commit();
             return Redirect(Url);
+        }
+
+
+
+
+
+
+
+        [HttpGet]
+
+        public async Task<IActionResult> QuickAccess(int id)
+        {
+            var course = await _unitOfWork.courseRepository.QuickAccessToSpacifcCourse(id);
+            if (course == null)
+                return BadRequest();
+            return PartialView(course);
+
         }
 
     }

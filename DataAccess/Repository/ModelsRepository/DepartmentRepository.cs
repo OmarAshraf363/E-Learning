@@ -28,5 +28,12 @@ namespace Banha_UniverCity.Repository.ModelsRepository
                 .Include(e => e.Courses).ThenInclude(e => e.Keywords).SingleOrDefault();
             return department;
         }
+
+        public async Task<IReadOnlyList<Department>> GetTopDepartments()
+        {
+            var topDepartments=await context.Departments.SelectMany(e=>e.Courses).OrderByDescending(e=>e.Enrollments.Count).Take(3)
+                .Select(e=>e.Department).Distinct().ToListAsync();
+            return topDepartments;
+        }
     }
 }

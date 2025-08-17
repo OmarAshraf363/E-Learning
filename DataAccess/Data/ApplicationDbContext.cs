@@ -35,6 +35,9 @@ namespace Banha_UniverCity.Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Reaction> Reactions { get; set; }
         public DbSet<Community> Communities { get; set; }
+        public DbSet<Track> Track { get; set; }
+        public DbSet<Feedback> Feedback { get; set; }
+
 
 
 
@@ -356,6 +359,9 @@ namespace Banha_UniverCity.Data
                 .Property(r => r.Type)
                 .IsRequired();
 
+            modelBuilder.Entity<CourseCurriculum>().HasMany(e => e.Feedbacks)
+                .WithOne(e => e.CourseCurriculum).HasForeignKey(e => e.CourseCurriculumId)
+                .OnDelete(DeleteBehavior.Cascade);
       
 
 

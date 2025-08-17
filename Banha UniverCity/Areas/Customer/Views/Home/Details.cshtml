@@ -2,48 +2,35 @@
 @{
     Layout = "~/Views/Shared/_RegistreationLayout.cshtml";
 }
-<style>
-    .this-course-about-content ul .btn {
-        position: relative;
-    }
+@{
+    int total = Model.Feedbacks.ReviewVM.TotalReviews == 0 ? 1 : Model.Feedbacks.ReviewVM.TotalReviews; // prevent divide-by-zero
+    var rates = new[]
+    {
+        new { Stars = 5, Count = Model.Feedbacks.ReviewVM.TotalReviewWith5 },
+        new { Stars = 4, Count =Model.Feedbacks.ReviewVM.TotalReviewWith4 },
+        new { Stars = 3, Count =Model.Feedbacks.ReviewVM.TotalReviewWith3 },
+        new { Stars = 2, Count =Model.Feedbacks.ReviewVM.TotalReviewWith2 },
+        new { Stars = 1, Count =Model.Feedbacks.ReviewVM.TotalReviewWith1 },
+    };
+}
 
-        .this-course-about-content ul .btn:before {
-            content: ' ';
-            position: absolute;
-            bottom: -18px;
-            left: 0;
-            height: 0px;
-            width: 0%;
-            background-color: purple;
-            transition: 0.2s;
-        }
-
-        .this-course-about-content ul .btn:hover::before,
-        .this-course-about-content ul .btn:active::before,
-        .this-course-about-content ul .btn:focus::before {
-            height: 3px;
-            width: 95%;
-        }
-</style>
 <section class="this-course container-fluid mb-5">
-    <div class="this-course-header-title mb-4">
-        <h3 class="ms-3">@Model.Course?.CourseName</h3>
-    </div>
+
     <section class="this-course-details container">
         <div class="this-course-video">
-            <video class="w-100 h-100" controls="controls">
-                <source src="@Model.Course?.DemoVideoUrl" type="video/mp4" />
+            <video class="w-100  h-100" controls="controls">
+                <source src="http://localhost:5197/@Model.Course?.DemoVideoUrl" type="video/mp4" />
             </video>
         </div>
         <div class="this-course-info">
-            <div class="this-course-info-name">
+            <div class="this-course-info-name ">
                 <h4>@Model.Course?.CourseName</h4>
             </div>
             <div class="this-course-info-description">
-                <h6>@Model.Course?.Description</h6>
+                <p>@Model.Course?.CourseDescription</p>
             </div>
             <div class="this-course-info-process d-flex justify-content-start gap-2 align-items-center">
-                <div class="rating">
+                <div class="rating m-0">
                     @for (int i = 0; i < Model.Course?.Rate; i++)
                     {
                         <span class="fa fa-star"></span>
@@ -52,13 +39,13 @@
                     {
                         <span class="fa fa-star-o"></span>
                     }
-                    (@Model.Course?.Feedbacks.Count Rating)
+                    (@Model.Course?.NumOfFeedbacks Rating)
                 </div>
                 <div class="num-of-student">
-                    <span>@Model.Course?.Enrollments.Count students</span>
+                    <span>@Model.Course?.NumOfEnrollments students</span>
                 </div>
                 <div class="num-of-videos">
-                    <span>@Model.Course?.CourseVideos.Count Videos</span>
+                    <span>@Model.Course?.NumOfVideos Videos</span>
                 </div>
 
             </div>
@@ -66,7 +53,7 @@
                 Created By <span>
                     <a href="">
 
-                        @Model.Course?.Instructor?.FullName
+                        @Model.Course?.InstructorName
                     </a>
                 </span>
             </div>
@@ -75,44 +62,54 @@
                 <span> $@Model.Course?.Price</span>
             </div>
             <div class="enroll-btn mt-3 w-100 d-flex justify-content-center align-items-center">
-                <a asp-controller="Cart" asp-action="AddToCart" asp-route-courseId="@Model.Course?.CourseID" asp-route-quantity="1" class="w-75 btn cus-btn">Enroll</a>
+                <a asp-controller="Cart" asp-action="AddToCart" asp-route-courseId="@Model.Course?.CourseId" asp-route-quantity="1" class="w-75 btn cus-btn">Enroll</a>
             </div>
         </div>
 
     </section>
 </section>
 
-<section class="container this-course-about-content">
-    <div>
-        <ul class="d-flex list-unstyled justify-content-start align-items-center gap-3">
-
-            <li><a id="btn-0" class="btn" onclick="getObjectives(@Model.Course?.CourseID,0)"> Objective Learning</a></li>
-            <li><a id="btn-1" class="btn" onclick="GetTopics(@Model.Course?.CourseID,1)">Topics Cover</a></li>
-            <li><a id="btn-2" class="btn">Content</a></li>
-
+<section class="course-about container">
+    <div class="course-nav">
+        <ul>
+            <li>
+                <a id="btn-0" onclick="getObjectives(@Model.Course?.CourseId,0)">
+                    🎯 Objective Learning
+                </a>
+            </li>
+            <li>
+                <a id="btn-1" onclick="GetTopics(@Model.Course?.CourseId,1)">
+                    📚 Topics Cover
+                </a>
+            </li>
         </ul>
     </div>
-    <hr />
-    <section id="selected" class="container mb-5">
-        
 
+    <hr class="divider" />
 
-            @foreach (var item in Model.Course?.LearningObjectives)
-            {
-                <li class="d-flex justify-content-start align-items-baseline gap-1">
-
-                    <i class="fas fa-check-circle text-success me-2"></i>
-
-                    <p class="m-1">
-                      @item.Objective
-                    </p>
-
-
-                </li>
-
-            }
-      
+    <section id="selected" class="objectives-list">
+        @foreach (var item in Model.Course?.LearningObjectives)
+        {
+            <li>
+                <i class="fas fa-check-circle"></i>
+                <span>@item</span>
+            </li>
+        }
     </section>
+</section>
+
+
+
+<section class="container mb-5 instructor-section p-4 shadow-sm rounded" style="background: #f9f9f9;">
+    <h4 class="fw-bold mb-3">About the Instructor</h4>
+    <div class="d-flex gap-3 align-items-center">
+        <img src="http://localhost:5197/@Model.Course.InstructorImage" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" alt="Instructor" />
+        <div>
+            <h5 class="mb-1">@Model.Course.InstructorName</h5>
+            <p class="mt-2">@Model.Course.InstructorBio</p>
+            <a asp-controller="community" asp-action="Index" asp-route-userId="@Model.Course.InstructorId">View in Communities</a>
+        </div>
+    </div>
 </section>
 
 
@@ -123,20 +120,20 @@
         <h4 class="fw-bold"> Students Also Learn && Recommendation</h4>
     </div>
     <div id="main" class="top-courses ">
-        @foreach (var course in Model.RelatedCourses.Where(e=>e.CourseID!=Model.Course.CourseID))
+        @foreach (var course in Model.RelatedCourses)
         {
 
 
 
             <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Courses',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
                 <div class="course-video mb-3">
-                    <img src="/Covers/@course.ImgCover" alt="Alternate Text" />
+                    <img src="/Covers/@course.Image" alt="Alternate Text" />
                 </div>
                 <div class="course-title">
-                    <h5>@course.CourseName</h5>
+                    <h5>@course.Title</h5>
                 </div>
                 <div class="w-75 instructor">
-                    <h6>@course.Instructor?.FullName</h6>
+                    <h6>@course.InstructorName</h6>
                 </div>
 
                 <!-- Rating -->
@@ -160,18 +157,18 @@
                 <div class="modal-test p-4" id="modal-main-@course.CourseID" style="max-width: 700px; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff;">
                     <!-- Course Name Section -->
                     <div class="modal-course-header ">
-                        <h3 class="modal-course-name mb-3">@course.CourseName</h3>
-                        <h5>by <span>@course.Instructor?.FullName</span></h5>
+                        <h3 class="modal-course-name mb-3">@course.Title</h3>
+                        <h5>by <span>@course.InstructorName</span></h5>
                     </div>
 
                     <!-- Course Stats Section -->
                     <div class="modal-course-details d-flex justify-content-between mb-2">
                         <div class="course-videos">
-                            <span><i class="fas fa-play-circle me-2"></i>@course.CourseCurricula.Count Videos</span>
+                            <span><i class="fas fa-play-circle me-2"></i>@course.VideosCount Videos</span>
                         </div>
 
                         <div class="course-enrollments">
-                            <span><i class="fas fa-users me-2"></i>@course.Enrollments.Count Enrolled</span>
+                            <span><i class="fas fa-users me-2"></i>@course.NumOfEnrolments Enrolled</span>
                         </div>
                     </div>
 
@@ -192,7 +189,7 @@
 
                                         <i class="fas fa-check-circle text-success me-2"></i>
 
-                                        <p class="m-1"> @item.Objective</p>
+                                        <p class="m-1"> @item</p>
 
 
                                     </li>
@@ -241,7 +238,7 @@
 
 <section id="instructor-courses" class="courses container p-3 mb-5">
     <div class="mb-4">
-        <h4 class="fw-bold">More Courses by <a href="" class="text-decoration-none">@Model.Course.Instructor?.FullName</a></h4>
+        <h4 class="fw-bold">More Courses by <a href="" class="text-decoration-none">@Model.Course.InstructorName</a></h4>
     </div>
     <div id="main" class="top-courses ">
         @foreach (var course in Model.InstructorCourses)
@@ -250,86 +247,86 @@
 
 
             <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Courses',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
-                    <div class="course-video mb-3">
-                        <img src="/Covers/@course.ImgCover" alt="Alternate Text" />
-                    </div>
-                    <div class="course-title">
-                        <h5>@course.CourseName</h5>
-                    </div>
-                    <div class="w-75 instructor">
-                        <h6>@course.Instructor?.FullName</h6>
-                    </div>
-
-                    <!-- Rating -->
-                    <div class="rating">
-                        @for (int i = 0; i < course.Rate; i++)
-                        {
-                            <span class="fa fa-star"></span>
-                        }
-                        @for (int i = 0; i < (5 - course.Rate); i++)
-                        {
-                            <span class="fa fa-star-o"></span>
-                        }
-                    </div>
-
-                    <!-- Price -->
-                    <div class="price">
-                        <span> $@course.Price</span>
-                    </div>
-
-                    <!-- Hidden modal for each course -->
-                    <div class="modal-test p-4" id="modal-main-@course.CourseID" style="max-width: 700px; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff;">
-                        <!-- Course Name Section -->
-                        <div class="modal-course-header ">
-                            <h3 class="modal-course-name mb-3">@course.CourseName</h3>
-                            <h5>by <span>@course.Instructor?.FullName</span></h5>
-                        </div>
-
-                        <!-- Course Stats Section -->
-                        <div class="modal-course-details d-flex justify-content-between mb-2">
-                            <div class="course-videos">
-                                <span><i class="fas fa-play-circle me-2"></i>@course.CourseCurricula.Count Videos</span>
-                            </div>
-
-                            <div class="course-enrollments">
-                                <span><i class="fas fa-users me-2"></i>@course.Enrollments.Count Enrolled</span>
-                            </div>
-                        </div>
-
-                        <!-- Course Description Section -->
-                        <div class="modal-course-description mb-2">
-                            <p> @course.Description</p>
-                        </div>
-
-                        <!-- Course Topics and Objectives Section -->
-                        <div class="modal-course-about ">
-
-                            <div class="course-objectives ">
-
-                                <ul class="list-unstyled">
-                                    @foreach (var item in course.LearningObjectives)
-                                    {
-                                        <li class="d-flex justify-content-start align-items-baseline gap-1">
-
-                                            <i class="fas fa-check-circle text-success me-2"></i>
-
-                                            <p class="m-1"> @item.Objective</p>
-
-
-                                        </li>
-                                    }
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Course Call to Action -->
-                        <div class="d-flex justify-content-center mt-2">
-                            <button class="btn cus-btn px-5 py-2" style="border-radius: 5px; font-size: 1.1rem;">Add to Cart</button>
-                        </div>
-                    </div>
-
+                <div class="course-video mb-3">
+                    <img src="/Covers/@course.Image" alt="Alternate Text" />
                 </div>
-            
+                <div class="course-title">
+                    <h5>@course.Title</h5>
+                </div>
+                <div class="w-75 instructor">
+                    <h6>@course.InstructorName</h6>
+                </div>
+
+                <!-- Rating -->
+                <div class="rating">
+                    @for (int i = 0; i < course.Rate; i++)
+                    {
+                        <span class="fa fa-star"></span>
+                    }
+                    @for (int i = 0; i < (5 - course.Rate); i++)
+                    {
+                        <span class="fa fa-star-o"></span>
+                    }
+                </div>
+
+                <!-- Price -->
+                <div class="price">
+                    <span> $@course.Price</span>
+                </div>
+
+                <!-- Hidden modal for each course -->
+                <div class="modal-test p-4" id="modal-main-@course.CourseID" style="max-width: 700px; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff;">
+                    <!-- Course Name Section -->
+                    <div class="modal-course-header ">
+                        <h3 class="modal-course-name mb-3">@course.Title</h3>
+                        <h5>by <span>@course.InstructorName</span></h5>
+                    </div>
+
+                    <!-- Course Stats Section -->
+                    <div class="modal-course-details d-flex justify-content-between mb-2">
+                        <div class="course-videos">
+                            <span><i class="fas fa-play-circle me-2"></i>@course.VideosCount Videos</span>
+                        </div>
+
+                        <div class="course-enrollments">
+                            <span><i class="fas fa-users me-2"></i>@course.NumOfEnrolments Enrolled</span>
+                        </div>
+                    </div>
+
+                    <!-- Course Description Section -->
+                    <div class="modal-course-description mb-2">
+                        <p> @course.Description</p>
+                    </div>
+
+                    <!-- Course Topics and Objectives Section -->
+                    <div class="modal-course-about ">
+
+                        <div class="course-objectives ">
+
+                            <ul class="list-unstyled">
+                                @foreach (var item in course.LearningObjectives)
+                                {
+                                    <li class="d-flex justify-content-start align-items-baseline gap-1">
+
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+
+                                        <p class="m-1"> @item</p>
+
+
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Course Call to Action -->
+                    <div class="d-flex justify-content-center mt-2">
+                        <button class="btn cus-btn px-5 py-2" style="border-radius: 5px; font-size: 1.1rem;">Add to Cart</button>
+                    </div>
+                </div>
+
+            </div>
+
 
 
 
@@ -341,3 +338,137 @@
         }
     </div>
 </section>
+
+
+
+<div class="section-card container">
+    <div class="section-header d-flex justify-content-between align-items-center">
+        <h4 class="section-title">
+            <i class="fas fa-star"></i>
+            Course Reviews & Ratings
+        </h4>
+
+    </div>
+    <div class="section-body">
+        <!-- Overall Rating Summary -->
+        <div class="rating-summary mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center">
+                    <div class="overall-rating">
+                        <div class="rating-number">@Model.Feedbacks.ReviewVM.FinalRate</div>
+                        <div class="rating-stars mb-2">
+                            @for (int i=0;i<5;i++)
+                            {
+                                <i class="fas fa-star    @(i < Model.Feedbacks.ReviewVM.FinalRate ? "star-active" : "") "></i>
+
+                            }
+                          
+                        </div>
+                        <div class="rating-count">Based on @Model.Feedbacks.ReviewVM.TotalReviews reviews</div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="rating-breakdown">
+                        @foreach (var rate in rates)
+                        {
+                            var percentage = (int)((rate.Count / (double)total) * 100);
+                            <div class="rating-row mb-2 d-flex align-items-center">
+                                <span class="rating-label me-2">@rate.Stars star@(rate.Stars > 1 ? "s" : "")</span>
+                                <div class="rating-bar-container flex-grow-1 me-2" style="background: #eee; height: 10px; border-radius: 5px;">
+                                    <div class="rating-bar" style="width: @percentage%; background-color: #ffc107; height: 100%; border-radius: 5px;"></div>
+                                </div>
+                                <span class="rating-percentage">@percentage%</span>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter and Sort Options -->
+        <div class="review-filters mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="filter-buttons">
+
+                        <a class="btn filter-btn @(ViewBag.star == null ? "active" : "")" asp-route-starFilter="@null">All Reviews</a>
+                        @for (int i = 5; i >= 1; i--)
+                        {
+
+                            <a  class="btn filter-btn  @(ViewBag.star == i ? "active" : "") " asp-route-starFilter="@i">@i Stars</a>
+                        }
+
+
+
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <select class="form-select sort-select" onchange="sortReviews(this.value)">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="highest">Highest Rating</option>
+                        <option value="lowest">Lowest Rating</option>
+                        <option value="helpful">Most Helpful</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Individual Reviews -->
+        <div id="reviews" class="reviews-list">
+            @foreach (var fe in Model.Feedbacks.FeedbackVM)
+            {
+                <div class="review-item" data-rating="5">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <img src="@fe.UserImageUrl" alt="@fe.UserName" class="reviewer-avatar">
+                            <div class="reviewer-details">
+                                <h6 class="reviewer-name">@fe.UserName</h6>
+                                <div class="review-meta">
+                                    <div class="review-rating">
+                                        <i class="fas fa-star star"></i>
+                                        @fe.Rating
+                                    </div>
+                                    <span class="review-date">@fe.CreatedAt</span>
+                                </div>
+                            </div>
+                        </div>
+                        @* <div class="review-actions">
+                            <button class="btn btn-sm helpful-btn" onclick="markHelpful(this)">
+                                <i class="fas fa-thumbs-up"></i> Helpful (12)
+                            </button>
+                        </div> *@
+                    </div>
+                    <div class="review-content">
+                        <p><strong>@fe.Content</strong></p>
+                        @* <div class="review-tags">
+                        <span class="tag">Well Structured</span>
+                        <span class="tag">Great Examples</span>
+                        <span class="tag">Practical</span>
+                    </div> *@
+                    </div>
+                </div>
+
+            }
+        </div>
+
+        <!-- Load More Button -->
+        @* <div class="text-center mt-4">
+            <button class="btn btn-outline-primary" onclick="loadMoreReviews()">
+                <i class="fas fa-plus"></i>
+                Load More Reviews
+            </button>
+        </div> *@
+    </div>
+</div>
+<script>
+    function markHelpful(button) {
+            if (!button.classList.contains('marked')) {
+                button.classList.add('marked');
+                const currentCount = parseInt(button.textContent.match(/\d+/)[0]);
+                button.innerHTML = `<i class="fas fa-thumbs-up"></i> Helpful (${currentCount + 1})`;
+            }
+        }
+      
+</script>

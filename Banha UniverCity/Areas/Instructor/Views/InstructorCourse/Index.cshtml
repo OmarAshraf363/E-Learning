@@ -1,0 +1,112 @@
+﻿@model PagedListViewModel<Course>
+
+@{
+    ViewData["Title"] = "My Courses";
+}
+
+<div class="container mt-5">
+    <div class="courses-header d-flex align-items-center justify-content-between">
+
+        <h1 class="mb-4"> Courses</h1>
+        <a asp-action="Upsert" class="btn btn-dark">New Course</a>
+    </div>
+
+    @if (Model != null && Model.Items.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Course Name</th>
+                    <th>Students Enrolled</th>
+                    <th>Process</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var course in Model.Items)
+                {
+                    <tr>
+                        <td>@course.CourseName</td>
+
+                        <td class="text-center">@course.Enrollments.Count</td>
+                        <td> <a onclick="openCourseCurriculum(@course.CourseID)" class="btn btn-outline-info">View</a></td>
+                        <td>
+                            <a class="btn btn-dark" onclick="openAddToCourse(@course.CourseID,'addModal')">Add-Process</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            You have no courses.
+        </div>
+    }
+</div>
+<!-- Pagination Controls -->
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        @if (Model.HasPreviousPage)
+        {
+            <li class="page-item">
+                <a class="page-link" href="?page=@(Model.PageNumber - 1)">Previous</a>
+            </li>
+        }
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                <a class="page-link" href="?page=@i">@i</a>
+            </li>
+        }
+
+        @if (Model.HasNextPage)
+        {
+            <li class="page-item">
+                <a class="page-link" href="?page=@(Model.PageNumber + 1)">Next</a>
+            </li>
+        }
+    </ul>
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="modal fade " id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="curriculumModal" tabindex="-1" aria-labelledby="curriculumModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="curriculumModalLabel">Course Curriculum</h5>
+                <button type="button" class="btn btn-close text-black" data-bs-dismiss="modal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body bg-black">
+                <!-- Content will be loaded via AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

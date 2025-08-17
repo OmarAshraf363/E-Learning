@@ -17,13 +17,12 @@
     }
 
     .one-topic {
-        width: 19.3%;
     }
 
         .one-topic a {
             width: 100%;
             text-align: center;
-            padding-block: 10px;
+            padding: 1rem 2rem;
         }
 
             .one-topic a:hover {
@@ -92,7 +91,7 @@ else
 
 
 
-                <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Courses',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
+                <div id="card-@course.CourseID" class="one-course" onclick="goTo('Customer','Home','Details',@course.CourseID)" onmouseover="openModalWhenHover(@course.CourseID, 'main')" onmouseleave="closeModal(@course.CourseID, 'main')">
                     <div class="course-video mb-3">
                         <img src="/Covers/@course.ImgCover" alt="Alternate Text" />
                     </div>
@@ -184,7 +183,7 @@ else
             }
         </div>
     </section>
-    <section class="container mb-5 ">
+    <section class="topic-container container mb-5 ">
         <div class="topic-header mb-4">
             <h5>Popular Topic</h5>
         </div>
