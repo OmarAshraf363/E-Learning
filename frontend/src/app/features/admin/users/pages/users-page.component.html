@@ -1,0 +1,40 @@
+<div class="container mt-4">
+  <h2 class="text-center">User Management</h2>
+
+  <a routerLink="/admin/users/new" [queryParams]="{ role: filter() }" class="btn btn-primary mb-3">
+    <i class="fas fa-user-plus"></i> Add New User
+  </a>
+
+  <h3>{{ filter() === 'Instructor' ? 'Instructors' : filter() === 'Student' ? 'Students' : 'Users' }}</h3>
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>User Name</th>
+        <th>Email</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (user of store.items(); track user.id) {
+        <tr>
+          <td>{{ user.userName }}</td>
+          <td>{{ user.email }}</td>
+          <td class="d-flex gap-1">
+            <a [routerLink]="['/admin/users', user.id]" class="btn btn-warning" title="Edit"><i class="fas fa-edit"></i></a>
+            <button type="button" class="btn btn-danger" title="Delete" (click)="remove(user)"><i class="fas fa-trash"></i></button>
+            <button type="button" class="btn btn-secondary" (click)="toggleLock(user)">
+              @if (user.isLockedOut) { <i class="fas fa-unlock"></i> Unlock } @else { <i class="fas fa-lock"></i> Lock }
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="3" class="text-center text-muted">
+            @if (store.loading()) { Loading... } @else { No users found. }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

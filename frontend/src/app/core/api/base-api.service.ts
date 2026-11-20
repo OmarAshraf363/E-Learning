@@ -24,8 +24,14 @@ export type EntityId = string | number;
  *
  * Set `useFormData = true` when the create/update bodies contain files.
  * Add extra endpoint methods in the subclass using `this.api`.
+ *
+ * Generic parameters:
+ *   T        - item returned by the list endpoints
+ *   TRequest - body sent to create / update
+ *   TId      - id type (number, or string for users)
+ *   TDetails - item returned by getById / create / update (defaults to T)
  */
-export abstract class BaseApiService<T, TRequest = Partial<T>, TId extends EntityId = number> {
+export abstract class BaseApiService<T, TRequest = Partial<T>, TId extends EntityId = number, TDetails = T> {
   protected readonly api = inject(ApiClient);
   protected abstract readonly resource: string;
   protected readonly useFormData: boolean = false;
@@ -38,20 +44,20 @@ export abstract class BaseApiService<T, TRequest = Partial<T>, TId extends Entit
     return this.api.get<PagedResult<T>>(`${this.resource}/paged`, query);
   }
 
-  getById(id: TId): Observable<T> {
-    return this.api.get<T>(`${this.resource}/${id}`);
+  getById(id: TId): Observable<TDetails> {
+    return this.api.get<TDetails>(`${this.resource}/${id}`);
   }
 
-  create(body: TRequest): Observable<T> {
+  create(body: TRequest): Observable<TDetails> {
     return this.useFormData
-      ? this.api.postForm<T>(this.resource, body as object)
-      : this.api.post<T>(this.resource, body);
+      ? this.api.postForm<TDetails>(this.resource, body as object)
+      : this.api.post<TDetails>(this.resource, body);
   }
 
-  update(id: TId, body: TRequest): Observable<T> {
+  update(id: TId, body: TRequest): Observable<TDetails> {
     return this.useFormData
-      ? this.api.putForm<T>(`${this.resource}/${id}`, body as object)
-      : this.api.put<T>(`${this.resource}/${id}`, body);
+      ? this.api.putForm<TDetails>(`${this.resource}/${id}`, body as object)
+      : this.api.put<TDetails>(`${this.resource}/${id}`, body);
   }
 
   delete(id: TId): Observable<void> {

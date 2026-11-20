@@ -2,6 +2,7 @@ using BFCAI.Application.Common.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BFCAI.Api.Infrastructure;
 
@@ -21,6 +22,7 @@ public class GlobalExceptionHandler(IProblemDetailsService problemDetails, ILogg
             UnauthorizedException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
             ForbiddenException => (StatusCodes.Status403Forbidden, "Forbidden"),
             NotFoundException => (StatusCodes.Status404NotFound, "Not found"),
+            DbUpdateException => (StatusCodes.Status409Conflict, "Conflict"),
             _ => (StatusCodes.Status500InternalServerError, "Server error"),
         };
 
@@ -35,7 +37,15 @@ public class GlobalExceptionHandler(IProblemDetailsService problemDetails, ILogg
 
         problem.Status = status;
         problem.Title = title;
-        problem.Detail = status == StatusCodes.Status500InternalServerError ? "An unexpected error occurred." : exception.Message;
+        problem.Detail = exception switch
+        {
+            DbUpdateException => "This item cannot be changed or deleted because other data depends on it.",
+            _ when status == StatusCodes.Status500InternalServerError => "An unexpected error occurred.",
+            _ => exception.Message,
+        };
+
+        if (exception is DbUpdateException)
+            logger.LogWarning(exception, "Database update conflict");
 
         httpContext.Response.StatusCode = status;
         return await problemDetails.TryWriteAsync(new ProblemDetailsContext

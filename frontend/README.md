@@ -34,6 +34,7 @@ src/app/
 
 ## المبادئ
 - **Standalone + Signals + Zoneless + Control flow الجديد** (`@if` / `@for`).
+- **مهم:** في Angular 22 الـ Components بقت **OnPush بشكل افتراضي**. يعني أي State بتظهر في الـ Template لازم تكون `signal()` أو `computed()` أو `input()`؛ لو متغيّر عادي اتغيّر، الشاشة مش هتتحدّث. الـ Forms بتشتغل عادي، و`<app-form-errors>` بيسمع لأحداث الـ Control لوحده.
 - الصفحة ما بتكلّمش `HttpClient` مباشرة. الترتيب دايمًا: Page ← Store ← Api service ← ApiClient.
 - أي خطأ من الـ API بيظهر لوحده في SweetAlert. أخطاء الـ Validation بتظهر تحت الحقول باستخدام `applyServerErrors` و `<app-form-errors>`.
 - الملفات (صور وفيديوهات) بتتعرض بالـ Pipe `fileUrl`.

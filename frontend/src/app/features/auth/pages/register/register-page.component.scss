@@ -1,0 +1,25 @@
+// Ported from the inline <style> of the legacy Register.cshtml
+.register {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  min-height: calc(100vh - 80px);
+}
+
+#registerSubmit {
+  background-color: rgb(83, 42, 164);
+  border-color: rgb(83, 42, 164);
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.img-sec {
+  width: 50%;
+
+  img {
+    width: 100%;
+  }
+}

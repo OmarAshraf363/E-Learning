@@ -1,0 +1,48 @@
+// Ported from the inline <style> of the legacy Login.cshtml
+.login-row {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  height: max-content;
+  background-color: #f9f9f9;
+  padding: 2rem;
+  width: 100%;
+  margin: 0;
+}
+
+#login-submit {
+  background-color: #532aa4;
+  border-color: #532aa4;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #6b4dcc;
+    border-color: #6b4dcc;
+  }
+}
+
+.img-sec {
+  width: 50%;
+
+  img {
+    width: 100%;
+    height: 90%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-floating label {
+  color: #6c757d;
+}
+
+.form-floating input {
+  padding: 1rem;
+  font-size: 1rem;
+}

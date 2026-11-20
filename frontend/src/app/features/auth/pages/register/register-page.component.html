@@ -1,0 +1,47 @@
+<div class="register">
+  <div class="col-md-4">
+    <form (ngSubmit)="submit()" [formGroup]="form" novalidate>
+      <h2>Create a new account.</h2>
+      <hr />
+
+      @for (message of generalErrors(); track message) {
+        <div class="text-danger" role="alert">{{ message }}</div>
+      }
+
+      <div class="form-floating mb-3">
+        <input id="fullName" formControlName="fullName" class="form-control" placeholder="Full Name" />
+        <label for="fullName">Full Name</label>
+        <app-form-errors [control]="form.controls.fullName" />
+      </div>
+
+      <div class="form-floating mb-3">
+        <input id="email" formControlName="email" class="form-control" autocomplete="username" placeholder="name@example.com" />
+        <label for="email">Email</label>
+        <app-form-errors [control]="form.controls.email" />
+      </div>
+
+      <div class="form-floating mb-3">
+        <input id="password" type="password" formControlName="password" class="form-control" autocomplete="new-password" placeholder="password" />
+        <label for="password">Password</label>
+        <app-form-errors [control]="form.controls.password" />
+      </div>
+
+      <div class="form-floating mb-3">
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" class="form-control" autocomplete="new-password" placeholder="password" />
+        <label for="confirmPassword">Confirm Password</label>
+        <app-form-errors [control]="form.controls.confirmPassword" />
+      </div>
+
+      <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary" [disabled]="submitting()">
+        @if (submitting()) { <span class="spinner-border spinner-border-sm me-2"></span> }
+        Register
+      </button>
+
+      <p class="mt-3">Already have an account? <a routerLink="/auth/login">Log in</a></p>
+    </form>
+  </div>
+
+  <div class="col-md-4 img-sec">
+    <img src="images/online-courses.png" alt="Online courses" />
+  </div>
+</div>

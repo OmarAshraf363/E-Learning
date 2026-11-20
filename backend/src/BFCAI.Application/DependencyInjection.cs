@@ -1,3 +1,6 @@
+using BFCAI.Application.Features.Account;
+using BFCAI.Application.Features.Auth;
+using BFCAI.Application.Features.Users;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,8 +13,10 @@ public static class DependencyInjection
         // Every AbstractValidator<T> in this assembly is registered automatically.
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
-        // Feature services are registered here, one line per feature, e.g.:
-        // services.AddScoped<IAuthService, AuthService>();
+        // Feature services: one line per feature.
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IUserService, UserService>();
 
         return services;
     }

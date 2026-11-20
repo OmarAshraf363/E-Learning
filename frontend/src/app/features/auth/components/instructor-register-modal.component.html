@@ -1,0 +1,42 @@
+<div class="modal-header">
+  <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+</div>
+<div class="modal-body w-100">
+  <div class="main-thing p-3">
+    <div class="wel-back text-center">
+      <h1>Teach In BFCAI</h1>
+      <p>Please put your information</p>
+    </div>
+
+    @for (message of generalErrors(); track message) {
+      <div class="text-danger text-center">{{ message }}</div>
+    }
+
+    <div class="form-login">
+      <form class="shadow-lg p-4 rounded bg-white" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="form-floating mb-3">
+          <input id="ir-fullName" formControlName="fullName" class="form-control" placeholder="Full Name" />
+          <label for="ir-fullName">Name</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input id="ir-email" formControlName="email" class="form-control" placeholder="name@example.com" />
+          <label for="ir-email">Email</label>
+          <app-form-errors [control]="form.controls.email" />
+        </div>
+        <div class="form-floating mb-3">
+          <input id="ir-password" type="password" formControlName="password" class="form-control" placeholder="password" />
+          <label for="ir-password">Password</label>
+          <app-form-errors [control]="form.controls.password" />
+        </div>
+        <div class="form-floating mb-3">
+          <input id="ir-confirm" type="password" formControlName="confirmPassword" class="form-control" placeholder="Confirm password" />
+          <label for="ir-confirm">Confirm Password</label>
+          <app-form-errors [control]="form.controls.confirmPassword" />
+        </div>
+        <div class="sub-btn text-center">
+          <button id="login-submit" type="submit" class="w-100 btn" [disabled]="submitting()">Register</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

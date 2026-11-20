@@ -18,30 +18,32 @@ import { QueryParams } from '../api/http-params.util';
  *   ngOnInit() { this.store.load(); }
  *   // template: @for (d of store.items(); track d.id) { ... }
  */
-export abstract class CrudStore<T, TRequest = Partial<T>, TId extends EntityId = number> {
+export abstract class CrudStore<T, TRequest = Partial<T>, TId extends EntityId = number, TDetails = T> {
   readonly items = signal<T[]>([]);
   readonly loading = signal(false);
   readonly error = signal<unknown>(null);
   readonly isEmpty = computed(() => !this.loading() && this.items().length === 0);
 
+  /** Query used by the last load(), re-used to refresh the list after a save. */
+  private lastQuery?: QueryParams;
+
   protected constructor(
-    protected readonly api: BaseApiService<T, TRequest, TId>,
+    protected readonly api: BaseApiService<T, TRequest, TId, TDetails>,
     private readonly idOf: (item: T) => TId,
   ) {}
 
   async load(query?: QueryParams): Promise<void> {
+    this.lastQuery = query;
     await this.run(async () => this.items.set(await firstValueFrom(this.api.getAll(query))));
   }
 
-  /** Creates when `id` is undefined, otherwise updates. Returns the saved item. */
-  async save(body: TRequest, id?: TId): Promise<T> {
-    return this.run(async () => {
-      const saved = await firstValueFrom(id === undefined ? this.api.create(body) : this.api.update(id, body));
-      this.items.update((list) =>
-        id === undefined ? [...list, saved] : list.map((item) => (this.idOf(item) === id ? saved : item)),
-      );
-      return saved;
-    });
+  /** Creates when `id` is undefined, otherwise updates, then reloads the list. Returns the saved item. */
+  async save(body: TRequest, id?: TId): Promise<TDetails> {
+    const saved = await this.run(() =>
+      firstValueFrom(id === undefined ? this.api.create(body) : this.api.update(id, body)),
+    );
+    await this.load(this.lastQuery);
+    return saved;
   }
 
   async remove(id: TId): Promise<void> {

@@ -1,0 +1,48 @@
+// Ported from the inline <style> of the legacy _RegisterPartial.cshtml
+.main-thing {
+  width: 100%;
+
+  h1 { font-weight: bolder; }
+  p { font-size: 0.8rem; }
+
+  .form-login {
+    width: 70%;
+    margin: auto;
+
+    input {
+      border-radius: 0.5rem;
+      border: none;
+      background-color: #eee;
+      color: black;
+    }
+  }
+}
+
+#login-submit {
+  position: relative;
+  background-color: #eee;
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  overflow: hidden;
+  z-index: 1;
+  cursor: pointer;
+  transition: color 0.3s ease, background-color 0.3s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background-color: black;
+    z-index: -1;
+    transition: width 0.5s ease;
+  }
+
+  &:hover { color: white; }
+  &:hover::before { width: 100%; }
+}

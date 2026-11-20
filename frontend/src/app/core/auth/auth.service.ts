@@ -33,6 +33,17 @@ export class AuthService {
     return this.api.post<AuthResponse>('auth/login', { email, password }).pipe(tap((s) => this.setSession(s)));
   }
 
+  /** Visitor registration: creates a Student account and signs in (legacy Register page). */
+  register(body: { fullName: string; email: string; password: string; confirmPassword: string }): Observable<AuthResponse> {
+    return this.api.post<AuthResponse>('auth/register', body).pipe(tap((s) => this.setSession(s)));
+  }
+
+  /** Updates the cached user after a profile change (e.g. new picture). */
+  patchUser(changes: Partial<AuthResponse['user']>): void {
+    const current = this.session();
+    if (current) this.setSession({ ...current, user: { ...current.user, ...changes } });
+  }
+
   /** Stores a session returned by any auth endpoint (login / register). */
   setSession(session: AuthResponse): void {
     this.storage.write(session);
@@ -67,11 +78,13 @@ export class AuthService {
     if (redirect) void this.router.navigateByUrl('/auth/login');
   }
 
-  /** Landing page per role (same redirects the MVC Home/Index did). */
+  /**
+   * Landing page per role - same as the MVC Home/Index redirects:
+   * Admin -> admin dashboard, Instructor -> instructor dashboard, Student / visitor -> public home.
+   */
   homeUrl(): string {
     if (this.hasRole(Roles.Admin)) return '/admin';
     if (this.hasRole(Roles.Instructor)) return '/instructor';
-    if (this.hasRole(Roles.Student)) return '/student';
     return '/';
   }
 }

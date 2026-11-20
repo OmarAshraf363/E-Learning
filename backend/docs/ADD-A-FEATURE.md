@@ -82,8 +82,19 @@ public class DepartmentsController(IDepartmentService service) : ControllerBase
     [HttpDelete("{id:int}")] public Task Delete(int id) => service.DeleteAsync(id);
 }
 ```
-**لو فيه رفع ملفات:** استقبل `IFormFile` في الـ Controller (`[FromForm]`) وحوّله لـ `FileUpload` قبل ما تبعته للـ Service:
-`new FileUpload(file.OpenReadStream(), file.FileName, file.Length, file.ContentType)`.
+**لو فيه رفع ملفات:** استقبل Form record فيه `IFormFile` (`[FromForm]`) في الـ Controller، وحوّله لـ Request الخاص بالـ Application باستخدام `file.ToFileUpload()`. بعد كده شغّل الـ Validator بنفسك، لأن الـ ValidationFilter بيتحقق من الـ Arguments اللي جاية للـ Action بس. المثال من `AccountController`:
+```csharp
+public record UpdateProfileForm(string? PhoneNumber, string? JopDescription, IFormFile? ProfilePicture);
+
+[HttpPut("profile")]
+public async Task<ProfileDto> UpdateProfile([FromForm] UpdateProfileForm form,
+    [FromServices] IValidator<UpdateProfileRequest> validator)
+{
+    var request = new UpdateProfileRequest(form.PhoneNumber, form.JopDescription, form.ProfilePicture.ToFileUpload());
+    await validator.ValidateAndThrowAsync(request);
+    return await service.UpdateProfileAsync(request);
+}
+```
 
 ## 6) Test: `tests/BFCAI.Application.Tests/Departments/DepartmentServiceTests.cs`
 ```csharp

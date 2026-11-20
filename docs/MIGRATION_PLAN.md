@@ -2,8 +2,8 @@
 
 | Phase | الحالة |
 |---|---|
-| 0: الأساسيات (Solution و DB baseline و Auth infra و Angular skeleton و Docs) | ✅ خلصت (مستنية مراجعتك) |
-| 1: Auth و Users | ⏳ |
+| 0: الأساسيات (Solution و DB baseline و Auth infra و Angular skeleton و Docs) | ✅ خلصت |
+| 1: Auth و Users | ✅ خلصت |
 | 2: Admin | ⏳ |
 | 3: Public catalog | ⏳ |
 | 4: Cart و Payment | ⏳ |
@@ -16,7 +16,32 @@
 - اتعمل Schema من الـ Migrations القديمة (42 Migration) وSchema تانية من الـ Baseline الجديدة، واتقارنوا: الأعمدة، والأنواع، والـ Nullability، والـ Defaults، والـ FKs ومعاها Delete rules، والـ Indexes. **متطابقين**، والفرق الوحيد جدول `RefreshTokens`.
 - اتجرّب سكربت `backend/docs/database/attach-existing-database.sql` على نسخة من الداتابيز القديمة، وبعده `database update`. النتيجة طلعت **متطابقة 100%** مع الداتابيز الجديدة.
 
+### Phase 1: اللي اتنقل
+| MVC | API | Angular |
+|---|---|---|
+| Identity Login | `POST /api/auth/login` | `/auth/login` |
+| Identity Register (زائر → Student) | `POST /api/auth/register` | `/auth/register` |
+| Home/PostRegister ("Teach in BFCAI") | `POST /api/auth/register-instructor` | `InstructorRegisterModalComponent` (هيتحط في الـ Home في Phase 3) |
+| — | `POST /api/auth/refresh` و `POST /api/auth/logout` و `GET /api/auth/me` | الـ Auth interceptor (Refresh تلقائي) |
+| Manage/Index (التليفون، الوصف، الصورة) | `GET/PUT /api/account/profile` | `/account` |
+| Manage/ChangePassword | `PUT /api/account/password` | `/account/password` |
+| Admin/User (Index و Upsert و Lock و Unlock و Delete) + Register الأدمن | `/api/admin/users` (+ `/roles` و `/{id}/lock` و `/{id}/unlock`) | `/admin/users?filter=` و `/admin/users/new` و `/admin/users/:id` |
+
+**الإصلاحات التقنية في Phase 1:**
+- الـ Register العام بيعمل Student بس.
+- اليوزر مبقاش بياخد دور Student زيادة على دوره.
+- `UserType` بيتظبط في كل طرق إنشاء اليوزرز وتعديل الدور.
+- إدارة اليوزرز بقت للأدمن بس.
+- الـ Lock والـ Delete بقوا `POST` و `DELETE` بدل GET.
+- صورة البروفايل بقت لازم تكون صورة.
+- لو حذف يوزر اتمنع بسبب داتا مرتبطة بيه، الـ API بيرجّع 409 برسالة واضحة بدل 500.
+
+**التحقق:**
+- 18 Integration test: Login، و Register، و Register instructor، و Refresh rotation، و Logout، و Lock، وتغيير الدور، والحذف، والبروفايل، وتغيير الباسورد، و 403 للطالب.
+- E2E في Chromium على الـ API الحقيقية و SQL Server: Login الأدمن، وإنشاء يوزر، و Lock، ومنع اليوزر المقفول، وأخطاء الـ Validation (من الـ Client ومن الـ Server)، و Register، ومنع الطالب من `/admin`، وتحديث البروفايل، و Refresh التوكن تلقائي.
+
 ### ملاحظات
+- **صور البروفايل القديمة:** الـ MVC كان بيحفظها في فولدر `Images/profile_pics` لكن بيخزّن الرابط `/images/...` بحرف صغير. ده كان شغّال على Windows بس. النسخة الجديدة بتخزّن `/Images/profile_pics/...`. لو هتشغّل على Linux بداتا قديمة، غيّر اسم الفولدر أو حدّث القيم دي.
 - **Stripe.net 53:** `PaymentMethodTypes` اتشال من الـ API بتاعتهم. طرق الدفع دلوقتي بتتحدد من Stripe Dashboard، وكارت الائتمان متاح بشكل افتراضي.
 - روابط Grades و Reports و Settings الميتة في Sidebar الـ Instructor مش موجودة في النسخة الجديدة، ومتسجّلة في الـ Backlog.
 
@@ -317,6 +342,13 @@ docs/ ADD-A-FEATURE.md
   - `Reaction.Type` نص بدل Enum
   - تكرار `UserType` مع الأدوار
   - الـ Discriminator
+- **حسابات اليوزرز (موجودة في صفحات Identity الافتراضية، ومش مستخدمة فعليًا لأن الـ EmailSender no-op):**
+  - Remember me
+  - Forgot password
+  - تغيير الإيميل
+  - External logins
+  - Personal data (download/delete)
+- **حماية الأدمن:** منع الأدمن إنه يحذف أو يقفل حسابه هو.
 - **حاجات تانية:**
   - Localization و RTL
   - تخزين الفيديوهات على Blob
