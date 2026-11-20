@@ -1,0 +1,11 @@
+// Design tokens from the legacy CSS (Home.css / studentLay.css).
+// Use them in any component: `@use 'variables' as v;` then `color: v.$primary;`
+// They are also exposed as CSS variables below (var(--primary-color)).
+
+$primary: #6366f1;
+$primary-dark: #4f46e5;
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+$dark: #343a40;
+$star: #ffc107;

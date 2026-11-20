@@ -1,0 +1,3 @@
+# Uploaded files (covers, videos, assignments, attachments) - not source code
+src/BFCAI.Api/wwwroot/*
+!src/BFCAI.Api/wwwroot/.gitkeep

@@ -1,0 +1,8 @@
+root = false
+
+[*.cs]
+indent_style = space
+indent_size = 4
+csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
+dotnet_sort_system_directives_first = true

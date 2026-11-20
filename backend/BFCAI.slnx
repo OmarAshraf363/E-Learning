@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BFCAI.Api/BFCAI.Api.csproj" />
+    <Project Path="src/BFCAI.Application/BFCAI.Application.csproj" />
+    <Project Path="src/BFCAI.Domain/BFCAI.Domain.csproj" />
+    <Project Path="src/BFCAI.Infrastructure/BFCAI.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BFCAI.Api.IntegrationTests/BFCAI.Api.IntegrationTests.csproj" />
+    <Project Path="tests/BFCAI.Application.Tests/BFCAI.Application.Tests.csproj" />
+  </Folder>
+</Solution>

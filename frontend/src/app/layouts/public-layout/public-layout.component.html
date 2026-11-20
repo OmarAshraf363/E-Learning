@@ -1,0 +1,49 @@
+<div class="layout-public">
+  <header class="container-fluid">
+    <div class="container-fluid head">
+      <div class="brand">
+        <a routerLink="/" class="text-light text-decoration-none">
+          <h1>BFC<span>ai</span></h1>
+        </a>
+        <button type="button" class="menu-toggle d-lg-none" (click)="mobileMenuOpen.set(!mobileMenuOpen())">
+          <i class="fa fa-bars"></i>
+        </button>
+      </div>
+
+      <div class="nav-wrapper" [class.active]="mobileMenuOpen()">
+        <nav class="cont">
+          <ul class="d-flex list-unstyled justify-content-between align-items-center">
+            <li><a routerLink="/courses">Courses</a></li>
+            <li class="nav-item dropdown dropdown-hover position-relative">
+              <!-- Departments / tracks menu is migrated in Phase 3 (legacy Categories view component) -->
+              <a class="dropdown-toggle" role="button" routerLink="/category">Categories | Tracks</a>
+            </li>
+            @if (auth.hasRole('Student')) {
+              <li><a routerLink="/student">My Learning</a></li>
+            }
+            <li><a routerLink="/community">Communites</a></li>
+          </ul>
+        </nav>
+
+        <form class="search-bar cont" (ngSubmit)="onSearch()">
+          <input type="search" name="search" [(ngModel)]="search"
+                 class="form-control rounded-3 bg-light" placeholder="Search..." />
+          <button type="submit" class="btn btn-warning ms-2"><i class="fas fa-search"></i></button>
+        </form>
+
+        <div class="cart">
+          <!-- Cart counter is migrated in Phase 4 (legacy CartIcon view component) -->
+          <a routerLink="/cart" class="position-relative text-decoration-none"><i class="fas fa-shopping-cart"></i></a>
+        </div>
+
+        <div class="partial">
+          <app-user-menu class="cont" />
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container-fluid">
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,22 @@
+# Local development dependencies: SQL Server + Redis
+# Usage: docker compose up -d
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: bfcai-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-Bfcai_Dev_Pass123}"
+    ports:
+      - "1433:1433"
+    volumes:
+      - bfcai-sql-data:/var/opt/mssql
+
+  redis:
+    image: redis:7-alpine
+    container_name: bfcai-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  bfcai-sql-data:

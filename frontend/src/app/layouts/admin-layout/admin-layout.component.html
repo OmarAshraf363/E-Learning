@@ -1,0 +1,31 @@
+<div class="layout-admin">
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="d-flex justify-content-between align-items-center w-100">
+      <a class="navbar-brand" routerLink="/admin">Admin Panel</a>
+      <app-user-menu />
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-md-2 d-none d-md-block sidebar">
+        <div class="sidebar-sticky">
+          <ul class="nav flex-column">
+            @for (item of nav; track item.label) {
+              <li class="nav-item">
+                <a class="nav-link" [routerLink]="item.link" [queryParams]="item.query"
+                   routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                  <i [class]="item.icon"></i> {{ item.label }}
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      </nav>
+
+      <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-4 main-content">
+        <router-outlet />
+      </main>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+<div class="layout-student">
+  <header class="container-fluid">
+    <div class="container head">
+      <h1>BFC<span>ai</span></h1>
+      <nav>
+        <ul class="d-flex list-unstyled justify-content-start align-items-center gap-4">
+          <li><a routerLink="/student" class="btn btn-outline-primary">Home</a></li>
+          <li><a routerLink="/student/courses">MyCourses</a></li>
+          <li><a routerLink="/community">Communites</a></li>
+          <li><a routerLink="/">Courses Page</a></li>
+        </ul>
+      </nav>
+      <nav>
+        <app-user-menu />
+      </nav>
+    </div>
+  </header>
+
+  <div class="container-fluid">
+    <router-outlet />
+  </div>
+</div>

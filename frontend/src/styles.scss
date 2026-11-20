@@ -1,0 +1,28 @@
+// Global styles. Bootstrap 5.3, Font Awesome 6 and SweetAlert2 CSS are added in angular.json.
+@use 'styles/variables' as v;
+
+// Legacy look, ported 1:1 from Banha UniverCity/wwwroot/css and scoped per layout.
+@use 'styles/legacy/admin';
+@use 'styles/legacy/instructor';
+@use 'styles/legacy/student';
+@use 'styles/legacy/public-global';
+@use 'styles/legacy/public-home';
+@use 'styles/legacy/community';
+
+:root {
+  --primary-color: #{v.$primary};
+  --primary-dark: #{v.$primary-dark};
+  --success-color: #{v.$success};
+  --warning-color: #{v.$warning};
+  --danger-color: #{v.$danger};
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
