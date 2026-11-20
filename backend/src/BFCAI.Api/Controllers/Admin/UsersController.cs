@@ -1,15 +1,11 @@
 using BFCAI.Application.Features.Users;
-using BFCAI.Domain.Constants;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BFCAI.Api.Controllers.Admin;
 
 /// <summary>Legacy Admin/UserController.</summary>
-[ApiController]
 [Route("api/admin/users")]
-[Authorize(Roles = Roles.Admin)]
-public class UsersController(IUserService service) : ControllerBase
+public class UsersController(IUserService service) : AdminControllerBase
 {
     /// <summary>?filter=Student | Instructor (matches ApplicationUser.UserType, like the legacy page).</summary>
     [HttpGet]

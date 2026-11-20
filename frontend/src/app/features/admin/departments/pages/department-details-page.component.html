@@ -1,0 +1,94 @@
+@if (details(); as d) {
+  <div class="container mt-5">
+    <div class="card shadow-lg">
+      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h3>{{ d.name }} Details</h3>
+        <a routerLink="/admin/departments" class="btn btn-light"><i class="fas fa-arrow-left"></i> Back to List</a>
+      </div>
+      <div style="background-color: #202020" class="card-body">
+        <div class="container py-4">
+          <div class="row mb-4">
+            <div class="col-md-4 mb-3"><div class="info-box bg-black text-white p-3 rounded"><h5>Department ID:</h5><p>{{ d.id }}</p></div></div>
+            <div class="col-md-4 mb-3"><div class="info-box bg-info text-white p-3 rounded"><h5>Department Name:</h5><p>{{ d.name }}</p></div></div>
+            <div class="col-md-4 mb-3"><div class="info-box bg-success text-white p-3 rounded"><h5>Total Students:</h5><p>{{ d.totalStudents }}</p></div></div>
+            <div class="col-md-4 mb-3"><div class="info-box bg-primary text-white p-3 rounded"><h5>Total Instructors:</h5><p>{{ d.totalInstructors }}</p></div></div>
+            <div class="col-md-4 mb-3"><div class="info-box bg-dark text-white p-3 rounded"><h5>Total Hours:</h5><p>{{ d.totalHours }}</p></div></div>
+            <div class="col-md-4 mb-3"><div class="info-box bg-secondary text-white p-3 rounded"><h5>Total Courses:</h5><p>{{ d.totalCourses }}</p></div></div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <div class="card-header text-white d-flex justify-content-between align-items-center">
+            <h4>Courses</h4>
+            <a routerLink="/admin/courses/new" [queryParams]="{ deptId: d.id }" class="btn btn-light">Add New Course</a>
+          </div>
+          <table class="table table-bordered table-hover">
+            <thead><tr><th>Course ID</th><th>Course Name</th><th>Num Of Hours</th><th>Actions</th></tr></thead>
+            <tbody>
+              @for (course of d.courses; track course.id) {
+                <tr>
+                  <td>{{ course.id }}</td><td>{{ course.name }}</td><td>{{ course.credits }}</td>
+                  <td class="d-flex gap-1">
+                    <a [routerLink]="['/admin/courses', course.id, 'details']" class="btn btn-info btn-sm">Details</a>
+                    <a [routerLink]="['/admin/courses', course.id]" class="btn btn-warning btn-sm">Edit</a>
+                    <button type="button" class="btn btn-danger btn-sm" (click)="removeCourse(course.id)">Delete</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="4" class="text-center">No courses available</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mb-4">
+          <h4>Instructors</h4>
+          <table class="table table-bordered table-hover">
+            <thead><tr><th>User ID</th><th>Name</th><th>Email</th></tr></thead>
+            <tbody>
+              @for (user of d.instructors; track user.id) {
+                <tr><td>{{ user.id }}</td><td>{{ user.userName }}</td><td>{{ user.email }}</td></tr>
+              } @empty {
+                <tr><td colspan="3" class="text-center">No instructors available</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mb-4">
+          <h4>Schadual for {{ d.name }}</h4>
+          <table class="table table-bordered schedule-table">
+            <thead><tr><th>Time</th><th>Day</th><th>Course</th><th>Instructor</th><th>Room</th></tr></thead>
+            <tbody>
+              @for (s of d.schedules; track s.id) {
+                <tr [routerLink]="['/admin/schedules', s.id]">
+                  <td>{{ s.startTime | date: 'hh:mm a' }} - {{ s.endTime | date: 'hh:mm a' }}</td>
+                  <td>{{ s.dayOfWeek }}</td><td>{{ s.courseName }}</td><td>{{ s.instructorName }}</td><td>{{ s.roomName }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mb-4">
+          <h4>Events</h4>
+          <table class="table table-bordered table-hover">
+            <thead><tr><th>Event ID</th><th>Event Name</th><th>Date</th></tr></thead>
+            <tbody>
+              @for (event of d.events; track event.id) {
+                <tr><td>{{ event.id }}</td><td>{{ event.name }}</td><td>{{ event.date | date: 'dd/MM/yyyy' }}</td></tr>
+              } @empty {
+                <tr><td colspan="3" class="text-center">No events available</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-warning" (click)="edit()"><i class="fas fa-edit"></i> Edit</button>
+          <button type="button" class="btn btn-danger" (click)="remove()"><i class="fas fa-trash"></i> Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

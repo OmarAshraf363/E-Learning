@@ -1,4 +1,12 @@
+using BFCAI.Application.Features.AcademicYears;
 using BFCAI.Application.Features.Account;
+using BFCAI.Application.Features.Courses;
+using BFCAI.Application.Features.Dashboard;
+using BFCAI.Application.Features.Departments;
+using BFCAI.Application.Features.Enrollments;
+using BFCAI.Application.Features.Lookups;
+using BFCAI.Application.Features.Schedules;
+using BFCAI.Application.Features.Tracks;
 using BFCAI.Application.Features.Auth;
 using BFCAI.Application.Features.Users;
 using FluentValidation;
@@ -17,6 +25,14 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ILookupService, LookupService>();
+        services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+        services.AddScoped<IDepartmentService, DepartmentService>();
+        services.AddScoped<ITrackService, TrackService>();
+        services.AddScoped<IAcademicYearService, AcademicYearService>();
+        services.AddScoped<ICourseManagementService, CourseManagementService>();
+        services.AddScoped<IScheduleService, ScheduleService>();
+        services.AddScoped<IEnrollmentService, EnrollmentService>();
 
         return services;
     }

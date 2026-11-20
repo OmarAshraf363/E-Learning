@@ -1,0 +1,79 @@
+<div class="container">
+  <div class="card mt-4">
+    <div class="card-header"><h2>{{ isEdit() ? 'Edit Schedule' : 'Add New Schedule' }}</h2></div>
+    <div class="card-body p-4">
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="row">
+          <div class="col-lg-6 section">
+            <div class="section-title">Class Details</div>
+            <div class="mb-3">
+              <label for="courseId" class="form-label">Course</label>
+              <select id="courseId" formControlName="courseId" class="form-select">
+                <option [ngValue]="null">Select Course</option>
+                @for (c of courses(); track c.id) { <option [ngValue]="c.id">{{ c.name }}</option> }
+              </select>
+              <app-form-errors [control]="form.controls.courseId" />
+            </div>
+            <div class="mb-3">
+              <label for="instructorId" class="form-label">Instructor</label>
+              <select id="instructorId" formControlName="instructorId" class="form-select">
+                <option [ngValue]="null">Select Instructor</option>
+                @for (u of users(); track u.id) { <option [ngValue]="u.id">{{ u.name }}</option> }
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="roomId" class="form-label">Room</label>
+              <select id="roomId" formControlName="roomId" class="form-select">
+                <option [ngValue]="null">Select Room</option>
+                @for (r of rooms(); track r.id) { <option [ngValue]="r.id">{{ r.name }}</option> }
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="dayOfWeek" class="form-label">Day of the Week</label>
+              <select id="dayOfWeek" formControlName="dayOfWeek" class="form-select">
+                <option value="">Select Day</option>
+                @for (d of days; track d) { <option [value]="d">{{ d }}</option> }
+              </select>
+              <app-form-errors [control]="form.controls.dayOfWeek" />
+            </div>
+          </div>
+
+          <div class="col-lg-6 section">
+            <div class="section-title">Schedule Information</div>
+            <div class="mb-3">
+              <label for="startTime" class="form-label">Start Time</label>
+              <input id="startTime" formControlName="startTime" type="time" class="form-control" />
+              <app-form-errors [control]="form.controls.startTime" />
+            </div>
+            <div class="mb-3">
+              <label for="endTime" class="form-label">End Time</label>
+              <input id="endTime" formControlName="endTime" type="time" class="form-control" />
+              <app-form-errors [control]="form.controls.endTime" />
+            </div>
+            <div class="mb-3">
+              <label for="acadmicYearId" class="form-label">Academic Year</label>
+              <select id="acadmicYearId" formControlName="acadmicYearId" class="form-select">
+                <option [ngValue]="null">Select Year</option>
+                @for (y of years(); track y.id) { <option [ngValue]="y.id">{{ y.name }}</option> }
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="departmentId" class="form-label">Department</label>
+              <select id="departmentId" formControlName="departmentId" class="form-select">
+                <option [ngValue]="null">Select Department</option>
+                @for (d of departments(); track d.id) { <option [ngValue]="d.id">{{ d.name }}</option> }
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-4 d-flex justify-content-center gap-2">
+          <button type="submit" class="btn btn-primary btn-lg" [disabled]="saving()">Save Schedule</button>
+          @if (isEdit()) {
+            <button type="button" class="btn btn-outline-danger btn-lg" (click)="remove()">Delete</button>
+          }
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

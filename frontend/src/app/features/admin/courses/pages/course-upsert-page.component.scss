@@ -1,0 +1,77 @@
+// Ported from the inline <style> of the legacy Course/UpSert.cshtml
+
+    .card {
+        background-color: #212325;
+        border-radius: 8px;
+        border: none;
+    }
+
+    h3 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-label {
+        color: #adb5bd;
+    }
+
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        background-color: #1c1a1a;
+        color: #f8f9fa;
+    }
+
+        .form-control:focus {
+            background-color: #111315;
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        }
+
+    .btn-outline-info {
+        color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+        .btn-outline-info:hover {
+            background-color: #17a2b8;
+            color: #fff;
+        }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+    .btn-dark {
+        background-color: #343a40;
+        border-color: #343a40;
+    }
+
+        .btn-dark:hover {
+            background-color: #23272b;
+            border-color: #1d2124;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+    .text-danger {
+        color: #dc3545;
+    }
+
+// Title text was dark on the dark card in the legacy page too; make it readable.
+h3 { color: #eee; }

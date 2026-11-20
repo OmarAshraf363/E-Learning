@@ -4,7 +4,7 @@
 |---|---|
 | 0: الأساسيات (Solution و DB baseline و Auth infra و Angular skeleton و Docs) | ✅ خلصت |
 | 1: Auth و Users | ✅ خلصت |
-| 2: Admin | ⏳ |
+| 2: Admin | ✅ خلصت |
 | 3: Public catalog | ⏳ |
 | 4: Cart و Payment | ⏳ |
 | 5: Instructor | ⏳ |
@@ -39,6 +39,53 @@
 **التحقق:**
 - 18 Integration test: Login، و Register، و Register instructor، و Refresh rotation، و Logout، و Lock، وتغيير الدور، والحذف، والبروفايل، وتغيير الباسورد، و 403 للطالب.
 - E2E في Chromium على الـ API الحقيقية و SQL Server: Login الأدمن، وإنشاء يوزر، و Lock، ومنع اليوزر المقفول، وأخطاء الـ Validation (من الـ Client ومن الـ Server)، و Register، ومنع الطالب من `/admin`، وتحديث البروفايل، و Refresh التوكن تلقائي.
+
+### Phase 2: اللي اتنقل
+| MVC (Admin) | API | Angular |
+|---|---|---|
+| DashBoard/Index | `GET /api/admin/dashboard?page=` | `/admin` |
+| Department (Index و UpSert و Details و Courses و Delete) | `/api/admin/departments` (+ `/{id}/details` و `/{id}/courses`) | `/admin/departments` و `/admin/departments/:id` و `/admin/departments/:id/courses` (والإضافة والتعديل في Modal) |
+| Track (Index و UpSert و Details و Delete) | `/api/admin/tracks` (+ `/{id}/details`) | `/admin/tracks` و `/admin/tracks/:id` |
+| AcadmicYear | `/api/admin/academic-years` | `/admin/academic-years` |
+| Course (Index و Details و UpSert و Delete) | `/api/admin/courses` (+ `/{id}/details`) | `/admin/courses` و `/admin/courses/new?deptId=&trackId=` و `/admin/courses/:id` و `/admin/courses/:id/details` |
+| Schedule (Index و UpSert) | `/api/admin/schedules` | `/admin/schedules` و `/admin/schedules/new` و `/admin/schedules/:id` |
+| Enrollment (Index و EnrollByEmail و UploadCsv) | `GET /api/admin/enrollments` و `POST /by-email` و `POST /csv` | `/admin/enrollments` |
+| (Dropdowns) | `/api/admin/lookups/{departments,tracks,courses,rooms,academic-years,instructors,users}` | `LookupsApi` |
+
+**الإصلاحات التقنية في Phase 2:**
+- **إضافة Key Word و Objective و Topic في فورم الكورس:** الحقول الجديدة كانت بتتعمل من غير `name`، فعمرها ما كانت بتتحفظ. دلوقتي القوايم بتتضاف وتتشال وبتتحفظ فعلًا.
+- **تعديل الكورس أو القسم أو التراك من غير صورة جديدة** كان بيمسح الغلاف القديم. دلوقتي الغلاف القديم بيفضل.
+- **الغلاف** بقى إجباري عند الإنشاء بس، ولازم يكون صورة.
+- **الـ Course upsert** كان بيعمل حوالي 6 `Commit` منفصلين، بقى `SaveChanges` واحد، يعني Transaction واحدة.
+- **السنة الدراسية** كانت مش بتتحفظ من الـ Modal بسبب الـ return قبل الـ `Commit`.
+- **الجداول:** الـ Instructor بقى بيتحفظ بالـ Id الحقيقي. الـ `int.Parse` على GUID كان بيمنع الحفظ.
+- **الداشبورد:**
+  - "Total Courses" كان بيعرض حجم أول صفحة بس.
+  - "Most Popular Course" كان ديمًا فاضي.
+  - الاتنين بيعرضوا القيم الحقيقية دلوقتي.
+- **CSV:**
+  - السطر الغلط بقى بيتخطّى بدل ما يوقع الـ Upload كله.
+  - أول عمود بيقبل Id أو Email، زي ما كان مكتوب في شاشة الرفع.
+- **الكاش:** أي تعديل في الكورسات أو الأقسام أو التراكات بيمسح كاش الصفحة الرئيسية.
+- **الحذف:** لو فيه داتا مرتبطة، الـ API بيرجّع 409 برسالة واضحة.
+
+**تغييرات بسيطة في الواجهة:**
+- اتضاف زرار "New Track"، لأن الصفحة القديمة مكانش فيها طريقة لإضافة تراك غير بكتابة الرابط بإيدك.
+- خانة البحث في جداول الكورسات والأقسام بقت شغّالة فعلًا (فلترة محلية). قبل كده كانت شكل بس.
+- زرار "Enroll Manually" اتشال، لأنه كان Modal فاضي مالوش Action.
+
+**التحقق:**
+- 33 Integration test.
+- E2E في Chromium على الـ API الحقيقية و SQL Server، وكل الخطوات نجحت:
+  - الداشبورد.
+  - قسم: إجبار الغلاف، الإضافة، التعديل من غير غلاف، صفحة التفاصيل.
+  - إضافة تراك.
+  - كورس: الإضافة بقوايم الـ Keywords والـ Objectives والـ Topics، والتعديل وشيل Keyword مع بقاء الغلاف.
+  - تفاصيل التراك.
+  - سنة دراسية.
+  - جدول بـ Instructor.
+  - التسجيل بالإيميل (خطأ ونجاح).
+  - استيراد CSV.
 
 ### ملاحظات
 - **صور البروفايل القديمة:** الـ MVC كان بيحفظها في فولدر `Images/profile_pics` لكن بيخزّن الرابط `/images/...` بحرف صغير. ده كان شغّال على Windows بس. النسخة الجديدة بتخزّن `/Images/profile_pics/...`. لو هتشغّل على Linux بداتا قديمة، غيّر اسم الفولدر أو حدّث القيم دي.
@@ -349,6 +396,8 @@ docs/ ADD-A-FEATURE.md
   - External logins
   - Personal data (download/delete)
 - **حماية الأدمن:** منع الأدمن إنه يحذف أو يقفل حسابه هو.
+- **إدارة الأحداث (Events):** الداشبورد وتفاصيل القسم بيعرضوا الأحداث، بس مفيش شاشة تضيفها، لا قبل ولا دلوقتي.
+- **قائمة الـ Instructor في فورم الجداول** بتعرض كل اليوزرز زي الـ MVC. محتاجة قرار: نخليها Instructors بس؟
 - **حاجات تانية:**
   - Localization و RTL
   - تخزين الفيديوهات على Blob

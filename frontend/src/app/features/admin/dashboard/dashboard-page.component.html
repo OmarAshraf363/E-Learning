@@ -1,0 +1,83 @@
+<div class="container mt-4">
+  <h1 class="mb-4 text-white">Admin Dashboard</h1>
+
+  @if (data(); as d) {
+    <div class="row">
+      <div class="col-md-3 mb-4">
+        <div class="card text-white bg-dark">
+          <div class="card-header">Total Students</div>
+          <div class="card-body">
+            <h5 class="card-title">{{ d.totalStudents }}</h5>
+            <p class="card-text">Total number of students.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="card text-white bg-dark">
+          <div class="card-header">Total Instructors</div>
+          <div class="card-body">
+            <h5 class="card-title">{{ d.totalInstructors }}</h5>
+            <p class="card-text">Total number of instructors.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="card text-white bg-primary">
+          <div class="card-header">Total Courses</div>
+          <div class="card-body">
+            <h5 class="card-title">{{ d.totalCourses }}</h5>
+            <p class="card-text">Total number of courses available.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="card text-white bg-secondary">
+          <div class="card-header">Total Departments</div>
+          <div class="card-body">
+            <h5 class="card-title">{{ d.totalDepartments }}</h5>
+            <p class="card-text">Total number of departments.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <h3>Course Details</h3>
+        <table class="table table-striped table-dark">
+          <thead>
+            <tr><th>Course ID</th><th>Course Name</th><th>Department</th></tr>
+          </thead>
+          <tbody>
+            @for (course of d.courses.items; track course.id) {
+              <tr><td>{{ course.id }}</td><td>{{ course.name }}</td><td>{{ course.departmentName }}</td></tr>
+            }
+          </tbody>
+        </table>
+        <app-pagination [page]="d.courses.page" [totalPages]="d.courses.totalPages" (pageChange)="load($event)" />
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-6">
+        @if (d.mostPopularCourse; as popular) {
+          <h3>Most Popular Course</h3>
+          <p class="text-light">Course: {{ popular.name }}</p>
+          <p class="text-light">Number of Students Enrolled: {{ popular.enrollmentCount }}</p>
+        } @else {
+          <p class="text-light">No enrollments available.</p>
+        }
+      </div>
+      <div class="col-md-6">
+        <h4>Upcoming Events</h4>
+        <ul class="list-group">
+          @for (event of d.events; track $index) {
+            <li class="bg-dark text-light list-group-item">{{ event.name }}: {{ event.date | date: 'dd MMMM yyyy' }}</li>
+          } @empty {
+            <li class="bg-dark text-light list-group-item">No events.</li>
+          }
+        </ul>
+      </div>
+    </div>
+  }
+</div>

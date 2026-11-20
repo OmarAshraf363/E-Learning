@@ -1,0 +1,14 @@
+// Shared look of the legacy admin list pages (header with search + "New" button)
+.head h3 {
+  color: #fff;
+}
+
+.new-course-btn {
+  background-color: #0d6efd;
+  color: #fff;
+
+  &:hover {
+    background-color: #0b5ed7;
+    color: #fff;
+  }
+}

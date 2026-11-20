@@ -1,0 +1,66 @@
+// Ported from the inline <style> of the legacy Track/Index.cshtml
+
+    .tracks-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0d6efd; /* Bootstrap Primary Color */
+}
+
+.tracks-header a {
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.tracks-header span {
+    font-size: 1rem;
+    color: #6c757d; /* Bootstrap Secondary Color */
+}
+
+/* Card Styles */
+.one-track.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.one-track.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.one-track .card-header {
+    background-color: #343a40;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.one-track .card-body {
+    background-color: #2d2d2d;
+    font-size: 0.95rem;
+    color: #6c757d;
+}
+
+.one-track .card-footer {
+    background-color: #343a40;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.one-track .btn {
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .tracks-header h2 {
+        font-size: 2rem;
+    }
+    .one-track .card {
+        margin-bottom: 1.5rem;
+    }
+}
+
