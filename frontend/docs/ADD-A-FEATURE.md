@@ -58,7 +58,20 @@ export class DepartmentsPageComponent {
 - لو الـ Save فشل: `applyServerErrors(form, error)`، والأخطاء بتظهر في `<app-form-errors [control]="form.controls.x" />`.
 
 ### الـ Modals
-`NgbModal` من ng-bootstrap. الـ Modal بيبقى Component عادي.
+- **فورم صغير** (حقلين أو تلاتة أو رفع ملف): استخدم `openFormModal` من `shared/components/form-modal.component.ts`. بتديله الحقول والـ `submit`، وهو بيتولّى الـ Validation وأخطاء الـ API:
+  ```ts
+  const saved = await openFormModal<{ title: string; video: File | null }>(this.modal, {
+    title: 'Add Video',
+    fields: [
+      { name: 'title', label: 'Title', required: true },
+      { name: 'video', label: 'Video', type: 'file', accept: 'video/*', required: true },
+    ],
+    submit: (v) => firstValueFrom(this.api.uploadVideo(sectionId, v)),
+  });
+  if (saved !== undefined) this.load();
+  ```
+- **محتوى عرض بسيط** (تفاصيل أو جدول): `<ng-template #x let-modal>` في نفس الصفحة، وبعدين `modal.open(this.x())`.
+- **فورم كبير أو منطق كتير:** Component مستقل بـ `NgbActiveModal`، زي `DepartmentFormModalComponent`.
 
 ## 5) الـ Route: `features/admin/admin.routes.ts`
 ```ts

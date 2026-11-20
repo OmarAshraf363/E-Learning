@@ -6,6 +6,7 @@ using BFCAI.Application.Features.Courses;
 using BFCAI.Application.Features.Dashboard;
 using BFCAI.Application.Features.Departments;
 using BFCAI.Application.Features.Enrollments;
+using BFCAI.Application.Features.Instructor;
 using BFCAI.Application.Features.Lookups;
 using BFCAI.Application.Features.Schedules;
 using BFCAI.Application.Features.Tracks;
@@ -38,6 +39,12 @@ public static class DependencyInjection
         services.AddScoped<ICatalogService, CatalogService>();
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<ICheckoutService, CheckoutService>();
+        services.AddScoped<InstructorAccess>();
+        services.AddScoped<IInstructorCourseService, InstructorCourseService>();
+        services.AddScoped<ICurriculumService, CurriculumService>();
+        services.AddScoped<IExamService, ExamService>();
+        services.AddScoped<IAssignmentService, AssignmentService>();
+        services.AddScoped<IInstructorStudentService, InstructorStudentService>();
 
         return services;
     }

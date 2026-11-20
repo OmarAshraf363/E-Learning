@@ -1,11 +1,21 @@
 import { Routes } from '@angular/router';
-import { ComingSoonComponent } from '../../shared/components/coming-soon.component';
 
-/** Instructor area. Migrated in Phase 5. */
+/** Instructor area (legacy Areas/Instructor). */
 export const INSTRUCTOR_ROUTES: Routes = [
-  { path: '', component: ComingSoonComponent, data: { title: 'Dashboard', phase: 'Phase 5' } },
-  { path: 'exams', component: ComingSoonComponent, data: { title: 'Exams', phase: 'Phase 5' } },
-  { path: 'courses', component: ComingSoonComponent, data: { title: 'Courses', phase: 'Phase 5' } },
-  { path: 'assignments', component: ComingSoonComponent, data: { title: 'Assignments', phase: 'Phase 5' } },
-  { path: 'students', component: ComingSoonComponent, data: { title: 'Students', phase: 'Phase 5' } },
+  { path: '', loadComponent: () => import('./pages/dashboard-page.component').then((m) => m.DashboardPageComponent) },
+
+  { path: 'courses', loadComponent: () => import('./pages/courses-page.component').then((m) => m.CoursesPageComponent) },
+  { path: 'courses/new', loadComponent: () => import('./pages/course-form-page.component').then((m) => m.CourseFormPageComponent) },
+  { path: 'courses/:id', loadComponent: () => import('./pages/course-form-page.component').then((m) => m.CourseFormPageComponent) },
+  { path: 'courses/:id/curriculum', loadComponent: () => import('./pages/curriculum-page.component').then((m) => m.CurriculumPageComponent) },
+
+  { path: 'exams', loadComponent: () => import('./pages/exams-page.component').then((m) => m.ExamsPageComponent) },
+  { path: 'exams/new', loadComponent: () => import('./pages/exam-form-page.component').then((m) => m.ExamFormPageComponent) },
+  { path: 'exams/:id', loadComponent: () => import('./pages/exam-form-page.component').then((m) => m.ExamFormPageComponent) },
+  { path: 'exams/:id/questions', loadComponent: () => import('./pages/exam-questions-page.component').then((m) => m.ExamQuestionsPageComponent) },
+  { path: 'exams/:id/questions/new', loadComponent: () => import('./pages/question-form-page.component').then((m) => m.QuestionFormPageComponent) },
+  { path: 'exams/:id/questions/:questionId', loadComponent: () => import('./pages/question-form-page.component').then((m) => m.QuestionFormPageComponent) },
+
+  { path: 'assignments', loadComponent: () => import('./pages/assignments-page.component').then((m) => m.AssignmentsPageComponent) },
+  { path: 'students', loadComponent: () => import('./pages/students-page.component').then((m) => m.StudentsPageComponent) },
 ];

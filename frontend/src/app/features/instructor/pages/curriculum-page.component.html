@@ -1,0 +1,108 @@
+@if (curriculum(); as c) {
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ c.courseName }} <small class="text-muted fs-5">Curriculum</small></h2>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-dark" (click)="editSection()"><i class="fa-solid fa-plus"></i> Add-Process</button>
+      <a routerLink="/instructor/courses" class="btn btn-outline-secondary">Back</a>
+    </div>
+  </div>
+
+  @if (c.sections.length) {
+    <ul class="list-group">
+      @for (section of c.sections; track section.id) {
+        <li class="list-group-item mb-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h5 class="font-weight-bold">{{ section.title }}</h5>
+              <p>{{ section.content }}</p>
+            </div>
+            <button type="button" class="btn btn-outline-warning btn-sm" (click)="editSection(section)"><i class="fa-solid fa-edit"></i></button>
+          </div>
+
+          <div class="mb-4">
+            @if (section.videos.length) {
+              <h6 class="text-primary">Videos:</h6>
+              <div class="video-container">
+                @for (video of section.videos; track video.id) {
+                  <div class="video-item">
+                    <a [href]="video.url | fileUrl" target="_blank"><i class="fa-solid fa-video"></i> {{ video.title }}</a>
+                    <button type="button" class="btn btn-danger btn-sm ms-2" title="Delete video" (click)="deleteVideo(video.id)"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="text-muted">No videos available for this curriculum.</p>
+            }
+          </div>
+
+          <div class="mb-4">
+            @if (section.references.length) {
+              <h6 class="text-success">References:</h6>
+              <div class="reference-container">
+                @for (reference of section.references; track reference.id) {
+                  <div class="reference-item">
+                    <a [href]="reference.url" class="btn btn-primary btn-sm text-light" target="_blank"><i class="fa-solid fa-book"></i> {{ reference.title }}</a>
+                    <button type="button" class="btn btn-danger btn-sm ms-2" title="Delete reference" (click)="deleteReference(reference.id)"><i class="fa-solid fa-trash"></i></button>
+                    <button type="button" class="btn btn-warning btn-sm ms-2" title="Edit reference" (click)="editReference(section, reference)"><i class="fa-solid fa-edit"></i></button>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="text-muted">No references available for this curriculum.</p>
+            }
+          </div>
+
+          <div class="mb-4">
+            @if (section.assignments.length) {
+              <h6 class="text-info">Assignments:</h6>
+              <div class="assignment-container">
+                @for (assignment of section.assignments; track assignment.id) {
+                  <div class="assignment-item">
+                    <a [href]="assignment.content | fileUrl" target="_blank"><i class="fa-solid fa-file"></i> {{ assignment.title }}</a>
+                    <button type="button" class="btn btn-warning btn-sm ms-2" title="Edit assignment" (click)="editAssignment(section, assignment)"><i class="fa-solid fa-edit"></i></button>
+                    <button type="button" class="btn btn-danger btn-sm ms-2" title="Delete assignment" (click)="deleteAssignment(assignment.id)"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="text-muted">No assignments available for this curriculum.</p>
+            }
+          </div>
+
+          <div class="mb-4">
+            @if (section.exams.length) {
+              <h6 class="text-info">Quizzes &amp; Exams:</h6>
+              <table class="table table-hover">
+                <thead class="thead-light"><tr><th>Title</th><th>Date</th><th>Actions</th></tr></thead>
+                <tbody>
+                  @for (exam of section.exams; track exam.id) {
+                    <tr>
+                      <td>{{ exam.title }}</td>
+                      <td>{{ exam.examDate | date: 'MM/dd/yyyy' }}</td>
+                      <td class="d-flex gap-1">
+                        <button type="button" class="btn btn-warning btn-sm" (click)="editQuiz(section, exam)"><i class="fas fa-edit"></i> Edit</button>
+                        <a [routerLink]="['/instructor/exams', exam.id, 'questions']" class="btn btn-secondary btn-sm"><i class="fas fa-eye"></i> Questions</a>
+                        <button type="button" class="btn btn-danger btn-sm" (click)="deleteQuiz(exam.id)"><i class="fas fa-trash"></i> Delete</button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            } @else {
+              <p class="text-muted">No exams or quizzes available for this curriculum.</p>
+            }
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-primary mt-2" (click)="addVideo(section)"><i class="fa-solid fa-plus"></i> Add Video</button>
+            <button type="button" class="btn btn-outline-secondary mt-2" (click)="editReference(section)"><i class="fa-solid fa-plus"></i> Add Reference</button>
+            <button type="button" class="btn btn-outline-info mt-2" (click)="editAssignment(section)"><i class="fa-solid fa-plus"></i> Add Assignment</button>
+            <button type="button" class="btn btn-outline-info mt-2" (click)="editQuiz(section)"><i class="fa-solid fa-plus"></i> Add Quiz</button>
+          </div>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="text-muted">No curricula available for this course.</p>
+  }
+}

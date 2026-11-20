@@ -1,0 +1,93 @@
+<div class="container mt-4">
+  <h2>Manage Course Assignments</h2>
+
+  <form class="mb-4 d-flex align-items-center gap-2" (submit)="$event.preventDefault()">
+    <label for="courseId" class="text-nowrap">Select Course:</label>
+    <select id="courseId" class="form-control" [value]="courseId() ?? ''" (change)="selectCourse($any($event.target).value)">
+      <option value="">-- Select Course --</option>
+      @for (course of courses(); track course.id) {
+        <option [value]="course.id" [selected]="'' + course.id === courseId()">{{ course.name }}</option>
+      }
+    </select>
+  </form>
+
+  @if (!courseId()) {
+    <div class="alert alert-info">Please select a Course.</div>
+  } @else if (sections().length) {
+    <table class="table table-striped table-bordered">
+      <thead><tr><th>Curriculum Title</th><th>Assignments</th><th>Action</th></tr></thead>
+      <tbody>
+        @for (section of sections(); track section.id) {
+          <tr>
+            <td>{{ section.title }}</td>
+            <td>
+              @if (section.assignments.length) {
+                <ul class="mb-0">
+                  @for (a of section.assignments; track a.id) {
+                    <li>
+                      {{ a.title }} (Due: {{ a.deadLine | date: 'dd/MM/yyyy' }})
+                      <a [href]="a.content | fileUrl" target="_blank" class="ms-2">{{ a.title }}</a>
+                      <a role="button" class="ms-2 link-primary" (click)="openDetails(a)">Details</a>
+                      <a role="button" class="ms-2 link-primary" (click)="openSubmissions(a)">Submitions</a>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <span>No assignments available for this curriculum.</span>
+              }
+            </td>
+            <td><button type="button" class="btn btn-success btn-sm" (click)="upsert(section.id)">Create New</button></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <div class="alert alert-warning">This course has no curriculum sections yet.</div>
+  }
+</div>
+
+<ng-template #detailsModal let-modal>
+  @if (selected(); as a) {
+    <div class="modal-header">
+      <h5 class="modal-title">Assignment Details</h5>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="modal-body">
+      <h4>{{ a.title }}</h4>
+      <p><strong>Due Date:</strong> {{ a.deadLine | date: 'dd/MM/yyyy' }}</p>
+      <p><strong>Description:</strong> {{ a.description }}</p>
+      <p><strong>File:</strong> <a [href]="a.content | fileUrl" target="_blank" download>Download Assignment</a></p>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-danger btn-sm" (click)="remove(a)">Delete</button>
+        <button type="button" class="btn btn-primary btn-sm" (click)="upsert(a.curriculumId, a)">Edit</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Close</button></div>
+  }
+</ng-template>
+
+<ng-template #submissionsModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Submissions</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <table class="table table-bordered table-striped align-middle shadow-sm">
+      <thead class="table-dark"><tr><th>#</th><th>Student Name</th><th>Date</th><th>Soloution</th><th>Rate</th><th>Ferdback</th></tr></thead>
+      <tbody>
+        @for (s of submissions(); track s.id) {
+          <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.studentName ?? '—' }}</td>
+            <td>{{ s.submissionDate | date: 'yyyy-MM-dd HH:mm' }}</td>
+            <td><a [href]="s.content | fileUrl" target="_blank">solution</a></td>
+            <td>{{ s.grade ?? '—' }}</td>
+            <td>{{ s.feedback }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6">No found any submitions</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</ng-template>

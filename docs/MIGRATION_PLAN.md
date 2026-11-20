@@ -7,7 +7,7 @@
 | 2: Admin | ✅ خلصت |
 | 3: Public catalog | ✅ خلصت |
 | 4: Cart و Payment | ✅ خلصت |
-| 5: Instructor | ⏳ |
+| 5: Instructor | ✅ خلصت |
 | 6: Student | ⏳ |
 | 7: Community | ⏳ |
 | 8: Parity و Cutover | ⏳ |
@@ -176,6 +176,56 @@
   - صفحة Success بـ Session مش مدفوعة بتقول "not confirmed".
   - صفحة Cancel.
 - **تجربة Stripe الحقيقية محتاجة مفتاحك:** `dotnet user-secrets set "Stripe:SecretKey" "sk_test_..."` وبعدين اعمل Checkout بكارت الاختبار `4242 4242 4242 4242`.
+
+### Phase 5: اللي اتنقل
+| MVC (Instructor) | API (`/api/instructor`, Instructor role + ملكية) | Angular |
+|---|---|---|
+| Instructor/Dashboard | `GET /dashboard` | `/instructor` |
+| InstructorCourse (Index و UpSert) | `GET /courses?page=` و `GET/POST/PUT /courses/{id}` و `/courses/form-lookups` و `/courses/lookup` | `/instructor/courses` و `/instructor/courses/new` و `/instructor/courses/:id` |
+| UpsertCourseCurriculum ("Add-Process") | `POST /courses/{id}/sections` و `PUT /sections/{id}` | Modal |
+| _CourseCurriculumPartial (فيديوهات ومراجع وواجبات وكويزات) | `GET /courses/{id}/curriculum`، و `/sections/{id}/videos` و `/references` و `/quizzes` و `/assignments` | `/instructor/courses/:id/curriculum` |
+| Exam (Index و Upsert و Questions و UpSertQuestions) + DeleteQuiz | `/exams` و `/exams/{id}/questions` و `/questions/{id}` | `/instructor/exams` و `/exams/new` و `/exams/:id` و `/exams/:id/questions` و `/exams/:id/questions/new` و `/exams/:id/questions/:questionId` |
+| Assinment (Index و UpSert و Details و Delete و Submitions) | `/courses/{id}/assignments` و `/assignments/{id}` و `/assignments/{id}/submissions` | `/instructor/assignments?courseId=` |
+| Student (Index و InsertFeedBack) | `GET /courses/{id}/students` و `POST /feedback` | `/instructor/students?courseId=` |
+
+**الإصلاحات التقنية والأمنية في Phase 5:**
+- **الملكية:**
+  - كل حاجة في منطقة الـ Instructor بتتأكد إن الكورس أو القسم أو الامتحان أو الواجب بتاعه هو (`InstructorAccess`). قبل كده أي Instructor كان يقدر يعدّل أو يحذف أي حاجة بالـ Id.
+  - طلاب الكورس بيظهروا بس لو الكورس بتاعه.
+- **مصدر الـ Ids:** `InstructorId` و `ProviderUserId` بقوا بيتاخدوا من التوكن، مش من الفورم.
+- **صفحة إدارة المنهج** كانت مش ممكن توصلها خالص: زرار View كان بينادي Function مش موجودة، والـ Action كان بيبعت Model من نوع غلط. دلوقتي شغّالة زي ما كان مقصود.
+- **حفظ المراجع:** كانت بترجع قبل الـ `Commit` فمكانتش بتتحفظ.
+- **تعديل الواجب** بقى من غير ما تضطر ترفع الملف تاني.
+- **حذف الملفات:** حذف الواجب أو الفيديو بيمسح الملف من الديسك. قبل كده المسار كان غلط والملف بيفضل.
+- **الـ Path traversal في `DownloadAssignment`:** الـ Endpoint اتشال، والملف بيتنزّل من رابطه مباشرة.
+- **رفع الفيديو** بقى بيقبل امتدادات الفيديو بس.
+- **حذف الامتحان:** زرار Delete في صفحة الامتحانات كان بيودّي على Action مش موجود.
+- **فورم الامتحان الجديد** بقى بيعرض كورسات الـ Instructor (قبل كده كانت بتظهر في التعديل بس).
+- **الأسئلة:** الاختيار الفاضي بيتجاهل.
+
+**تغييرات بسيطة في الواجهة:**
+- زرار Edit للكورس في ليستة كورسات الـ Instructor، لأن الصفحة القديمة مكانش فيها طريقة للتعديل.
+- زرار "New Exam" في صفحة الامتحانات.
+- **فورم الكورس بقى Component مشترك** (`shared/course-form`) بين الأدمن والـ Instructor، وفيه Input بيخفي اختيار الـ Instructor.
+- **`FormModalComponent`:** Modal عام للفورمز الصغيرة بيتعرّف بقايمة Fields، واتستخدم في القسم والمرجع والفيديو والواجب والكويز والفيدباك.
+
+**التحقق:**
+- 52 Integration test. منها:
+  - الطالب بياخد 403.
+  - الكورس بيتسجّل دايمًا باسم الـ Instructor اللي عامل Login، حتى لو الفورم بعتت Id تاني.
+  - Instructor تاني بياخد 403 على التعديل والمنهج والطلاب.
+  - المنهج كامل.
+  - الامتحانات والأسئلة.
+  - الواجبات: الملف إجباري في الإنشاء واختياري في التعديل.
+  - الطلاب والفيدباك.
+- E2E في Chromium:
+  - التسجيل كـ Instructor من الـ Home والـ Dashboard.
+  - إنشاء كورس من غير اختيار Instructor.
+  - "Add-Process".
+  - المنهج: مرجع، رفع فيديو، واجب، كويز.
+  - أسئلة الكويز.
+  - ليستة الامتحانات.
+  - صفحة الواجبات والـ Submissions.
 
 ### ملاحظات
 - **صور البروفايل القديمة:** الـ MVC كان بيحفظها في فولدر `Images/profile_pics` لكن بيخزّن الرابط `/images/...` بحرف صغير. ده كان شغّال على Windows بس. النسخة الجديدة بتخزّن `/Images/profile_pics/...`. لو هتشغّل على Linux بداتا قديمة، غيّر اسم الفولدر أو حدّث القيم دي.
@@ -485,6 +535,9 @@ docs/ ADD-A-FEATURE.md
   - تغيير الإيميل
   - External logins
   - Personal data (download/delete)
+- **الـ Instructor اللي مش مربوط بقسم:** الفورم القديم كان بيعرض أقسام الـ Instructor بس، فلو مالوش قسم مكانش يقدر يحفظ كورس. دلوقتي بيظهرله كل الأقسام في الحالة دي. محتاجة قرار: هل نربط كل Instructor بقسم إجباري؟
+- **تعديل الفيديو:** زرار التعديل القديم كان بيضيف فيديو جديد بدل ما يعدّل، فاتشال، والفيديو بيتضاف ويتحذف بس.
+- **حذف قسم من المنهج:** مكانش موجود قبل كده ولسه مش موجود.
 - **حماية الأدمن:** منع الأدمن إنه يحذف أو يقفل حسابه هو.
 - **زرار "Add to Cart"** بيودّي على `/cart?add={id}`، زي الـ MVC اللي كان بيعمل `Cart/AddToCart` وبعدين يفتح السلة.
 - **الضريبة 10%:** صفحة السلة بتعرض "Tax (10%)" والإجمالي × 1.1 زي الأصل، لكن Stripe بيحاسب من غير الضريبة، والأصل كان كده برضه. محتاجة قرار بيزنس.

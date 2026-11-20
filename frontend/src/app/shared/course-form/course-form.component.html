@@ -11,7 +11,7 @@
       }
     </h3>
 
-    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       @for (message of generalErrors(); track message) { <div class="text-danger mb-2">{{ message }}</div> }
 
       <div class="form-group mb-3">
@@ -75,16 +75,18 @@
         <app-form-errors [control]="form.controls.endDate" />
       </div>
 
+      @if (instructors(); as instructorOptions) {
       <div class="form-group mb-3">
         <label for="instructorId" class="form-label fw-bold">Instructor</label>
         <select id="instructorId" formControlName="instructorId" class="form-control">
           <option value="">Select Instructor</option>
-          @for (item of instructors(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }
+          @for (item of instructorOptions; track item.id) { <option [value]="item.id">{{ item.name }}</option> }
         </select>
         <app-form-errors [control]="form.controls.instructorId" />
       </div>
+      }
 
-      @if (!trackId() || isEdit()) {
+      @if (!presetTrackId() || isEdit()) {
         <div class="form-group mb-3">
           <label for="trackId" class="form-label fw-bold">Track</label>
           <select id="trackId" formControlName="trackId" class="form-control">
@@ -94,7 +96,7 @@
         </div>
       }
 
-      @if (!deptId() || isEdit()) {
+      @if (!presetDepartmentId() || isEdit()) {
         <div class="form-group mb-4">
           <label for="departmentId" class="form-label fw-bold">Department</label>
           <select id="departmentId" formControlName="departmentId" class="form-control">
@@ -164,7 +166,7 @@
         } @else {
           <button type="submit" class="btn btn-dark w-100 me-2" [disabled]="saving()"><i class="fa-solid fa-save"></i> Update</button>
         }
-        <a routerLink="/admin/courses" class="btn btn-secondary w-100"><i class="fa-solid fa-arrow-left"></i> Cancel</a>
+        <a [routerLink]="cancelLink()" class="btn btn-secondary w-100"><i class="fa-solid fa-arrow-left"></i> Cancel</a>
       </div>
     </form>
   </div>
