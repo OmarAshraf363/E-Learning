@@ -5,6 +5,7 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { UserMenuComponent } from '../shared/user-menu.component';
 import { CatalogApi } from '../../features/public/data-access/catalog.api';
+import { CartStore } from '../../features/cart/data-access/cart.store';
 
 /** Public storefront layout (legacy _RegistreationLayout). */
 @Component({
@@ -14,6 +15,7 @@ import { CatalogApi } from '../../features/public/data-access/catalog.api';
 })
 export class PublicLayoutComponent {
   readonly auth = inject(AuthService);
+  readonly cart = inject(CartStore);
   private readonly router = inject(Router);
 
   readonly mobileMenuOpen = signal(false);

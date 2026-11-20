@@ -6,7 +6,7 @@
 | 1: Auth و Users | ✅ خلصت |
 | 2: Admin | ✅ خلصت |
 | 3: Public catalog | ✅ خلصت |
-| 4: Cart و Payment | ⏳ |
+| 4: Cart و Payment | ✅ خلصت |
 | 5: Instructor | ⏳ |
 | 6: Student | ⏳ |
 | 7: Community | ⏳ |
@@ -135,6 +135,47 @@
   - صفحة الـ Topic.
   - تسجيل Instructor من "Teach on BFCAI".
   - تحويل الـ Instructor من `/` لـ `/instructor`.
+
+### Phase 4: اللي اتنقل
+| MVC | API (`/api/cart`, محتاج Login) | Angular |
+|---|---|---|
+| Cart/Index (+ "You might also like") | `GET /api/cart` | `/cart` |
+| Cart/AddToCart?courseId= | `POST /api/cart/items` | `/cart?add={courseId}` (من الكارت أو زرار Enroll) |
+| Cart/RemoveFromCart | `DELETE /api/cart/items/{id}` | زرار ✕ |
+| CartIcon View Component | `GET /api/cart/count` | Badge في الـ Navbar (`CartStore`) |
+| Cart/Pay (Stripe Checkout) | `POST /api/cart/checkout` بيرجّع الـ URL بتاع Stripe | زرار "Proceed to Checkout" |
+| checkout/success | `POST /api/cart/checkout/confirm?sessionId=` | `/cart/checkout/success?session_id=` |
+| checkout/cancel | — | `/cart/checkout/cancel` |
+
+**الإصلاحات التقنية والأمنية في Phase 4:**
+- **التأكد من الدفع:** صفحة الـ Success كانت بتسجّل الطالب في الكورسات من غير ما تسأل Stripe. دلوقتي الـ API بيجيب الـ Session من Stripe، ولو `payment_status` مش `paid` مفيش تسجيل.
+- **الـ Session بتاعة يوزر تاني** مينفعش تتأكد لحسابك.
+- **إعادة تحميل صفحة الـ Success** مبقاش بيسجّل مرتين.
+- **إضافة نفس الكورس مرتين:**
+  - الكمية الجديدة مكانتش بتتحفظ.
+  - السعر كان بيتجمع على نفسه، فـ Stripe كان هيحاسب السعر × الكمية على سعر متضاعف أصلًا.
+  - دلوقتي `Price` هو سعر الوحدة، والكمية بتزيد.
+- **حذف عنصر من سلة يوزر تاني** بقى ممنوع.
+- **`StripeChargeId`** بقى بيتحفظ دايمًا.
+- **لو Stripe مش متظبط أو وقع،** بتظهر رسالة واضحة بدل 500.
+- **Stripe.net 53:** `PaymentMethodTypes` اتشالت، وطرق الدفع بقت من الـ Dashboard.
+
+**التحقق:**
+- 45 Integration test باستخدام Fake gateway بدل Stripe:
+  - الـ Session اللي متدفعتش مبتسجّلش.
+  - الـ Session المدفوعة بتسجّل مرة واحدة وبتمسح السلة.
+  - الـ Session بتاعة يوزر تاني بترجّع 404.
+  - السلة الفاضية بترجّع 400.
+- E2E في Chromium:
+  - "Add to Cart" وإنت مش عامل Login بيطلب Login، وبعده بيرجع والكورس في السلة.
+  - الـ Badge بيتحدّث.
+  - نفس الكورس مرتين بيبقى × 2.
+  - الإضافة من الـ Popover.
+  - الحذف.
+  - Checkout من غير مفتاح Stripe بيطلّع رسالة واضحة.
+  - صفحة Success بـ Session مش مدفوعة بتقول "not confirmed".
+  - صفحة Cancel.
+- **تجربة Stripe الحقيقية محتاجة مفتاحك:** `dotnet user-secrets set "Stripe:SecretKey" "sk_test_..."` وبعدين اعمل Checkout بكارت الاختبار `4242 4242 4242 4242`.
 
 ### ملاحظات
 - **صور البروفايل القديمة:** الـ MVC كان بيحفظها في فولدر `Images/profile_pics` لكن بيخزّن الرابط `/images/...` بحرف صغير. ده كان شغّال على Windows بس. النسخة الجديدة بتخزّن `/Images/profile_pics/...`. لو هتشغّل على Linux بداتا قديمة، غيّر اسم الفولدر أو حدّث القيم دي.
@@ -445,7 +486,9 @@ docs/ ADD-A-FEATURE.md
   - External logins
   - Personal data (download/delete)
 - **حماية الأدمن:** منع الأدمن إنه يحذف أو يقفل حسابه هو.
-- **زرار "Add to Cart"** بيودّي على `/cart?add={id}`، زي الـ MVC اللي كان بيعمل `Cart/AddToCart` وبعدين يفتح السلة. الصفحة نفسها في Phase 4.
+- **زرار "Add to Cart"** بيودّي على `/cart?add={id}`، زي الـ MVC اللي كان بيعمل `Cart/AddToCart` وبعدين يفتح السلة.
+- **الضريبة 10%:** صفحة السلة بتعرض "Tax (10%)" والإجمالي × 1.1 زي الأصل، لكن Stripe بيحاسب من غير الضريبة، والأصل كان كده برضه. محتاجة قرار بيزنس.
+- **شراء نفس الكورس مرتين:** الكمية بتزيد زي ما كان الكود القديم ناوي. هل منطقي حد يشتري نفس الكورس مرتين؟ محتاجة قرار.
 - **إدارة الأحداث (Events):** الداشبورد وتفاصيل القسم بيعرضوا الأحداث، بس مفيش شاشة تضيفها، لا قبل ولا دلوقتي.
 - **قائمة الـ Instructor في فورم الجداول** بتعرض كل اليوزرز زي الـ MVC. محتاجة قرار: نخليها Instructors بس؟
 - **حاجات تانية:**

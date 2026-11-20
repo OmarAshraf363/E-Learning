@@ -43,8 +43,10 @@
         </form>
 
         <div class="cart">
-          <!-- Cart counter is migrated in Phase 4 (legacy CartIcon view component) -->
-          <a routerLink="/cart" class="position-relative text-decoration-none"><i class="fas fa-shopping-cart"></i></a>
+          <a routerLink="/cart" class="cart-icon position-relative">
+            <i class="fas fa-shopping-cart"></i>
+            @if (cart.count() > 0) { <span class="cart-counter">{{ cart.count() }}</span> }
+          </a>
         </div>
 
         <div class="partial">

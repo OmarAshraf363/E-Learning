@@ -15,6 +15,7 @@ public class ApiFactory : WebApplicationFactory<Program>
 {
     private readonly SqliteConnection _connection = new("DataSource=:memory:");
     public InMemoryCache Cache { get; } = new();
+    public FakePaymentGateway Payments { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -31,6 +32,8 @@ public class ApiFactory : WebApplicationFactory<Program>
 
             services.RemoveAll<ICacheService>();
             services.AddSingleton<ICacheService>(Cache);
+            services.RemoveAll<IPaymentGateway>();
+            services.AddSingleton<IPaymentGateway>(Payments);
 
             using var scope = services.BuildServiceProvider().CreateScope();
             scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.EnsureCreated();

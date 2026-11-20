@@ -1,5 +1,6 @@
 using BFCAI.Application.Features.AcademicYears;
 using BFCAI.Application.Features.Account;
+using BFCAI.Application.Features.Cart;
 using BFCAI.Application.Features.Catalog;
 using BFCAI.Application.Features.Courses;
 using BFCAI.Application.Features.Dashboard;
@@ -35,6 +36,8 @@ public static class DependencyInjection
         services.AddScoped<IScheduleService, ScheduleService>();
         services.AddScoped<IEnrollmentService, EnrollmentService>();
         services.AddScoped<ICatalogService, CatalogService>();
+        services.AddScoped<ICartService, CartService>();
+        services.AddScoped<ICheckoutService, CheckoutService>();
 
         return services;
     }

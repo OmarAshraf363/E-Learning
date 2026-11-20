@@ -1,0 +1,63 @@
+<section class="container py-5">
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">{{ error() }}</div>
+  }
+  <div class="row">
+    <div class="col-lg-8 mb-4">
+      <h4 class="mb-4">Your Shopping Cart</h4>
+      @for (item of store.cart()?.items ?? []; track item.id) {
+        <div class="card shadow-sm mb-3">
+          <div class="row g-0">
+            <div class="col-md-3">
+              <img [src]="item.cover | fileUrl: 'images/online-courses.png'" class="img-fluid rounded-start" [alt]="item.courseName" />
+            </div>
+            <div class="col-md-6">
+              <div class="card-body">
+                <h5 class="card-title">{{ item.courseName }}</h5>
+                <p class="card-text text-muted">Instructor: {{ item.instructorName }}</p>
+                <p class="card-text">
+                  <strong>{{ item.price | currency }}</strong>
+                  @if (item.quantity > 1) { <span class="text-muted"> x {{ item.quantity }}</span> }
+                </p>
+              </div>
+            </div>
+            <div class="col-md-3 d-flex align-items-center justify-content-center">
+              <button class="btn btn-light btn-sm" type="button" title="Remove" (click)="remove(item.id)">
+                <i class="text-danger fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        @if (!store.loading()) {
+          <div class="alert alert-warning" role="alert">Your cart is currently empty!</div>
+        }
+      }
+    </div>
+
+    <div class="summary col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Order Summary</h5>
+          <hr />
+          <div class="d-flex justify-content-between"><p>Total Courses</p><p>{{ store.cart()?.totalCourses ?? 0 }}</p></div>
+          <div class="d-flex justify-content-between"><p>Subtotal</p><p>{{ subtotal() | currency }}</p></div>
+          <div class="d-flex justify-content-between"><p>Tax (10%)</p><p>{{ tax() | currency }}</p></div>
+          <hr />
+          <div class="d-flex justify-content-between"><h6>Total</h6><h6>{{ total() | currency }}</h6></div>
+          <button type="button" class="btn btn-primary btn-lg w-100 mt-4" [disabled]="redirecting()" (click)="checkout()">
+            @if (redirecting()) { <span class="spinner-border spinner-border-sm me-2"></span> }
+            Proceed to Checkout
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+@if (store.cart()?.recommendations?.length) {
+  <section class="courses container p-3 mb-5">
+    <div class="mb-4"><h4>You might also like</h4></div>
+    <app-course-grid [courses]="store.cart()!.recommendations" />
+  </section>
+}

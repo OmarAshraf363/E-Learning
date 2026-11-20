@@ -1,9 +1,8 @@
 import { Routes } from '@angular/router';
-import { ComingSoonComponent } from '../../shared/components/coming-soon.component';
 
-/** Cart + Stripe checkout (legacy Customer/Cart, Customer/checkout). Migrated in Phase 4. */
+/** Cart + Stripe checkout (legacy Customer/Cart, Customer/checkout). */
 export const CART_ROUTES: Routes = [
-  { path: '', component: ComingSoonComponent, data: { title: 'Cart', phase: 'Phase 4' } },
-  { path: 'checkout/success', component: ComingSoonComponent, data: { title: 'Payment successful', phase: 'Phase 4' } },
-  { path: 'checkout/cancel', component: ComingSoonComponent, data: { title: 'Payment cancelled', phase: 'Phase 4' } },
+  { path: '', loadComponent: () => import('./pages/cart-page.component').then((m) => m.CartPageComponent) },
+  { path: 'checkout/success', loadComponent: () => import('./pages/checkout-success-page.component').then((m) => m.CheckoutSuccessPageComponent) },
+  { path: 'checkout/cancel', loadComponent: () => import('./pages/checkout-cancel-page.component').then((m) => m.CheckoutCancelPageComponent) },
 ];
