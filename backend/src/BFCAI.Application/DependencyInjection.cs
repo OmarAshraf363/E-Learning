@@ -9,6 +9,7 @@ using BFCAI.Application.Features.Enrollments;
 using BFCAI.Application.Features.Instructor;
 using BFCAI.Application.Features.Lookups;
 using BFCAI.Application.Features.Schedules;
+using BFCAI.Application.Features.Student;
 using BFCAI.Application.Features.Tracks;
 using BFCAI.Application.Features.Auth;
 using BFCAI.Application.Features.Users;
@@ -45,6 +46,7 @@ public static class DependencyInjection
         services.AddScoped<IExamService, ExamService>();
         services.AddScoped<IAssignmentService, AssignmentService>();
         services.AddScoped<IInstructorStudentService, InstructorStudentService>();
+        services.AddScoped<IStudentService, StudentService>();
 
         return services;
     }

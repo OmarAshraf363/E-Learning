@@ -8,7 +8,7 @@
 | 3: Public catalog | ✅ خلصت |
 | 4: Cart و Payment | ✅ خلصت |
 | 5: Instructor | ✅ خلصت |
-| 6: Student | ⏳ |
+| 6: Student | ✅ خلصت |
 | 7: Community | ⏳ |
 | 8: Parity و Cutover | ⏳ |
 
@@ -226,6 +226,50 @@
   - أسئلة الكويز.
   - ليستة الامتحانات.
   - صفحة الواجبات والـ Submissions.
+
+### Phase 6: اللي اتنقل
+| MVC (Student) | API (`/api/student`, Student role + Enrollment) | Angular |
+|---|---|---|
+| DashBoard/Index (الكورسات، الجدول، الفيدباك، التوصيات، البوستات، الكوميونيتيز) | `GET /dashboard` | `/student` |
+| Courses/Index (My Courses + Progress) | `GET /courses` | `/student/courses` |
+| DashBoard/CourseProcess | `GET /courses/{id}` | `/student/courses/:id` |
+| DashBoard/GetContent + GetVideo | `GET /sections/{id}` | `SectionContentComponent` جوه الـ Player |
+| DashBoard/GetQuestions (Quiz بعد 25% من الفيديو) | `GET /sections/{id}/quiz` | `QuizModalComponent` |
+| DashBoard/QuickAccess | `GET /courses/{id}/quick-access` | `QuickAccessModalComponent` |
+| DashBoard/UpsertFeedback + Delete | `POST /feedback` و `PUT/DELETE /feedback/{id}` | `FeedbackModalComponent` (نجوم + Review) |
+| StudentAssinment/UploadSoluation | `POST /assignments/{id}/submissions` | خانة الـ URL في الواجب |
+
+**الإصلاحات التقنية والأمنية في Phase 6:**
+- **محتوى الكورس:** المنهج والفيديوهات والأسئلة والـ Quick Access كانوا مفتوحين لأي حد. دلوقتي محتاجين إن الطالب يكون مسجّل في الكورس.
+- **الفيدباك:**
+  - `ProviderUserId` بقى بيتاخد من التوكن.
+  - تعديل وحذف الفيدباك بقوا لصاحبه بس.
+  - الـ Open redirect في الحذف اتشال.
+  - أي تغيير بيعيد حساب `Course.Rate`، بنفس طريقة الأصل: متوسط التقييمات مقرّب لعدد صحيح.
+- **تسليم الواجب** مكانش شغّال خالص: الفورم كان بيبعت لـ Controller مالوش الـ Action. دلوقتي بيتحفظ، والطالب يقدر يسلّم مرة واحدة بس، زي ما كان الكود القديم ناوي.
+- **علامة "Submitted"** كانت بتظهر لو أي طالب سلّم. دلوقتي بتظهر لو إنت اللي سلّمت.
+- **أسئلة الـ Quiz بعد 25% من الفيديو:** الكود القديم (`testVideo`) عمره ما كان بيتنادى، دلوقتي شغّال. الإجابات الصحيحة مبتتبعتش للمتصفح.
+- **"My Courses"** بيعرض Progress الطالب نفسه بس (`ViewBag.prog` كان بيجيب كل الصفوف).
+- **حالة الكورس:** القيمة الغلط في `Comming_Status` كانت بتخلي "Comming" تتعرض "In-Process"، واتصلّحت.
+- **زرار "Create New Feedback"** كان بيظهر بس لو فيه فيدباك قبل كده.
+- **الفيدباك في المنهج** كان بيعرض 5 نجوم ثابتة، دلوقتي بيعرض التقييم الحقيقي.
+- **كارت الكورس في My Courses** بيفتح الـ Player، بدل صفحة الكورسات العامة.
+
+**التحقق:**
+- 58 Integration test:
+  - الطالب اللي مش مسجّل بياخد 403.
+  - الـ Quiz مبيبعتش الإجابات الصحيحة.
+  - تسليم الواجب مرة واحدة بس.
+  - الفيدباك بيحدّث الـ Rate، وطالب تاني بياخد 403 لو حاول يحذف فيدباك مش بتاعه.
+  - الـ Instructor بياخد 403 على API الطالب.
+- E2E في Chromium بفيديو webm حقيقي متولّد بـ ffmpeg:
+  - الداشبورد.
+  - الـ Quick Access.
+  - الـ Player.
+  - الـ Quiz بيظهر بعد 25% من الفيديو.
+  - تسليم الواجب.
+  - فيدباك بتقييم 4، والـ Rate في صفحة الكورس العامة بقى 4.
+  - صفحة My Courses.
 
 ### ملاحظات
 - **صور البروفايل القديمة:** الـ MVC كان بيحفظها في فولدر `Images/profile_pics` لكن بيخزّن الرابط `/images/...` بحرف صغير. ده كان شغّال على Windows بس. النسخة الجديدة بتخزّن `/Images/profile_pics/...`. لو هتشغّل على Linux بداتا قديمة، غيّر اسم الفولدر أو حدّث القيم دي.
@@ -538,6 +582,9 @@ docs/ ADD-A-FEATURE.md
 - **الـ Instructor اللي مش مربوط بقسم:** الفورم القديم كان بيعرض أقسام الـ Instructor بس، فلو مالوش قسم مكانش يقدر يحفظ كورس. دلوقتي بيظهرله كل الأقسام في الحالة دي. محتاجة قرار: هل نربط كل Instructor بقسم إجباري؟
 - **تعديل الفيديو:** زرار التعديل القديم كان بيضيف فيديو جديد بدل ما يعدّل، فاتشال، والفيديو بيتضاف ويتحذف بس.
 - **حذف قسم من المنهج:** مكانش موجود قبل كده ولسه مش موجود.
+- **تقدّم الطالب (StudentCourseProgress):** بيتعرض بس، والأصل عمره ما كان بيحسبه أو يكتبه. محتاجة قرار: إمتى الكورس يتحسب إنه اتقدّم فيه؟
+- **صفحة Student/StudentAssinment/Index (تسليماتي):** الـ View بتاعها مكانتش موجودة في الأصل، فمتنقلتش.
+- **صفحة Student/DashBoard/CourseDetails:** مكانش في أي رابط بيوصلها في الأصل. صفحة الكورس العامة بتغطي نفس المحتوى.
 - **حماية الأدمن:** منع الأدمن إنه يحذف أو يقفل حسابه هو.
 - **زرار "Add to Cart"** بيودّي على `/cart?add={id}`، زي الـ MVC اللي كان بيعمل `Cart/AddToCart` وبعدين يفتح السلة.
 - **الضريبة 10%:** صفحة السلة بتعرض "Tax (10%)" والإجمالي × 1.1 زي الأصل، لكن Stripe بيحاسب من غير الضريبة، والأصل كان كده برضه. محتاجة قرار بيزنس.

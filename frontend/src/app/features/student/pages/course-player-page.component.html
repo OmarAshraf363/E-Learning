@@ -1,0 +1,57 @@
+@if (player(); as p) {
+  <div class="new-head container-fluid">
+    <div class="container head">
+      <h1>
+        <a routerLink="/student" class="text-reset"><i class="fa-solid fa-chevron-left"></i></a>
+        {{ p.courseName }} <span class="ms-1 text-warning">Process</span>
+      </h1>
+    </div>
+  </div>
+
+  <section class="main-container container-fluid">
+    <div class="curriculum">
+      <h5>Course Materials</h5>
+      @for (section of p.sections; track section.id) {
+        <div class="part" role="button" [class.active]="selectedSection() === section.id" (click)="selectedSection.set(section.id)">{{ section.title }}</div>
+      } @empty {
+        <p class="text-muted">No materials yet.</p>
+      }
+    </div>
+
+    <div class="processes">
+      @if (selectedSection(); as sectionId) {
+        <app-section-content [sectionId]="sectionId" />
+      } @else {
+        <h4>Selected Content Will Appear Here</h4>
+      }
+    </div>
+
+    <div class="feedback">
+      <h5>Course Feedback</h5>
+      @for (f of p.feedbacks; track f.id) {
+        <div class="card feedback-card mb-3 p-2">
+          <div class="d-flex align-items-start">
+            <img [src]="f.userPicture | fileUrl: 'images/default-avatar.svg'" alt="User" class="user-img me-3 rounded-circle" style="width: 40px; height: 40px" />
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-1">{{ f.userName }}</h6>
+                <small class="text-muted">{{ f.date | date: 'dd MMM yyyy' }}</small>
+              </div>
+              <div class="rating mb-1"><app-star-rating [rate]="f.rating" /></div>
+              <p class="feedback-text">{{ f.content }}</p>
+              @if (f.isMine) {
+                <div class="d-flex gap-1">
+                  <button type="button" class="btn btn-sm btn-outline-warning" (click)="feedback(f)"><i class="fas fa-edit"></i></button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteFeedback(f.id)"><i class="fas fa-trash"></i></button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="alert alert-light border text-muted">No feedback available.</div>
+      }
+      <button type="button" class="btn btn-dark" (click)="feedback()">Create New Feedback</button>
+    </div>
+  </section>
+}

@@ -1,0 +1,85 @@
+@if (section(); as s) {
+  <div class="content-container">
+    <div class="course-header">
+      <h1 class="course-title">{{ s.title }}</h1>
+      <p class="course-subtitle">{{ s.content }}</p>
+    </div>
+
+    <div class="content-section">
+      <div class="section-card">
+        <div class="section-header"><h4 class="section-title"><i class="fas fa-play-circle"></i> Videos</h4></div>
+        <div class="section-body">
+          <select class="form-select mb-3" (change)="video.set(s.videos[$any($event.target).value] ?? null)">
+            <option value="">Select a video to watch</option>
+            @for (v of s.videos; track v.id; let i = $index) { <option [value]="i">{{ v.title }}</option> }
+          </select>
+          <div class="video-player">
+            @if (video(); as v) {
+              <video class="w-100" controls [src]="v.url | fileUrl" (timeupdate)="onTimeUpdate($event)"></video>
+            } @else {
+              <i class="fas fa-video me-2"></i> Select a video from the dropdown above
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header"><h4 class="section-title"><i class="fas fa-book"></i> Learning Resources</h4></div>
+        <div class="section-body">
+          @for (r of s.resources; track r.id) {
+            <div class="resource-item"><a [href]="r.url" target="_blank" class="resource-link"><i class="fas fa-link"></i> {{ r.title }}</a></div>
+          } @empty { <p class="text-muted">No resources.</p> }
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header"><h4 class="section-title"><i class="fas fa-tasks"></i> Assignments</h4></div>
+        <div class="section-body">
+          @for (a of s.assignments; track a.id) {
+            <div class="assignment-item mb-3">
+              <div class="assignment-header d-flex justify-content-between align-items-center">
+                <a [href]="a.url | fileUrl" target="_blank" class="assignment-link"><i class="fas fa-file-alt"></i> {{ a.title }}</a>
+                <span class="due-date"><i class="fas fa-calendar"></i> {{ a.deadLine | date: 'medium' }}</span>
+              </div>
+              @if (a.submitted) {
+                <span class="submitted-badge text-success"><i class="fas fa-check"></i> Submitted</span>
+              } @else {
+                <div class="submission-form mt-2">
+                  <div class="input-group">
+                    <input type="url" class="form-control" [attr.aria-label]="'Solution for ' + a.title"
+                           placeholder="Enter your solution URL (GitHub, CodePen, etc.)"
+                           (input)="solutions[a.id] = $any($event.target).value" />
+                    <button class="btn submit-btn btn-primary" type="button" (click)="submit(a.id)"><i class="fas fa-upload"></i> Submit</button>
+                  </div>
+                </div>
+              }
+            </div>
+          } @empty { <p class="text-muted">No assignments.</p> }
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header fed d-flex justify-content-between align-items-center">
+          <h4 class="section-title"><i class="fas fa-comment-dots"></i> Student Feedback</h4>
+          <button type="button" class="btn add-feedback-btn btn-outline-dark" (click)="addFeedback()"><i class="fas fa-plus"></i> Add curriculum Feedback</button>
+        </div>
+        <div class="section-body">
+          <div class="row">
+            @for (f of s.feedbacks; track f.id) {
+              <div class="col-md-6 mb-4">
+                <div class="feedback-card">
+                  <div class="feedback-user d-flex align-items-center gap-2">
+                    <img [src]="f.userPicture | fileUrl: 'images/default-avatar.svg'" [alt]="f.userName" class="user-avatar rounded-circle" style="width: 40px; height: 40px" />
+                    <div class="user-info"><h6 class="mb-0">{{ f.userName }}</h6><small>{{ f.date | date: 'medium' }}</small></div>
+                  </div>
+                  <div class="rating"><app-star-rating [rate]="f.rating" /></div>
+                  <p>{{ f.content }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

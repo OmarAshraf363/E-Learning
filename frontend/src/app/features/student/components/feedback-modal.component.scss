@@ -1,0 +1,25 @@
+// Ported from the inline <style> of the legacy Student/DashBoard/UpsertFeedback.cshtml
+:host { display: block; }
+
+    .star-rating {
+        direction: rtl;
+        display: flex;
+        justify-content: start;
+        gap: 5px;
+    }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            font-size: 2rem;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+            .star-rating input:checked ~ label,
+            .star-rating label:hover,
+            .star-rating label:hover ~ label {
+                color: gold;
+            }

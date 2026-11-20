@@ -1,0 +1,110 @@
+@if (data(); as d) {
+  <div class="dashboard-layout container-fluid">
+    <div class="dashboard-section">
+      <h5>Course Schedule</h5>
+      @for (s of d.schedule; track $index) {
+        <div class="list-group-item">
+          <h6>{{ s.courseName }}</h6>
+          <strong>Date:</strong> {{ s.startTime | date: 'shortDate' }}<br />
+          <strong>Time:</strong> {{ s.startTime | date: 'hh:mm' }}
+        </div>
+      } @empty {
+        <p class="text-muted">No scheduled classes.</p>
+      }
+    </div>
+
+    <div class="dashboard-section">
+      <h5>Your Planned Courses</h5>
+      <table class="table table-hover">
+        <thead><tr><th>Name</th><th>Deadline</th><th>Status</th><th>Material</th><th>Quick</th></tr></thead>
+        <tbody>
+          @for (course of d.courses; track course.id) {
+            <tr>
+              <td>{{ course.name }}</td>
+              <td>{{ course.endDate | date: 'shortDate' }}</td>
+              <td><span [class]="status(course.startDate).css">{{ status(course.startDate).text }}</span></td>
+              <td><a [routerLink]="['/student/courses', course.id]" class="btn btn-outline-primary btn-sm">Material</a></td>
+              <td><button type="button" class="btn btn-outline-info btn-sm" title="Quick access" (click)="quickAccess(course.id)"><i class="fas fa-eye"></i></button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="dashboard-section">
+      <h5 class="mb-4">Student Feedback</h5>
+      @for (f of d.feedbacks; track f.id) {
+        <div class="card feedback-card shadow-sm mb-3">
+          <div class="card-body d-flex">
+            <div class="me-3"><img [src]="f.providerPicture | fileUrl: 'images/default-avatar.svg'" class="rounded-circle user-img" alt="User" style="width: 45px; height: 45px" /></div>
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h6 class="mb-0">{{ f.providerName }}</h6>
+                <small class="text-muted">{{ f.date | date: 'dd MMM yyyy' }}</small>
+              </div>
+              <div class="rating mb-2"><app-star-rating [rate]="f.rating" /></div>
+              <p class="feedback-text mb-0">{{ f.content }}</p>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="alert alert-light border text-muted">No feedback available.</div>
+      }
+    </div>
+  </div>
+
+  <section class="for-student container-fluid py-3">
+    <div class="recommended-section p-3">
+      <h4>Recommended Courses</h4>
+      <div class="d-flex flex-wrap gap-3">
+        @for (course of d.recommendations; track course.id) {
+          <a [routerLink]="['/courses', course.id]" class="course-card shadow-sm rounded text-decoration-none text-reset">
+            <img [src]="course.image | fileUrl: 'images/online-courses.png'" [alt]="course.title" />
+            <div class="course-content">
+              <p class="course-title">{{ course.title }}</p>
+              <p class="course-description">{{ course.description }}</p>
+              <div class="d-flex gap-3 align-items-center">
+                <span><span class="rating-number">{{ course.rate }}</span> <span class="fa fa-star checked"></span></span>
+                <span><span class="fa fa-user"></span> {{ course.numOfEnrolments }}</span>
+                <span>{{ course.price | currency }}</span>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+
+    <div class="posts d-flex gap-4">
+      <div class="post-container w-50">
+        <h4>Posts Apout Your Intersting</h4>
+        @for (post of d.posts; track post.id) {
+          <div class="post-card shadow-sm rounded p-3 mb-4">
+            <div class="d-flex align-items-center mb-2">
+              <img [src]="post.userPicture | fileUrl: 'images/default-avatar.svg'" [alt]="post.userName" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover" />
+              <div><strong>{{ post.userName }}</strong><br /><small class="text-muted">{{ post.createdAt | date: 'MMM dd, yyyy - hh:mm a' }}</small></div>
+            </div>
+            <div class="post-content mb-2">
+              <p>{{ post.content }}</p>
+              @if (post.attachment) { <img [src]="post.attachment | fileUrl" alt="Attachment" class="img-fluid rounded" /> }
+            </div>
+            <div class="text-end">
+              <a routerLink="/community" [queryParams]="{ id: post.communityId }" class="btn btn-sm btn-outline-secondary"><i class="fa fa-comment"></i> Open in community</a>
+            </div>
+          </div>
+        } @empty {
+          <p class="text-muted">No related posts yet.</p>
+        }
+      </div>
+
+      <div class="recom-community w-50 bg-light p-3">
+        <h4>Suggested Communities</h4>
+        @for (community of d.communities; track community.id) {
+          <a routerLink="/community" [queryParams]="{ id: community.id }" class="community-card shadow-sm p-3 mb-3 rounded bg-white d-block text-decoration-none text-reset">
+            <h5 class="mb-1">{{ community.name }}</h5>
+            <p class="mb-0 text-muted">{{ community.description }}</p>
+          </a>
+        }
+      </div>
+    </div>
+  </section>
+}

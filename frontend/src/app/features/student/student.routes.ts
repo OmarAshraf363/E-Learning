@@ -1,9 +1,8 @@
 import { Routes } from '@angular/router';
-import { ComingSoonComponent } from '../../shared/components/coming-soon.component';
 
-/** Student area. Migrated in Phase 6. */
+/** Student area (legacy Areas/Student). */
 export const STUDENT_ROUTES: Routes = [
-  { path: '', component: ComingSoonComponent, data: { title: 'Dashboard', phase: 'Phase 6' } },
-  { path: 'courses', component: ComingSoonComponent, data: { title: 'My courses', phase: 'Phase 6' } },
-  { path: 'courses/:id', component: ComingSoonComponent, data: { title: 'Course', phase: 'Phase 6' } },
+  { path: '', loadComponent: () => import('./pages/dashboard-page.component').then((m) => m.DashboardPageComponent) },
+  { path: 'courses', loadComponent: () => import('./pages/my-courses-page.component').then((m) => m.MyCoursesPageComponent) },
+  { path: 'courses/:id', loadComponent: () => import('./pages/course-player-page.component').then((m) => m.CoursePlayerPageComponent) },
 ];

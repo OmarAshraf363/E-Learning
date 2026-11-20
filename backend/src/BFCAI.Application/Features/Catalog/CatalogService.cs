@@ -19,6 +19,8 @@ public interface ICatalogService
     Task<List<CourseCardDto>> GetTopicCoursesAsync(string word);
     Task<PublicTrackDto> GetTrackAsync(int id);
     Task<List<NavCategoryDto>> GetNavCategoriesAsync();
+    /// <summary>Courses recommended to a student (also used by the student dashboard).</summary>
+    Task<List<CourseCardDto>> GetRecommendationsAsync(string studentId);
 }
 
 public class CatalogService(IUnitOfWork unitOfWork, ICacheService cache, ICurrentUser currentUser) : ICatalogService
@@ -213,7 +215,7 @@ public class CatalogService(IUnitOfWork unitOfWork, ICacheService cache, ICurren
     /// departments that they don't have yet (first page, 3 courses).
     /// Technical fix: courses without a track/department no longer match every other course without one.
     /// </summary>
-    private async Task<List<CourseCardDto>> GetRecommendationsAsync(string studentId)
+    public async Task<List<CourseCardDto>> GetRecommendationsAsync(string studentId)
     {
         var owned = await unitOfWork.Repository<Enrollment>().SelectAsync(
             e => new { e.CourseID, e.Course!.TrackID, e.Course.DepartmentId },
