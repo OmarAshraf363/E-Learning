@@ -1,0 +1,25 @@
+// Ported from the inline <style> of the legacy Customer/Home/Courses.cshtml
+:host { display: block; }
+
+    :host{
+                background-color: #fff;
+    }
+    h6 {
+        font-weight: bold;
+    }
+
+    .coursesPage {
+        display: flex;
+        align-items: start;
+        justify-content: start;
+        margin-bottom:40px;
+    }
+    .filterPart{
+        width:25%;
+    }
+
+    .courses{
+        width: 75%;
+    }
+
+

@@ -1,8 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { UserMenuComponent } from '../shared/user-menu.component';
+import { CatalogApi } from '../../features/public/data-access/catalog.api';
 
 /** Public storefront layout (legacy _RegistreationLayout). */
 @Component({
@@ -15,6 +17,8 @@ export class PublicLayoutComponent {
   private readonly router = inject(Router);
 
   readonly mobileMenuOpen = signal(false);
+  /** Legacy Categories view component: departments with their courses. */
+  readonly navCategories = toSignal(inject(CatalogApi).navCategories(), { initialValue: [] });
   search = '';
 
   onSearch(): void {

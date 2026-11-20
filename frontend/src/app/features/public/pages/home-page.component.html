@@ -1,0 +1,136 @@
+<section class="container-fluid baner mb-4">
+  <div class="baner-container d-flex align-items-center h-100 position-relative">
+    <div class="part-info">
+      <div class="part-info-welcome w-75 mb-3">
+        <p class="w-100">Hello There, grow your skills and advance your career with BFC<span>AI</span> platform Learning</p>
+      </div>
+      <div class="part-info-nums mb-4"><h6>2m Learning about this</h6></div>
+      <div class="part-info-btns d-flex justify-content-start align-items-center gap-3">
+        <button type="button" class="btn btn-explor" (click)="scrollToCourses()">Explor Courses <i class="fa-solid fa-arrow-down"></i></button>
+        <button type="button" class="btn btn-teach" (click)="openTeachModal()">Teach on BFC<span>Ai</span></button>
+      </div>
+    </div>
+    <div class="part-img position-absolute top-0 end-0">
+      <img src="images/cch95u9n3wpbme2zzh5n4uwg0.png" alt="" />
+    </div>
+  </div>
+</section>
+
+@if (home(); as h) {
+  <section id="courses" class="courses container p-3 mb-5">
+    <div class="mb-4"><h4>Top Courses for You</h4></div>
+    <app-course-grid [courses]="topCourses()" />
+  </section>
+
+  <section class="container courses-by-category">
+    <div class="category-list">
+      <ul class="d-flex list-unstyled justify-content-start align-items-center gap-3">
+        <li><button type="button" class="btn" [class.active]="selectedDepartment() === 0" [class.cus-btn]="selectedDepartment() !== 0" (click)="selectDepartment(0)">All</button></li>
+        @for (dept of h.topDepartments; track dept.id) {
+          <li>
+            <button type="button" class="btn" [class.active]="selectedDepartment() === dept.id" [class.cus-btn]="selectedDepartment() !== dept.id"
+                    (click)="selectDepartment(dept.id)">{{ dept.name }}</button>
+          </li>
+        }
+      </ul>
+    </div>
+    <hr />
+    <section class="courses container p-3 mb-5">
+      @if (departmentDescription() && selectedDepartment() !== 0) {
+        <div class="department-Description"><p class="w-75">{{ departmentDescription() }}</p></div>
+      }
+      @if (tabCourses(); as page) {
+        <app-course-grid [courses]="page.items" />
+        <nav class="mt-4">
+          <app-pagination [page]="page.page" [totalPages]="page.totalPages" (pageChange)="selectDepartment(selectedDepartment(), $event)" />
+        </nav>
+      }
+    </section>
+  </section>
+
+  <section class="top-category container">
+    <div class="top-category-header mb-4"><h3>Top Categories</h3></div>
+    <div class="categories">
+      @for (dept of h.topDepartments; track dept.id) {
+        <div class="one-category border-0 shadow-sm rounded">
+          <img [src]="dept.cover | fileUrl" [alt]="dept.name" class="card-img-top" />
+          <div class="card-body text-center">
+            <h5 class="card-title">{{ dept.name }}</h5>
+            <p class="card-text">{{ dept.description.length > 250 ? dept.description.slice(0, 250) + '...' : dept.description }}</p>
+            <a [routerLink]="['/category', dept.id]" class="btn">Explore <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="container tracks my-5">
+    <div class="tracks-header text-center mb-4">
+      <h3 class="fw-bold">Explore Our Learning Tracks</h3>
+      <p class="text-muted">Choose a track and dive deep into the knowledge you seek.</p>
+    </div>
+    <div class="tracks-list row g-4">
+      @for (track of h.topTracks; track track.id) {
+        <div class="col-md-6 col-lg-4">
+          <div class="track-card shadow-sm border-0 rounded">
+            <img [src]="track.cover | fileUrl" [alt]="track.title" class="track-img rounded-top" />
+            <div class="card-body p-3">
+              <div class="track-head d-flex justify-content-between align-items-center">
+                <h5 class="track-title mb-2">{{ track.title }}</h5>
+                <span>{{ track.numOfCourses }} Course</span>
+              </div>
+              <p class="track-description text-muted mb-3">
+                {{ track.description.length > 150 ? track.description.slice(0, 150) + '...' : track.description }}
+              </p>
+              <h6 class="fs-6">{{ track.numOfEnrollments }} student</h6>
+              <a [routerLink]="['/tracks', track.id]" class="btn btn-outline-primary w-100">Explore Track</a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  @if (auth.hasRole('Student')) {
+    <section class="courses container p-3 mb-5">
+      <div class="mb-4"><h4>Recommendation Courses for You</h4></div>
+      <app-course-grid [courses]="recommendations()" />
+    </section>
+  }
+
+  <section class="container feedback-section my-5">
+    <div class="feedbacks-header text-center mb-4"><h3>What Our Students Say ?</h3></div>
+    <div class="feedbacks row">
+      @for (item of h.testimonials; track item.id) {
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card feedback-card p-4 shadow-sm">
+            <div class="feedback-user d-flex align-items-center mb-3">
+              <img [src]="item.userPicture | fileUrl: 'images/default-avatar.svg'" alt="User Image" class="rounded-circle user-img me-3" />
+              <div class="user-details">
+                <h6 class="mb-0">{{ item.userName }}</h6>
+                <a [routerLink]="['/courses', item.courseId]" class="btn btn-outline-light text-muted">{{ item.courseName }}</a>
+              </div>
+            </div>
+            <div class="feedback-text"><p>{{ item.content }}</p></div>
+            <div class="feedback-date text-muted"><small>Reviewed on: {{ item.date | date: 'MMM dd, yyyy' }}</small></div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="events container p-3 mb-5">
+    <h4>Upcoming Events</h4>
+    <table class="table table-striped">
+      <thead><tr><th>Date</th><th>Event Title</th><th>Description</th><th>Created By</th><th>Department</th></tr></thead>
+      <tbody>
+        @for (event of h.events; track event.id) {
+          <tr>
+            <td>{{ event.date | date: 'MMMM d, yyyy' }}</td><td>{{ event.name }}</td><td>{{ event.description }}</td>
+            <td>{{ event.createdBy }}</td><td>{{ event.department }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+}

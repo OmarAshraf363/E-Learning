@@ -1,0 +1,125 @@
+@if (course(); as c) {
+  <section class="this-course container-fluid mb-5">
+    <section class="this-course-details container">
+      <div class="this-course-video">
+        @if (c.demoVideoUrl) {
+          <video class="w-100 h-100" controls [src]="c.demoVideoUrl | fileUrl"></video>
+        }
+      </div>
+      <div class="this-course-info">
+        <div class="this-course-info-name"><h4>{{ c.courseName }}</h4></div>
+        <div class="this-course-info-description"><p>{{ c.description }}</p></div>
+        <div class="this-course-info-process d-flex justify-content-start gap-2 align-items-center">
+          <div class="rating m-0"><app-star-rating [rate]="c.rate" /> ({{ c.numOfFeedbacks }} Rating)</div>
+          <div class="num-of-student"><span>{{ c.numOfEnrollments }} students</span></div>
+          <div class="num-of-videos"><span>{{ c.numOfVideos }} Videos</span></div>
+        </div>
+        <div class="created-by">Created By <span><a [routerLink]="['/courses']" [queryParams]="{ instructorId: c.instructorId }">{{ c.instructorName }}</a></span></div>
+        <div class="price"><span>{{ c.price | currency }}</span></div>
+        <div class="enroll-btn mt-3 w-100 d-flex justify-content-center align-items-center">
+          <a routerLink="/cart" [queryParams]="{ add: c.id }" class="w-75 btn cus-btn">Enroll</a>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <section class="course-about container">
+    <div class="course-nav">
+      <ul>
+        <li><a [class.active]="tab() === 'objectives'" (click)="tab.set('objectives')" role="button">🎯 Objective Learning</a></li>
+        <li><a [class.active]="tab() === 'topics'" (click)="tab.set('topics')" role="button">📚 Topics Cover</a></li>
+      </ul>
+    </div>
+    <hr class="divider" />
+    <section class="objectives-list">
+      @for (item of tab() === 'objectives' ? c.learningObjectives : c.topicsCovered; track $index) {
+        <li><i class="fas fa-check-circle"></i> <span>{{ item }}</span></li>
+      }
+    </section>
+  </section>
+
+  <section class="container mb-5 instructor-section p-4 shadow-sm rounded" style="background: #f9f9f9">
+    <h4 class="fw-bold mb-3">About the Instructor</h4>
+    <div class="d-flex gap-3 align-items-center">
+      <img [src]="c.instructorImage | fileUrl: 'images/default-avatar.svg'" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover" alt="Instructor" />
+      <div>
+        <h5 class="mb-1">{{ c.instructorName }}</h5>
+        <p class="mt-2">{{ c.instructorBio }}</p>
+        <a routerLink="/community" [queryParams]="{ userId: c.instructorId }">View in Communities</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container related-course-learning courses p-3 mb-5">
+    <div class="mb-4"><h4 class="fw-bold">Students Also Learn &amp;&amp; Recommendation</h4></div>
+    <app-course-grid [courses]="c.relatedCourses" />
+  </section>
+
+  <section id="instructor-courses" class="courses container p-3 mb-5">
+    <div class="mb-4"><h4 class="fw-bold">More Courses by <span class="text-primary">{{ c.instructorName }}</span></h4></div>
+    <app-course-grid [courses]="c.instructorCourses" />
+  </section>
+
+  <div class="section-card container mb-5">
+    <div class="section-header d-flex justify-content-between align-items-center">
+      <h4 class="section-title"><i class="fas fa-star"></i> Course Reviews &amp; Ratings</h4>
+    </div>
+    <div class="section-body">
+      <div class="rating-summary mb-4">
+        <div class="row align-items-center">
+          <div class="col-md-4 text-center">
+            <div class="overall-rating">
+              <div class="rating-number">{{ c.reviewSummary.finalRate }}</div>
+              <div class="rating-stars mb-2"><app-star-rating [rate]="c.reviewSummary.finalRate" /></div>
+              <div class="rating-count">Based on {{ c.reviewSummary.totalReviews }} reviews</div>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="rating-breakdown">
+              @for (row of breakdown(); track row.stars) {
+                <div class="rating-row mb-2 d-flex align-items-center">
+                  <span class="rating-label me-2">{{ row.stars }} star{{ row.stars > 1 ? 's' : '' }}</span>
+                  <div class="rating-bar-container flex-grow-1 me-2" style="background: #eee; height: 10px; border-radius: 5px">
+                    <div class="rating-bar" [style.width.%]="row.percentage" style="background-color: #ffc107; height: 100%; border-radius: 5px"></div>
+                  </div>
+                  <span class="rating-percentage">{{ row.percentage }}%</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-filters mb-4">
+        <div class="filter-buttons">
+          <button type="button" class="btn filter-btn" [class.active]="selectedStar() === null" (click)="filterReviews(null)">All Reviews</button>
+          @for (s of stars; track s) {
+            <button type="button" class="btn filter-btn" [class.active]="selectedStar() === s" (click)="filterReviews(s)">{{ s }} Stars</button>
+          }
+        </div>
+      </div>
+
+      <div class="reviews-list">
+        @for (review of c.reviews; track review.id) {
+          <div class="review-item">
+            <div class="review-header">
+              <div class="reviewer-info">
+                <img [src]="review.userImageUrl | fileUrl: 'images/default-avatar.svg'" [alt]="review.userName" class="reviewer-avatar" />
+                <div class="reviewer-details">
+                  <h6 class="reviewer-name">{{ review.userName }}</h6>
+                  <div class="review-meta">
+                    <div class="review-rating"><i class="fas fa-star star"></i> {{ review.rating }}</div>
+                    <span class="review-date">{{ review.createdAt | date: 'medium' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="review-content"><p><strong>{{ review.content }}</strong></p></div>
+          </div>
+        } @empty {
+          <p class="text-muted">No reviews yet.</p>
+        }
+      </div>
+    </div>
+  </div>
+}

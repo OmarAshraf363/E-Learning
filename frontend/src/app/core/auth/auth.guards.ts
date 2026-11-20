@@ -29,3 +29,10 @@ export const guestGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   return auth.isLoggedIn() ? inject(Router).createUrlTree([auth.homeUrl()]) : true;
 };
+
+/** Public home page: admins and instructors go to their dashboards (legacy Home/Index redirects). */
+export const homeRedirectGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const home = auth.homeUrl();
+  return home === '/' ? true : inject(Router).createUrlTree([home]);
+};

@@ -1,13 +1,13 @@
 import { Routes } from '@angular/router';
-import { ComingSoonComponent } from '../../shared/components/coming-soon.component';
+import { homeRedirectGuard } from '../../core/auth/auth.guards';
 
-/** Public storefront (legacy Customer/Home). Migrated in Phase 3. */
+/** Public storefront (legacy Customer/Home). */
 export const PUBLIC_ROUTES: Routes = [
-  { path: '', component: ComingSoonComponent, data: { title: 'Home', phase: 'Phase 3' } },
-  { path: 'courses', component: ComingSoonComponent, data: { title: 'Courses', phase: 'Phase 3' } },
-  { path: 'courses/:id', component: ComingSoonComponent, data: { title: 'Course details', phase: 'Phase 3' } },
-  { path: 'category', component: ComingSoonComponent, data: { title: 'Categories', phase: 'Phase 3' } },
-  { path: 'category/:id', component: ComingSoonComponent, data: { title: 'Category', phase: 'Phase 3' } },
-  { path: 'topic/:word', component: ComingSoonComponent, data: { title: 'Topic courses', phase: 'Phase 3' } },
-  { path: 'tracks/:id', component: ComingSoonComponent, data: { title: 'Track details', phase: 'Phase 3' } },
+  { path: '', pathMatch: 'full', canActivate: [homeRedirectGuard], loadComponent: () => import('./pages/home-page.component').then((m) => m.HomePageComponent) },
+  { path: 'courses', loadComponent: () => import('./pages/courses-page.component').then((m) => m.CoursesPageComponent) },
+  { path: 'courses/:id', loadComponent: () => import('./pages/course-details-page.component').then((m) => m.CourseDetailsPageComponent) },
+  { path: 'category', loadComponent: () => import('./pages/categories-page.component').then((m) => m.CategoriesPageComponent) },
+  { path: 'category/:id', loadComponent: () => import('./pages/category-page.component').then((m) => m.CategoryPageComponent) },
+  { path: 'topic/:word', loadComponent: () => import('./pages/topic-page.component').then((m) => m.TopicPageComponent) },
+  { path: 'tracks/:id', loadComponent: () => import('./pages/track-page.component').then((m) => m.TrackPageComponent) },
 ];

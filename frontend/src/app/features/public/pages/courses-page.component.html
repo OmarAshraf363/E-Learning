@@ -1,0 +1,65 @@
+<section class="coursesPage d-flex container">
+  <div class="filterPart">
+    <form (ngSubmit)="apply()">
+      <div class="container-fluid p-2 mt-3">
+        <h5 class="fw-bold">Filters</h5>
+
+        <div class="mb-4">
+          <h6>Category</h6>
+          <ul class="list-unstyled">
+            @for (category of categories(); track category.id) {
+              <li>
+                <input type="radio" name="categoryId" [id]="'category-' + category.id" [value]="category.id" [(ngModel)]="form.categoryId" />
+                <label [for]="'category-' + category.id" class="ms-1">{{ category.name }}</label>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="mb-4">
+          <h6>Rating</h6>
+          <ul class="list-unstyled">
+            @for (r of ratings; track r) {
+              <li>
+                <input type="radio" name="rate" [id]="'rating-' + r" [value]="r" [(ngModel)]="form.rate" />
+                <label [for]="'rating-' + r" class="ms-1">
+                  @for (s of [].constructor(r); track $index) { <i class="fa-solid fa-star text-warning"></i> }
+                  &amp; Up
+                </label>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="mb-4">
+          <h6>Price Range</h6>
+          <input type="range" id="price-range" name="price" class="form-range" min="0" max="1000" step="50"
+                 [(ngModel)]="form.price" (input)="priceLabel.set(form.price)" />
+          <div class="d-flex justify-content-between">
+            <span>$0</span>
+            <span id="price-range-label">\${{ priceLabel() }}</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-outline-primary">Apply Filters</button>
+        <button type="button" class="btn btn-outline-secondary ms-2" (click)="clear()">Clear Filters</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="courses" class="courses d-flex justify-content-between align-items-center container p-1 mb-5">
+    <div class="p-3 courseSection w-100">
+      <div class="mb-4">
+        @if (heading()) {
+          <h4>Courses that have <span class="text-warning">{{ heading() }}</span></h4>
+        }
+      </div>
+      @if (result(); as r) {
+        <app-course-grid [courses]="r.items" emptyText="No Result Found ..." />
+        <nav class="mt-4">
+          <app-pagination [page]="r.page" [totalPages]="r.totalPages" (pageChange)="goToPage($event)" />
+        </nav>
+      }
+    </div>
+  </div>
+</section>

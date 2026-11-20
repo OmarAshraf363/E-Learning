@@ -5,7 +5,7 @@
 | 0: الأساسيات (Solution و DB baseline و Auth infra و Angular skeleton و Docs) | ✅ خلصت |
 | 1: Auth و Users | ✅ خلصت |
 | 2: Admin | ✅ خلصت |
-| 3: Public catalog | ⏳ |
+| 3: Public catalog | ✅ خلصت |
 | 4: Cart و Payment | ⏳ |
 | 5: Instructor | ⏳ |
 | 6: Student | ⏳ |
@@ -86,6 +86,55 @@
   - جدول بـ Instructor.
   - التسجيل بالإيميل (خطأ ونجاح).
   - استيراد CSV.
+
+### Phase 3: اللي اتنقل
+| MVC (Customer/Home) | API (`/api/catalog`, anonymous) | Angular |
+|---|---|---|
+| Index (Banner و Top courses و Category tabs و Top categories و Tracks و Recommendations و Testimonials و Events) | `GET /home?page=` (والكاش في Redis) | `/` |
+| GetByDepTId (Category tabs) | `GET /departments/courses?departmentId=&page=` | جوه الـ Home |
+| Courses + _partialFilterView | `GET /courses?search=&categoryId=&rate=&price=&instructorId=&sortBy=&sortOrder=&page=` | `/courses?...` |
+| Details + GetObjectives + GetTopics | `GET /courses/{id}?starFilter=` | `/courses/:id` |
+| Category (من غير id ومعاه id) | `GET /categories` و `GET /categories/{id}` | `/category` و `/category/:id` |
+| TopicCourse | `GET /topics/{word}` | `/topic/:word` |
+| TrackDetails | `GET /tracks/{id}` | `/tracks/:id` |
+| Categories View Component (قايمة الـ Navbar) | `GET /nav` | Dropdown في الـ Public layout |
+| GetRegister / PostRegister (Teach on BFCAI) | `POST /api/auth/register-instructor` (Phase 1) | Modal في الـ Home |
+| تحويل الأدمن والـ Instructor من الـ Home | — | `homeRedirectGuard` |
+
+**الإصلاحات التقنية في Phase 3:**
+- **فلاتر صفحة الكورسات:**
+  - الصفحة القديمة كانت بتحسب الفلتر وتعرض الليستة من غيره.
+  - فلتر "Rating & Up" مكانش متطبّق.
+  - دلوقتي الاتنين شغالين: البحث، والقسم، والسعر، والتقييم، والـ Instructor، والترتيب.
+- **الكاش:**
+  - التراكات كانت بتتقري من مفتاح وبتتكتب في مفتاح تاني، فالكاش عمره ما كان بيشتغل.
+  - الكاش بقى بيخزّن DTOs بدل Entities فيها علاقات دايرية.
+- **Progress التراك للطالب** كان ديمًا 0% لأن العدد عمره ما اتحسب.
+- **التوصيات:** الكورس اللي مالوش Track أو Department مبقاش بيطابق كل الكورسات التانية اللي مالهاش (مشكلة `Contains(null)`).
+- **Course details:** لو الكورس مش موجود بيرجّع 404 بدل Exception.
+- **الفيديو التعريفي:** أول فيديو في المنهج زي الأصل، ولو مفيش بيستخدم `DemoVideoUrl` اللي الأدمن بيدخّله.
+- **روابط الكورسات** في الـ Testimonials والـ Recommendations والـ Related كانت بتودّي على صفحة الكورسات من غير ما تفتح الكورس، دلوقتي بتفتح تفاصيله.
+- **رابط `localhost:5197`** اللي كان مكتوب صريح اتشال.
+- **الكورس اللي مالوش صورة** بيعرض صورة افتراضية.
+
+**اتشال من الواجهة (كان شكل بس):**
+- قايمة ترتيب الـ Reviews، وأزرار Helpful و Load more: كانت بتنادي Functions مش موجودة.
+- زرار "More Info" في جدول الأحداث: كان رابطه غلط.
+
+**التحقق:**
+- 39 Integration test، منهم الكاش: إنه بيتملى، وبيتمسح لما الكتالوج يتغيّر.
+- E2E في Chromium، وكل الخطوات نجحت:
+  - الـ Home.
+  - الـ Hover popover.
+  - تبديل تابات الأقسام.
+  - قايمة الـ Navbar.
+  - البحث من الـ Header.
+  - فلتر القسم.
+  - صفحة الكورس، وفلتر النجوم، وتاب الـ Topics.
+  - صفحة القسم.
+  - صفحة الـ Topic.
+  - تسجيل Instructor من "Teach on BFCAI".
+  - تحويل الـ Instructor من `/` لـ `/instructor`.
 
 ### ملاحظات
 - **صور البروفايل القديمة:** الـ MVC كان بيحفظها في فولدر `Images/profile_pics` لكن بيخزّن الرابط `/images/...` بحرف صغير. ده كان شغّال على Windows بس. النسخة الجديدة بتخزّن `/Images/profile_pics/...`. لو هتشغّل على Linux بداتا قديمة، غيّر اسم الفولدر أو حدّث القيم دي.
@@ -396,6 +445,7 @@ docs/ ADD-A-FEATURE.md
   - External logins
   - Personal data (download/delete)
 - **حماية الأدمن:** منع الأدمن إنه يحذف أو يقفل حسابه هو.
+- **زرار "Add to Cart"** بيودّي على `/cart?add={id}`، زي الـ MVC اللي كان بيعمل `Cart/AddToCart` وبعدين يفتح السلة. الصفحة نفسها في Phase 4.
 - **إدارة الأحداث (Events):** الداشبورد وتفاصيل القسم بيعرضوا الأحداث، بس مفيش شاشة تضيفها، لا قبل ولا دلوقتي.
 - **قائمة الـ Instructor في فورم الجداول** بتعرض كل اليوزرز زي الـ MVC. محتاجة قرار: نخليها Instructors بس؟
 - **حاجات تانية:**

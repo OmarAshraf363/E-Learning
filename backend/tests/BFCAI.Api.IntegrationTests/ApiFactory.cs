@@ -1,3 +1,4 @@
+using BFCAI.Application.Common.Interfaces;
 using BFCAI.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -13,6 +14,7 @@ namespace BFCAI.Api.IntegrationTests;
 public class ApiFactory : WebApplicationFactory<Program>
 {
     private readonly SqliteConnection _connection = new("DataSource=:memory:");
+    public InMemoryCache Cache { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -26,6 +28,9 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.RemoveAll<IDbContextOptionsConfiguration<AppDbContext>>();
             _connection.Open();
             services.AddDbContext<AppDbContext>(options => options.UseSqlite(_connection));
+
+            services.RemoveAll<ICacheService>();
+            services.AddSingleton<ICacheService>(Cache);
 
             using var scope = services.BuildServiceProvider().CreateScope();
             scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.EnsureCreated();

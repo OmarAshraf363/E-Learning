@@ -1,0 +1,51 @@
+// Ported from the inline <style> of the legacy Customer/Home/Category.cshtml
+:host { display: block; }
+
+    :host {
+        background-color: #fff;
+    }
+
+    .topics {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .topic-header h5, .courses h5 {
+        font-weight: bolder;
+    }
+
+    .one-topic {
+    }
+
+        .one-topic a {
+            width: 100%;
+            text-align: center;
+            padding: 1rem 2rem;
+        }
+
+            .one-topic a:hover {
+                background-color: #eee;
+            }
+
+    .category-details-header h4 {
+        font-weight: bolder;
+    }
+
+    .category-details-description p {
+        font-size: 0.9rem;
+    }
+
+    .departmentsList .oneDepart .discPart p {
+        font-size:0.93rem;
+        font-weight:bold;
+        margin:15px;
+        width:80%;
+    }
+
+    .departmentsList .oneDepart .coverPart img{
+        width:245px;
+        height:215px;
+    }
