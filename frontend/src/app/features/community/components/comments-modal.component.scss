@@ -1,0 +1,88 @@
+// Ported from the inline <style> of the legacy Customer/Community/GetComments.cshtml
+:host { display: block; }
+
+    .comments-container {
+        max-height: 400px;
+        overflow-y: auto;
+        background-color: #f1f5f9;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .comment-item {
+        border-bottom: 1px solid #e0e0e0;
+        padding: 15px 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .comment-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+        .comment-header img {
+            width: 45px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .comment-header .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .comment-header .user-details .name {
+                font-weight: bold;
+                font-size: 15px;
+                color: #333;
+            }
+
+            .comment-header .user-details .timestamp {
+                font-size: 13px;
+                color: #888;
+            }
+
+    .comment-content p {
+        margin: 5px 0 10px;
+        font-size: 14px;
+        color: #444;
+    }
+
+    .comment-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 14px;
+    }
+
+        .comment-actions button {
+            background: none;
+            border: none;
+            color: #555;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+      .comments-container  img{
+            border-radius:50%;
+            width:30px;
+            height:30px;
+        }
+         
+
+        .comment-actions .reply-box {
+            margin-top: 10px;
+        }
+
+    .no-comments {
+        text-align: center;
+        font-size: 15px;
+        color: #777;
+        padding: 20px 0;
+    }

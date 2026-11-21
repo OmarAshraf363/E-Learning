@@ -1,0 +1,166 @@
+@if (feed(); as f) {
+  <section class="community-main-content">
+    <div class="content-header mb-3">
+      <i class="fa fa-arrow-circle-left" role="button" title="Back" (click)="location.back()"></i>
+      <div class="content-header-newPost">
+        <input class="form-control" readonly (click)="openPostForm()"
+               [placeholder]="'What are you talking about' + (f.community ? ' ' + f.community.name : '') + '?'" />
+      </div>
+      <div class="user-pro">
+        <a routerLink="/account"><img style="width: 50px; height: 50px; border-radius: 50px" [src]="f.currentUser.picture | fileUrl: 'images/default-avatar.svg'" alt="Me" /></a>
+      </div>
+    </div>
+
+    <div class="content-mainContent">
+      <!-- Left: communities -->
+      <div class="content-communites">
+        @if (f.community; as c) {
+          <div class="comunity-head-name mb-2">
+            <h5 class="fw-bold m-0">{{ c.name }} | <span>{{ f.posts.length }}</span></h5>
+            <div class="p-1 w-100"><p class="m-0 fst-italic w-100">{{ c.description }}</p></div>
+          </div>
+          <a routerLink="/community" class="btn btn-outline-dark mb-2">All communities</a>
+        } @else {
+          @for (item of f.communities; track item.id) {
+            <a [routerLink]="[]" [queryParams]="{ id: item.id }" class="btn btn-dark mb-2 fw-bold d-block">{{ item.name }}</a>
+          }
+        }
+      </div>
+
+      <!-- Middle: posts -->
+      <div class="content-community-posts">
+        <div class="filter mb-3 d-flex gap-2">
+          <button type="button" class="btn" [class.btn-dark]="maxReact() === 'true'" [class.btn-outline-dark]="maxReact() !== 'true'"
+                  (click)="filter({ maxReact: maxReact() === 'true' ? null : true, word: word() ?? null })">Max React</button>
+          <form class="filter d-flex flex-grow-1 gap-1" (ngSubmit)="filter({ word: wordSearch || null, maxReact: maxReact() ?? null })">
+            <input name="word" class="form-control" [(ngModel)]="wordSearch" placeholder="Search as key word" />
+            <button type="submit" class="btn btn-outline-light" aria-label="Search posts"><i class="fa fa-search text-black"></i></button>
+          </form>
+        </div>
+
+        @if (f.selectedUser; as u) {
+          <div class="target-user mb-3">
+            <div class="user-pro d-flex gap-3 align-items-center">
+              <img style="width: 50px; height: 50px; border-radius: 50px" [src]="u.picture | fileUrl: 'images/default-avatar.svg'" [alt]="u.fullName" />
+              <div class="user-name">
+                <div class="d-flex align-items-center gap-4">
+                  <span class="fw-bold text-black">{{ u.fullName }}</span>
+                  <span class="badge alert-dark text-black">{{ u.userType }}</span>
+                  <a routerLink="/courses" [queryParams]="{ instructorId: u.id }" class="fw-bold badge alert-info text-black">Courses</a>
+                </div>
+                <p class="m-0 fw-bold">{{ u.jopDescription }}</p>
+              </div>
+            </div>
+            <div class="text-center"><h4>{{ u.fullName }} Posts | {{ u.postsCount }}</h4></div>
+          </div>
+        }
+
+        @for (post of f.posts; track post.id) {
+          <div class="post mb-3 p-2">
+            <div class="post-header p-1 d-flex justify-content-between">
+              <div class="user-pro d-flex gap-2 align-items-center">
+                <img style="width: 50px; height: 50px; border-radius: 50px" [src]="post.author.picture | fileUrl: 'images/default-avatar.svg'" [alt]="post.author.fullName" />
+                <div class="user-name">
+                  <a [routerLink]="[]" [queryParams]="{ userId: post.author.id }" class="text-decoration-none text-dark fw-bold">{{ post.author.fullName }}</a>
+                  <p class="m-0">{{ post.createdAt | date: 'shortTime' }}</p>
+                </div>
+              </div>
+              <div class="handel position-relative">
+                <i class="fa-solid fa-bars" role="button" (click)="openMenu.set(openMenu() === post.id ? null : post.id)"></i>
+                @if (openMenu() === post.id) {
+                  <div class="handel-menu d-block">
+                    @if (post.isMine) {
+                      <button type="button" class="btn btn-dark" (click)="openPostForm(post)">Edit</button>
+                      <button type="button" class="btn btn-danger" (click)="deletePost(post)">Delete</button>
+                    } @else {
+                      <span>"Not show this" is comming soon</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="post-content">
+              <p>{{ post.content }}</p>
+              @if (post.keyWords.length) {
+                <div class="mb-2">
+                  @for (k of post.keyWords; track $index) {
+                    <a [routerLink]="[]" [queryParams]="{ word: k }" class="badge bg-light text-dark me-1 text-decoration-none">#{{ k }}</a>
+                  }
+                </div>
+              }
+              @if (post.attachment) {
+                <div class="post-image"><img [src]="post.attachment | fileUrl" alt="Attachment" /></div>
+              }
+            </div>
+
+            <div class="post-reaction px-3 d-flex gap-3">
+              <span role="button" (click)="showReactions(post)"><span>{{ post.reactionsCount }}</span> Reactions</span>
+              @if (post.commentsCount) {
+                <span role="button" (click)="openComments(post)">{{ post.commentsCount }} Comment</span>
+              }
+            </div>
+
+            <div class="post-controls px-3 d-flex gap-4">
+              <span role="button" (click)="react(post)">
+                <i class="fa fa-heart" [class.fa-solid]="post.reactedByMe" [class.fa-regular]="!post.reactedByMe"></i>
+                {{ post.reactedByMe ? 'Reacted' : 'React' }}
+              </span>
+              <span role="button" (click)="openComments(post)"><i class="fa-regular fa-comment"></i> Comment</span>
+            </div>
+
+            <div class="post-comment">
+              <form class="UpsertComment d-flex gap-1" (ngSubmit)="comment(post)">
+                <input type="text" class="form-control" [name]="'comment-' + post.id" [(ngModel)]="commentDrafts[post.id]"
+                       placeholder="Write a comment..." [attr.aria-label]="'Comment on post ' + post.id" />
+                @if (commentDrafts[post.id]) {
+                  <button type="submit" class="border-0 bg-transparent" aria-label="Send comment"><i style="font-size: 1.5rem" class="fa fa-arrow-circle-right"></i></button>
+                }
+              </form>
+            </div>
+          </div>
+        } @empty {
+          <h5>Not found posts</h5>
+        }
+      </div>
+
+      <!-- Right: users -->
+      <div class="about-users">
+        <form class="search-useers mb-3 d-flex gap-1" (ngSubmit)="filter({ userName: userSearch || null })">
+          <input name="userName" class="form-control" [(ngModel)]="userSearch" placeholder="Search as User Name" />
+          <button type="submit" class="btn btn-outline-light" aria-label="Search users"><i class="fa fa-search text-black"></i></button>
+        </form>
+
+        @if (f.searchResults.length) {
+          <div class="SearchUsers mb-3">
+            <div class="text-center"><h4>Search Result</h4></div>
+            @for (user of f.searchResults; track user.id) {
+              <div class="user-pro d-flex gap-2 align-items-center mb-2">
+                <img style="width: 50px; height: 50px; border-radius: 50px" [src]="user.picture | fileUrl: 'images/default-avatar.svg'" [alt]="user.fullName" />
+                <div class="user-name">
+                  <a [routerLink]="[]" [queryParams]="{ userId: user.id }" class="fw-bold text-decoration-none text-black">{{ user.fullName }}</a>
+                  <span class="badge alert-dark text-black ms-2">{{ user.userType }}</span>
+                  <p class="m-0">{{ user.jopDescription.length > 100 ? user.jopDescription.slice(0, 100) + '...' : user.jopDescription }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="instructor-max-enroll">
+          <div class="text-center"><h4>Top instructors</h4></div>
+          @for (user of f.topInstructors; track user.id) {
+            <div class="user-pro d-flex gap-2 align-items-center mb-2">
+              <img style="width: 50px; height: 50px; border-radius: 50px" [src]="user.picture | fileUrl: 'images/default-avatar.svg'" [alt]="user.fullName" />
+              <div class="user-name">
+                <a [routerLink]="[]" [queryParams]="{ userId: user.id }" class="fw-bold text-decoration-none text-black">{{ user.fullName }}</a>
+                <span class="badge alert-dark text-black ms-2">{{ user.userType }}</span>
+                <p class="m-0">{{ user.jopDescription.length > 100 ? user.jopDescription.slice(0, 100) + '...' : user.jopDescription }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+}

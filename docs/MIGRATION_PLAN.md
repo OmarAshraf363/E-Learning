@@ -9,7 +9,7 @@
 | 4: Cart و Payment | ✅ خلصت |
 | 5: Instructor | ✅ خلصت |
 | 6: Student | ✅ خلصت |
-| 7: Community | ⏳ |
+| 7: Community | ✅ خلصت |
 | 8: Parity و Cutover | ⏳ |
 
 ### نتيجة التحقق من الداتابيز (Phase 0)
@@ -270,6 +270,51 @@
   - تسليم الواجب.
   - فيدباك بتقييم 4، والـ Rate في صفحة الكورس العامة بقى 4.
   - صفحة My Courses.
+
+### Phase 7: اللي اتنقل
+| MVC (Customer/Community) | API (`/api/community`, محتاج Login) | Angular |
+|---|---|---|
+| Index (Communities و Posts و فلاتر id/word/maxReact/userName/userId، و Top instructors، والبحث، واليوزر المختار) | `GET /feed?id=&word=&maxReact=&userName=&userId=` | `/community?...` |
+| UpsertPost (محتوى + Keywords + صورة) | `POST /posts` و `PUT /posts/{id}` (multipart) | `PostFormModalComponent` |
+| DeletePost | `DELETE /posts/{id}` | قايمة ☰ |
+| UpsertComment (الكومنت السريع تحت البوست) | `POST /posts/{id}/comments` | خانة "Write a comment..." |
+| GetComments و GetReplies و AddReply | `GET /posts/{id}/comments` و `GET/POST /comments/{id}/replies` | `CommentsModalComponent` |
+| AddReaction و addReactInComment و CountReaction* | `POST /posts/{id}/reactions` و `POST /comments/{id}/reactions` (بترجّع الحالة والعدد) | React / Love |
+| GetReaction و GetCommentReaction | `GET /posts/{id}/reactions` و `GET /comments/{id}/reactions` | `ReactionsModalComponent` |
+
+**الإصلاحات التقنية والأمنية في Phase 7:**
+- **التعديل والحذف** بقوا لصاحب البوست بس. قبل كده أي حد كان يقدر يحذف أي بوست بـ GET.
+- **مصدر الـ Ids:** `UserId` للبوست والكومنت والرد بقى من التوكن، مش من Hidden field.
+- **حذف بوست عليه كومنتات أو Keywords** كان بيقع بسبب الـ FK. دلوقتي البوست بيتحذف ومعاه الكومنتات والردود والـ Reactions والـ Keywords والصورة.
+- **تعديل البوست:**
+  - كان بيمسح الـ Keywords القديمة ومبيضيفش الجديدة، دلوقتي بيستبدلها.
+  - لو مفيش صورة جديدة، كان بيمسح ملف الصورة القديمة. دلوقتي الصورة بتفضل.
+- **صورة البوست** بقت لازم تكون صورة.
+
+**الحاجات اللي اتسابت زي ما هي:**
+- زرار "Share" اتشال، لأن Repost و Share هما الخطوة الجاية في البيزنس.
+- خيار "Not show this" لسه متعلّم عليه "comming soon".
+- تعديل الكومنت مكانش ليه زرار في الواجهة القديمة، فمتنقلش.
+
+**التحقق:**
+- 65 Integration test:
+  - إنشاء بوست بـ Keywords وصورة.
+  - الفلترة بالكلمة وبالـ Community.
+  - تعديل البوست بيستبدل الـ Keywords وبيحافظ على الصورة.
+  - يوزر تاني بياخد 403.
+  - حذف بوست عليه كومنتات وردود و Reactions.
+  - الـ Reaction toggle.
+  - Top instructors والبحث بالاسم.
+- E2E في Chromium:
+  - الدخول على الـ Feed واختيار Community.
+  - بوست بصورة و Keyword.
+  - البحث.
+  - React وكومنت.
+  - مودال الكومنتات: Love ورد ومودال الردود.
+  - مين عمل React.
+  - تعديل البوست: الـ Keyword الجديدة بتتلاقي في البحث والصورة فاضلة.
+  - حذف البوست.
+  - Top instructor بيفتح بوستات اليوزر.
 
 ### ملاحظات
 - **صور البروفايل القديمة:** الـ MVC كان بيحفظها في فولدر `Images/profile_pics` لكن بيخزّن الرابط `/images/...` بحرف صغير. ده كان شغّال على Windows بس. النسخة الجديدة بتخزّن `/Images/profile_pics/...`. لو هتشغّل على Linux بداتا قديمة، غيّر اسم الفولدر أو حدّث القيم دي.

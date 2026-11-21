@@ -1,0 +1,62 @@
+// Ported from the inline <style> of the legacy Customer/Community/GetReaction.cshtml
+:host { display: block; }
+
+    .reaction-list {
+        padding: 15px;
+        max-height: 400px;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        width:260px;
+        z-index: 100000;
+    }
+
+    .reaction-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        background-color: #ffffff;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .reaction-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+    .user-image {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #ddd;
+        margin-right: 15px;
+    }
+
+    .user-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .user-name {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 3px;
+        font-size: 16px;
+    }
+
+    .reaction-type {
+        font-size: 14px;
+        color: #555;
+    }
+
+    .no-reactions {
+        text-align: center;
+        font-size: 16px;
+        color: #777;
+        margin-top: 20px;
+    }
