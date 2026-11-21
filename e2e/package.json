@@ -1,0 +1,11 @@
+{
+  "name": "bfcai-e2e",
+  "private": true,
+  "description": "End-to-end scenarios (Playwright) for the BFCAI API + Angular app",
+  "scripts": {
+    "test": "node run-all.js"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

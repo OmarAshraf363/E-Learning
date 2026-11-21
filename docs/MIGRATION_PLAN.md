@@ -10,11 +10,21 @@
 | 5: Instructor | ✅ خلصت |
 | 6: Student | ✅ خلصت |
 | 7: Community | ✅ خلصت |
-| 8: Parity و Cutover | ⏳ |
+| 8: Parity و Cutover | ✅ الـ Parity خلص، و ⏸️ حذف الـ MVC مستني موافقتك |
 
 ### نتيجة التحقق من الداتابيز (Phase 0)
 - اتعمل Schema من الـ Migrations القديمة (42 Migration) وSchema تانية من الـ Baseline الجديدة، واتقارنوا: الأعمدة، والأنواع، والـ Nullability، والـ Defaults، والـ FKs ومعاها Delete rules، والـ Indexes. **متطابقين**، والفرق الوحيد جدول `RefreshTokens`.
 - اتجرّب سكربت `backend/docs/database/attach-existing-database.sql` على نسخة من الداتابيز القديمة، وبعده `database update`. النتيجة طلعت **متطابقة 100%** مع الداتابيز الجديدة.
+
+### Phase 8: Parity و Cutover
+- `docs/PARITY_CHECKLIST.md` فيه كل Action وكل View في الـ MVC، ومكانه في النسخة الجديدة أو سبب إنه متنقلش.
+- **الـ Regression النهائي:**
+  - الـ Build بـ `-warnaserror` من غير أي Warning.
+  - 65 Integration test و 3 Unit test.
+  - 5 Frontend tests.
+  - 7 سيناريوهات E2E فيها 72 خطوة نجحت كلها مرة واحدة ورا بعض.
+- **السيناريوهات اتنقلت للريبو** في `e2e/` كـ Regression suite دايم (`cd e2e && npm test`).
+- **الـ MVC والمشاريع القديمة متشالتش** بناءً على طلبك. خطوات الـ Cutover مكتوبة في آخر `PARITY_CHECKLIST.md`.
 
 ### Phase 1: اللي اتنقل
 | MVC | API | Angular |

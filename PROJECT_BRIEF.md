@@ -2,85 +2,58 @@
 
 نظام إدارة تعلّم (LMS) لكلية الحاسبات والذكاء الاصطناعي بجامعة بنها، وفيه كمان جزء لبيع الكورسات أونلاين.
 
-## التقنيات المستخدمة
+> **حالة المشروع:** المشروع اتنقل من ASP.NET Core 8 MVC لـ **API بـ .NET 10 (Clean Architecture)** و **Angular 22**، ووصل لنفس النقطة اللي كان واصلها الـ MVC.
+> كود الـ MVC القديم **لسه موجود في الريبو كمرجع** لحد ما تتاخد الموافقة على حذفه (التفاصيل في `docs/PARITY_CHECKLIST.md`).
 
-- **ASP.NET Core 8 MVC** مع Razor Pages
-- **Entity Framework Core 8** على **SQL Server** (وفيه باكدج SQLite متضافة)
-- **ASP.NET Identity** لتسجيل الدخول والأدوار (روافد Google وFacebook موجودة بس متعلّق عليها في الكود)
-- **Redis** للكاش (`StackExchange.Redis`)
-- **Stripe** للدفع (`Stripe.net`)
-
-## هيكل الـ Solution
-
-| المشروع | دوره |
+## هيكل الريبو
+| الفولدر | المحتوى |
 |---|---|
-| `Banha UniverCity/` | تطبيق الويب: الـ Controllers والـ Views والملفات الثابتة، وفيه ملف الـ `.sln` |
-| `DataAccess/` | الـ `DbContext` والـ Repositories والـ Unit of Work وطبقة Services |
-| `BFCAI.Models/` | الـ Entities والـ ViewModels والـ Enums |
-| `BFCAI.Utility/` | ثوابت الأدوار وحالات الدفع وحجم الصفحة وشوية Helpers (`StaticData.cs`) |
-| `Models/` و`BFCAI.DataAccess/` | نسخ قديمة، ومشروع الويب مش بيعمل لهم Reference |
+| `backend/` | الـ API الجديدة: .NET 10 و Clean Architecture و EF Core و SQL Server و Redis و Stripe و JWT |
+| `frontend/` | Angular 22: Standalone و Signals و Zoneless، ومتقسّمة Feature-based، و Bootstrap 5.3 و ng-bootstrap |
+| `e2e/` | 7 سيناريوهات Playwright بتغطي كل المناطق |
+| `docs/` | خطة النقل وحالتها (`MIGRATION_PLAN.md`) و Parity checklist |
+| `Banha UniverCity/` و `DataAccess/` و `BFCAI.Models/` و `BFCAI.Utility/` | الـ MVC القديم (مرجع) |
+| `Models/` و `BFCAI.DataAccess/` | مشاريع قديمة ميتة، مش في الـ .sln |
 
-### طبقة الـ Services في `DataAccess`
+## التقنيات (النسخة الجديدة)
+- **Backend:**
+  - .NET 10 LTS، و ASP.NET Core Controllers، و EF Core 10 على SQL Server.
+  - نفس الـ Schema القديمة بالظبط، والإضافة الوحيدة جدول `RefreshTokens`.
+  - ASP.NET Identity مع JWT و Refresh tokens.
+  - FluentValidation، والأخطاء بترجع ProblemDetails.
+  - Redis للكاش، و Stripe Checkout للدفع، و Scalar لتوثيق الـ API.
+- **Frontend:**
+  - Angular 22.
+  - Generic `BaseApiService` و `CrudStore`، وكل Feature فيها Store بالـ Signals.
+  - Interceptors للـ Auth والـ Refresh والأخطاء.
+  - SweetAlert2.
+  - نفس ألوان وستايل المشروع القديم، متقسّمة على الـ Layouts.
 
-`CourseService` و`VedioService` و`CartService` و`PaymentService` و`StripeGetWay` و`PostService` و`AssinmentService` و`ImageService` و`CacheService`
+## الأدوار والمناطق
+| المنطقة | الدور | أهم الصفحات |
+|---|---|---|
+| عامة (`/`) | الكل | الرئيسية، والكورسات بالفلاتر، وتفاصيل الكورس، والأقسام، والتراكات، و Teach on BFCAI |
+| السلة (`/cart`) | أي يوزر مسجّل دخول | السلة والدفع بـ Stripe (وبيتأكد من الدفع قبل التسجيل) |
+| الأدمن (`/admin`) | Admin | الداشبورد، واليوزرز، والأقسام، والتراكات، والكورسات، والسنين، والجداول، والتسجيل |
+| الـ Instructor (`/instructor`) | Instructor | كورساته، والمنهج (فيديو ومراجع وواجبات وكويزات)، والامتحانات والأسئلة، والواجبات، والطلاب |
+| الطالب (`/student`) | Student | الداشبورد، وكورساتي، والـ Player (و Quiz بعد 25% من الفيديو)، وتسليم الواجبات، والفيدباك |
+| الـ Community (`/community`) | أي يوزر مسجّل دخول | Feed، وبوستات بالصور والـ Keywords، وكومنتات وردود، و Reactions |
 
-## الأدوار
+## التشغيل
+اتبع [`backend/README.md`](backend/README.md) و [`frontend/README.md`](frontend/README.md).
 
-`Admin` و`Instructor` و`Student` و`Customer` (متعرّفة في `BFCAI.Utility/StaticData.cs`)
+**الأدمن الافتراضي:** `Admin@gmail.com` / `Admin@123`
 
-## الأقسام (Areas) والمميزات
+## الجودة
+- **API:** 65 Integration test و 3 Unit tests، والـ Build من غير أي Warning.
+- **Frontend:** Unit tests بـ Vitest.
+- **E2E:** 7 سيناريوهات فيها 72 خطوة على المتصفح، والـ API الحقيقية، و SQL Server.
 
-### Admin
-إدارة الأقسام (Departments) والتراكات والكورسات والسنين الدراسية والمستخدمين والتسجيل في الكورسات (Enrollment) والجداول (Schedule)، وفيه لوحة تحكم.
-
-### Instructor
-إدارة كورساته، والواجبات، وبنك الأسئلة، والامتحانات، ومتابعة الطلاب.
-
-### Student
-لوحة تحكم، والكورسات اللي سجّل فيها مع متابعة التقدّم، وتسليم الواجبات.
-
-### Customer (الواجهة العامة، وهي الـ Area الافتراضية)
-- الصفحة الرئيسية وتصفّح الكورسات
-- سلة مشتريات والدفع بـ Stripe
-- **Community**: بوستات وكومنتات وتفاعلات (Reactions)
-
-## الكيانات الأساسية (Entities)
-
-- **أكاديمي:** `Department` و`Track` و`AcademicYear` و`Course` و`CourseCurriculum` و`CourseVideo` و`CourseResource` و`LearningObjective` و`TopicCovered` و`KeyWord`
-- **التقييم:** `Exam` و`Question` و`QuestionChoice` و`ExamSubmission` و`Assignment` و`AssignmentSubmission`
-- **التشغيل:** `Enrollment` و`StudentCourseProgress` و`Attendance` و`ClassSchedule` و`Room` و`Event` و`Feedback`
-- **التجارة:** `Cart` و`CartItems` و`Order` و`OrderItems`
-- **المجتمع:** `Community` و`Post` و`Comment` و`Reaction`
-- **المستخدم:** `ApplicationUser` (بيورث من `IdentityUser`)
-
-## آخر التطورات (من سجل الكوميتات)
-
-- إضافة ميزة الـ Community وتحسين الـ Layout
-- تحويل الاستعلامات من `Include` لـ Projection
-- تحسين التصميم وتجاوبه مع الشاشات (Responsive)
-- إضافة كاش بـ Redis
-- **الخطوة الجاية المكتوبة:** ميزة Repost وShare
-
-## التشغيل محليًا (متطلبات)
-
-- .NET 8 SDK
-- SQL Server: الـ Connection String في `Banha UniverCity/appsettings.json` متظبط على جهاز التطوير، فلازم تغيّره لجهازك
-- Redis شغّال على `localhost:6379`
-- مفاتيح Stripe (ويُفضّل تحطها في User Secrets)
-
-```bash
-cd "Banha UniverCity"
-dotnet ef database update --project ../DataAccess
-dotnet run
-```
-
-> أوامر التشغيل دي مبنية على قراءة الكود، ومش متجرّبة. ولو الـ Migrations مش جوه مشروع `DataAccess`، غيّر قيمة `--project`.
-
-## ملاحظات ومشاكل محتاجة تتعالج
-
-1. **فيه أسرار مرفوعة على الريبو:** `appsettings.json` فيه Stripe Secret Key وGoogle Client Secret، وفي `Program.cs` فيه Facebook AppSecret مكتوب صريح حتى لو السطر متعلّق عليه. لازم تلغي المفاتيح دي وتعمل غيرها، وتنقلها لـ User Secrets أو Environment Variables.
-2. **مفيش `[Authorize]` على أي Controller** في أقسام Admin وInstructor وStudent، فأي حد يعرف الرابط يقدر يفتح صفحات الأدمن.
-3. **فيه مشاريع قديمة مش مستخدمة** (`Models/` و`BFCAI.DataAccess/`) ومحتاجة تتشال.
-4. **فيه ملفات فيديو وصور متخزنة جوه الريبو** في `wwwroot/videos` و`wwwroot/Covers`، ودي بتكبّر حجم الريبو. الأحسن يتحطوا في `.gitignore` أو يتنقلوا لـ Blob Storage.
-5. الثابت `Comming_Status` قيمته `"In-Process"` زي `In_Process_Status` بالظبط، والأغلب إنها غلطة.
-6. مفيش Tests ولا README للمشروع.
+## اللي جاي (الخطة التانية)
+قرارات البيزنس والتطويرات الجديدة اللي اتأجلت مكتوبة في **Backlog** في `docs/MIGRATION_PLAN.md`. أبرزها:
+- Repost و Share.
+- تسليم الامتحانات وتصحيحها.
+- حساب الـ Progress.
+- الإيميلات و Forgot password.
+- منع التسجيل المكرر.
+- الضريبة.
