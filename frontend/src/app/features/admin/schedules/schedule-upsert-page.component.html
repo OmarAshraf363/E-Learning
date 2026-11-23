@@ -18,8 +18,9 @@
               <label for="instructorId" class="form-label">Instructor</label>
               <select id="instructorId" formControlName="instructorId" class="form-select">
                 <option [ngValue]="null">Select Instructor</option>
-                @for (u of users(); track u.id) { <option [ngValue]="u.id">{{ u.name }}</option> }
+                @for (u of instructors(); track u.id) { <option [ngValue]="u.id">{{ u.name }}</option> }
               </select>
+              <app-form-errors [control]="form.controls.instructorId" />
             </div>
             <div class="mb-3">
               <label for="roomId" class="form-label">Room</label>

@@ -76,7 +76,9 @@ export class EnrollmentsPageComponent {
     if (!this.csvFile) return;
     const result = await firstValueFrom(this.api.uploadCsv(this.csvFile));
     this.modalRef?.close();
-    this.notify.success(`${result.added} enrollment(s) added, ${result.skipped} line(s) skipped.`);
+    this.notify.success(
+      `${result.added} enrollment(s) added, ${result.alreadyEnrolled} already enrolled (not added again), ${result.skipped} line(s) skipped.`,
+    );
     this.load();
   }
 }

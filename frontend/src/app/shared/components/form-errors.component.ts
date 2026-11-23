@@ -63,7 +63,8 @@ export class FormErrorsComponent {
         case 'min':
           return `Minimum value is ${(value as { min: number }).min}.`;
         default:
-          return 'Invalid value.';
+          // Custom validators can return their message as the error value: { myRule: 'Message' }
+          return typeof value === 'string' ? value : 'Invalid value.';
       }
     }),
   );

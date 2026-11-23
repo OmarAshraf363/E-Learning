@@ -3,16 +3,18 @@ import { Component, ElementRef, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FileUrlPipe } from '../../../shared/pipes/file-url.pipe';
 import { StarRatingComponent } from '../../../shared/components/star-rating.component';
+import { CourseCartButtonComponent } from '../../cart/components/course-cart-button.component';
+import { CartStore } from '../../cart/data-access/cart.store';
 import { CourseCard } from '../data-access/catalog.models';
 
 /**
  * Course card with the hover popover (legacy ".one-course" + "openModalWhenHover" in Home.js).
  * The popover opens on the left when the card is close to the right edge of the window.
- * "Add to Cart" goes to /cart?add=<id> (legacy: Cart/AddToCart?courseId=..., then the cart page).
+ * The buy button is app-course-cart-button ("Add to Cart", "Go to Cart" or "Open course").
  */
 @Component({
   selector: 'app-course-card',
-  imports: [RouterLink, CurrencyPipe, FileUrlPipe, StarRatingComponent],
+  imports: [RouterLink, CurrencyPipe, FileUrlPipe, StarRatingComponent, CourseCartButtonComponent],
   template: `
     <div class="one-course" [routerLink]="['/courses', course().id]" (mouseenter)="open()" (mouseleave)="hovered.set(false)">
       <div class="course-video mb-3">
@@ -22,7 +24,7 @@ import { CourseCard } from '../data-access/catalog.models';
       <div class="w-75 instructor"><h6>{{ course().instructorName }}</h6></div>
       <div class="rating"><app-star-rating [rate]="course().rate" /></div>
       <div class="price"><span>{{ course().price | currency }}</span></div>
-      @if (enrolled()) {
+      @if (cart.isEnrolled(course().id)) {
         <div class="price"><h6>You Enrolled in This Course</h6></div>
       }
 
@@ -50,7 +52,7 @@ import { CourseCard } from '../data-access/catalog.models';
           </div>
         </div>
         <div class="d-flex justify-content-center mt-2">
-          <a routerLink="/cart" [queryParams]="{ add: course().id }" class="btn cus-btn px-5 py-2" style="border-radius: 5px; font-size: 1.1rem">Add to Cart</a>
+          <app-course-cart-button [courseId]="course().id" cssClass="btn cus-btn px-5 py-2" buttonStyle="border-radius: 5px; font-size: 1.1rem" />
         </div>
       </div>
     </div>
@@ -63,9 +65,9 @@ import { CourseCard } from '../data-access/catalog.models';
 })
 export class CourseCardComponent {
   private readonly host = inject(ElementRef<HTMLElement>);
+  readonly cart = inject(CartStore);
 
   readonly course = input.required<CourseCard>();
-  readonly enrolled = input(false);
 
   readonly hovered = signal(false);
   readonly openLeft = signal(false);

@@ -9,14 +9,19 @@
 
   @if (c.sections.length) {
     <ul class="list-group">
-      @for (section of c.sections; track section.id) {
+      @for (section of c.sections; track section.id; let first = $first, last = $last) {
         <li class="list-group-item mb-4">
           <div class="d-flex justify-content-between align-items-start">
             <div>
               <h5 class="font-weight-bold">{{ section.title }}</h5>
               <p>{{ section.content }}</p>
             </div>
-            <button type="button" class="btn btn-outline-warning btn-sm" (click)="editSection(section)"><i class="fa-solid fa-edit"></i></button>
+            <div class="d-flex gap-1">
+              <button type="button" class="btn btn-outline-secondary btn-sm" title="Move up" [disabled]="first" (click)="moveSection(section, 'up')"><i class="fa-solid fa-arrow-up"></i></button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" title="Move down" [disabled]="last" (click)="moveSection(section, 'down')"><i class="fa-solid fa-arrow-down"></i></button>
+              <button type="button" class="btn btn-outline-warning btn-sm" title="Edit section" (click)="editSection(section)"><i class="fa-solid fa-edit"></i></button>
+              <button type="button" class="btn btn-outline-danger btn-sm" title="Delete section" (click)="deleteSection(section)"><i class="fa-solid fa-trash"></i></button>
+            </div>
           </div>
 
           <div class="mb-4">
@@ -27,6 +32,7 @@
                   <div class="video-item">
                     <a [href]="video.url | fileUrl" target="_blank"><i class="fa-solid fa-video"></i> {{ video.title }}</a>
                     <button type="button" class="btn btn-danger btn-sm ms-2" title="Delete video" (click)="deleteVideo(video.id)"><i class="fa-solid fa-trash"></i></button>
+                    <button type="button" class="btn btn-warning btn-sm ms-2" title="Edit video" (click)="editVideo(video)"><i class="fa-solid fa-edit"></i></button>
                   </div>
                 }
               </div>

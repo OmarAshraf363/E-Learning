@@ -29,7 +29,20 @@ public class ExamRequestValidator : AbstractValidator<ExamRequest>
 
 public class QuestionRequestValidator : AbstractValidator<QuestionRequest>
 {
-    public QuestionRequestValidator() => RuleFor(x => x.QuestionText).NotEmpty();
+    /// <summary>
+    /// Business rule (second plan): at least two choices and at least one correct answer
+    /// (more than one correct answer is allowed). Empty choices are ignored, as when saving.
+    /// </summary>
+    public QuestionRequestValidator()
+    {
+        RuleFor(x => x.QuestionText).NotEmpty();
+        RuleFor(x => x.Choices).Cascade(CascadeMode.Stop)
+            .Must(c => Filled(c).Count() >= 2).WithMessage("Please add at least two choices.")
+            .Must(c => Filled(c).Any(x => x.IsCorrect)).WithMessage("Please mark at least one choice as correct.");
+    }
+
+    private static IEnumerable<ChoiceRequest> Filled(List<ChoiceRequest>? choices)
+        => (choices ?? []).Where(c => !string.IsNullOrWhiteSpace(c.ChoiceText));
 }
 
 /// <summary>Legacy Instructor/ExamController (exams + question builder).</summary>

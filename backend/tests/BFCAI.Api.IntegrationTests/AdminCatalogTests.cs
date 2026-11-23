@@ -8,6 +8,7 @@ using BFCAI.Application.Features.Departments;
 using BFCAI.Application.Features.Enrollments;
 using BFCAI.Application.Features.Schedules;
 using BFCAI.Application.Features.Tracks;
+using BFCAI.Application.Features.Users;
 
 namespace BFCAI.Api.IntegrationTests;
 
@@ -138,14 +139,33 @@ public class AdminCatalogTests(ApiFactory factory) : IClassFixture<ApiFactory>
     public async Task Schedule_with_guid_instructor_can_be_created_and_edited()
     {
         var admin = await factory.AsAdminAsync();
+        var instructorId = await NewInstructorIdAsync(admin); // GUID id
         var created = await (await admin.PostAsJsonAsync("/api/admin/schedules",
-            new ScheduleRequest("09:00", "11:30", "Sunday", 1, "123548458", 1, 1, 1))).Content.ReadFromJsonAsync<ScheduleFormDto>();
+            new ScheduleRequest("09:00", "11:30", "Sunday", 1, instructorId, 1, 1, 1))).Content.ReadFromJsonAsync<ScheduleFormDto>();
         Assert.Equal("09:00", created!.StartTime);
-        Assert.Equal("123548458", created.InstructorId);
+        Assert.Equal(instructorId, created.InstructorId);
 
         var updated = await (await admin.PutAsJsonAsync($"/api/admin/schedules/{created.Id}",
             new ScheduleRequest("10:00", "12:00", "Monday", 2, "2", null, null, null))).Content.ReadFromJsonAsync<ScheduleFormDto>();
         Assert.Equal("Monday", updated!.DayOfWeek);
+    }
+
+    [Fact]
+    public async Task Schedule_instructor_must_be_an_instructor()
+    {
+        var admin = await factory.AsAdminAsync();
+        var response = await admin.PostAsJsonAsync("/api/admin/schedules",
+            new ScheduleRequest("09:00", "11:30", "Sunday", 1, "123548458", null, null, null)); // the admin
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains("instructorId", await response.Content.ReadAsStringAsync(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static async Task<string> NewInstructorIdAsync(HttpClient admin)
+    {
+        var email = TestHelpers.UniqueEmail("instructor");
+        var user = await (await admin.PostAsJsonAsync("/api/admin/users",
+            new { userName = email, email, role = "Instructor", password = "Pass@123" })).Content.ReadFromJsonAsync<UserDto>();
+        return user!.Id;
     }
 
     [Fact]
@@ -155,19 +175,28 @@ public class AdminCatalogTests(ApiFactory factory) : IClassFixture<ApiFactory>
         var unknown = await admin.PostAsJsonAsync("/api/admin/enrollments/by-email", new EnrollByEmailRequest("nobody@x.com", 1));
         Assert.Equal(HttpStatusCode.BadRequest, unknown.StatusCode);
 
-        var ok = await admin.PostAsJsonAsync("/api/admin/enrollments/by-email", new EnrollByEmailRequest("student1@example.com", 2));
+        var email = TestHelpers.UniqueEmail("student");
+        await admin.PostAsJsonAsync("/api/admin/users", new { userName = email, email, role = "Student", password = "Pass@123" });
+
+        var ok = await admin.PostAsJsonAsync("/api/admin/enrollments/by-email", new EnrollByEmailRequest(email, 1));
         Assert.Equal(HttpStatusCode.NoContent, ok.StatusCode);
 
+        // Business rule: no duplicate enrollment
+        var duplicate = await admin.PostAsJsonAsync("/api/admin/enrollments/by-email", new EnrollByEmailRequest(email, 1));
+        Assert.Equal(HttpStatusCode.BadRequest, duplicate.StatusCode);
+
+        // course 1: already enrolled, course 2: added once (second line is a duplicate in the same file)
         var csv = new MultipartFormDataContent
         {
-            { new ByteArrayContent("1,1\nstudent1@example.com,2\nbad line\n1,999\n"u8.ToArray()), "csvFile", "students.csv" },
+            { new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes($"{email},1\n{email},2\n{email},2\nbad line\n{email},999\n")), "csvFile", "students.csv" },
         };
         var result = await (await admin.PostAsync("/api/admin/enrollments/csv", csv)).Content.ReadFromJsonAsync<CsvImportResultDto>();
-        Assert.Equal(2, result!.Added);
+        Assert.Equal(1, result!.Added);
+        Assert.Equal(2, result.AlreadyEnrolled);
         Assert.Equal(2, result.Skipped);
 
         var overview = await admin.GetFromJsonAsync<EnrollmentOverviewDto>("/api/admin/enrollments");
-        Assert.True(overview!.TotalEnrollments >= 5);
+        Assert.True(overview!.TotalEnrollments >= 4);
     }
 
     [Fact]

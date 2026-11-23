@@ -29,6 +29,19 @@ public class CheckoutService(IUnitOfWork unitOfWork, ICurrentUser currentUser, I
         if (cartItems.Count == 0)
             throw new BadRequestException("Your cart is empty or failed to start payment session.");
 
+        // Business rule (second plan): no buying a course twice. A course may have been added to the
+        // cart before the student was enrolled in it (e.g. by the admin), so it is removed here.
+        var enrolledIds = await CartService.EnrolledCourseIdsAsync(unitOfWork, userId);
+        var owned = cartItems.Where(i => enrolledIds.Contains(i.CourseId!.Value)).ToList();
+        if (owned.Count > 0)
+        {
+            unitOfWork.Repository<CartItems>().DeleteRange(owned);
+            await unitOfWork.SaveChangesAsync();
+            throw new BadRequestException(
+                $"You are already enrolled in: {string.Join(", ", owned.Select(i => i.Course?.CourseName))}. " +
+                "It was removed from your cart, please review your cart and try again.");
+        }
+
         // Legacy: one pending order per user (OrderStatus 0); its items are rebuilt from the cart.
         var order = await Orders.GetOneAsync(o => o.AppUserId == userId && o.OrderStatus == OrderStatus.Pending,
                         tracked: true, o => o.OrderItems);
@@ -42,16 +55,17 @@ public class CheckoutService(IUnitOfWork unitOfWork, ICurrentUser currentUser, I
             unitOfWork.Repository<OrderItems>().DeleteRange(order.OrderItems);
         }
 
+        // A course is bought once, so the quantity is always 1 (older cart rows may hold more).
         order.OrderItems = cartItems.Select(i => new OrderItems
         {
             CourseId = i.CourseId,
-            Quantity = i.Quantity,
+            Quantity = 1,
             ListPrice = i.Course?.Price,
-            TotalPrice = i.Quantity * i.Course?.Price,
+            TotalPrice = i.Course?.Price,
         }).ToList();
 
         var session = await gateway.CreateCheckoutSessionAsync(
-            cartItems.Select(i => new CheckoutLine(i.Course?.CourseName ?? "Course", i.Price ?? 0, i.Quantity ?? 1)),
+            cartItems.Select(i => new CheckoutLine(i.Course?.CourseName ?? "Course", i.Price ?? 0, 1)),
             successUrl, cancelUrl);
 
         // Technical fix: legacy lost this value when the order already existed (untracked entity).
@@ -81,10 +95,15 @@ public class CheckoutService(IUnitOfWork unitOfWork, ICurrentUser currentUser, I
         order.ShippedDate = DateTime.Now;
         order.PaymentStatus = PaymentStatus.InProcess; // same value the legacy app stored
 
+        // Never enroll twice: skip courses the student got in the meantime (e.g. enrolled by the admin).
+        var enrolledIds = await CartService.EnrolledCourseIdsAsync(unitOfWork, userId);
         foreach (var item in order.OrderItems)
         {
             item.TotalPrice = item.ListPrice * item.Quantity;
-            await unitOfWork.Repository<Enrollment>().AddAsync(new Enrollment { StudentId = userId, CourseID = item.CourseId });
+            if (item.CourseId is not { } courseId || enrolledIds.Contains(courseId)) continue;
+
+            await unitOfWork.Repository<Enrollment>().AddAsync(new Enrollment { StudentId = userId, CourseID = courseId });
+            enrolledIds.Add(courseId);
         }
 
         // Legacy: the cart and its items are deleted after payment.

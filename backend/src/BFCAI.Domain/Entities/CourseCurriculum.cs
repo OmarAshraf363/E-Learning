@@ -6,6 +6,8 @@ namespace BFCAI.Domain.Entities
         public string Title { get; set; } = string.Empty; 
         public string Content { get; set; } = string.Empty; 
         public int CourseID { get; set; } 
+        /// <summary>Position of the section in the course (sections are shown by SortOrder, then id).</summary>
+        public int SortOrder { get; set; }
         public Course? Course { get; set; }
         
         public ICollection<CourseResource> CourseResources { get; set; } = new List<CourseResource>();

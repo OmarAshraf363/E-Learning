@@ -13,7 +13,7 @@ namespace BFCAI.Api.Controllers.Public;
 public class CartController(ICartService cart, ICheckoutService checkout, IOptions<ClientOptions> client) : ControllerBase
 {
     [HttpGet] public Task<CartDto> Get() => cart.GetAsync();
-    [HttpGet("count")] public Task<int> Count() => cart.CountAsync();
+    [HttpGet("summary")] public Task<CartSummaryDto> Summary() => cart.GetSummaryAsync();
     [HttpPost("items")] public Task<CartDto> Add(AddToCartRequest request) => cart.AddAsync(request);
     [HttpDelete("items/{id:int}")] public Task<CartDto> Remove(int id) => cart.RemoveAsync(id);
 

@@ -14,7 +14,8 @@ public record EnrollmentOverviewDto(int TotalEnrollments, List<EnrollmentRowDto>
 
 public record EnrollByEmailRequest(string Email, int CourseId);
 
-public record CsvImportResultDto(int Added, int Skipped);
+/// <summary>Skipped = invalid lines or unknown student / course; AlreadyEnrolled = duplicates (not added again).</summary>
+public record CsvImportResultDto(int Added, int Skipped, int AlreadyEnrolled);
 
 public class EnrollByEmailRequestValidator : AbstractValidator<EnrollByEmailRequest>
 {
@@ -55,6 +56,10 @@ public class EnrollmentService(IUnitOfWork unitOfWork, UserManager<ApplicationUs
         if (!await unitOfWork.Repository<Course>().AnyAsync(c => c.CourseID == request.CourseId))
             throw new NotFoundException(nameof(Course), request.CourseId);
 
+        // Business rule (second plan): a student is enrolled in a course only once.
+        if (await IsEnrolledAsync(user.Id, request.CourseId))
+            throw new BadRequestException("This student is already enrolled in this course.");
+
         await Enrollments.AddAsync(new Enrollment { CourseID = request.CourseId, StudentId = user.Id });
         await unitOfWork.SaveChangesAsync();
     }
@@ -62,11 +67,13 @@ public class EnrollmentService(IUnitOfWork unitOfWork, UserManager<ApplicationUs
     /// <summary>
     /// Each line: "studentId,courseId" (legacy format). The first value may also be the student's
     /// email, as the legacy upload dialog described. Invalid lines are skipped instead of failing
-    /// the whole upload (legacy crashed on int.Parse).
+    /// the whole upload (legacy crashed on int.Parse). Students already enrolled in the course
+    /// (in the database or earlier in the same file) are counted as AlreadyEnrolled and not added again.
     /// </summary>
     public async Task<CsvImportResultDto> ImportCsvAsync(FileUpload file)
     {
-        int added = 0, skipped = 0;
+        int added = 0, skipped = 0, alreadyEnrolled = 0;
+        var addedNow = new HashSet<(string StudentId, int CourseId)>();
         using var reader = new StreamReader(file.Content);
 
         while (await reader.ReadLineAsync() is { } line)
@@ -88,11 +95,21 @@ public class EnrollmentService(IUnitOfWork unitOfWork, UserManager<ApplicationUs
                 continue;
             }
 
+            if (addedNow.Contains((student.Id, courseId)) || await IsEnrolledAsync(student.Id, courseId))
+            {
+                alreadyEnrolled++;
+                continue;
+            }
+
             await Enrollments.AddAsync(new Enrollment { StudentId = student.Id, CourseID = courseId });
+            addedNow.Add((student.Id, courseId));
             added++;
         }
 
         await unitOfWork.SaveChangesAsync();
-        return new CsvImportResultDto(added, skipped);
+        return new CsvImportResultDto(added, skipped, alreadyEnrolled);
     }
+
+    private Task<bool> IsEnrolledAsync(string studentId, int courseId)
+        => Enrollments.AnyAsync(e => e.StudentId == studentId && e.CourseID == courseId);
 }

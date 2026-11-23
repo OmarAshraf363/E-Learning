@@ -67,7 +67,7 @@ export class CheckoutSuccessPageComponent implements OnInit {
     this.api.confirm(sessionId).subscribe({
       next: (r) => {
         this.result.set(r);
-        this.store.refreshCount();
+        this.store.refreshSummary();
       },
       error: (err: unknown) =>
         this.error.set(err instanceof HttpErrorResponse ? ((err.error as ProblemDetails)?.detail ?? 'Payment could not be confirmed.') : 'Payment could not be confirmed.'),

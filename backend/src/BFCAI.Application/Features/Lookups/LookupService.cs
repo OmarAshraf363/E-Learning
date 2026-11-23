@@ -13,10 +13,8 @@ public interface ILookupService
     Task<List<LookupItem<int>>> CoursesAsync();
     Task<List<LookupItem<int>>> RoomsAsync();
     Task<List<LookupItem<int>>> AcademicYearsAsync();
-    /// <summary>Users whose UserType is Instructor (shows FullName, like the legacy course form).</summary>
+    /// <summary>Users whose UserType is Instructor (shows FullName; used by the course and schedule forms).</summary>
     Task<List<LookupItem<string>>> InstructorsAsync();
-    /// <summary>All users (shows UserName, like the legacy schedule form).</summary>
-    Task<List<LookupItem<string>>> UsersAsync();
 }
 
 public class LookupService(IUnitOfWork unitOfWork) : ILookupService
@@ -40,7 +38,4 @@ public class LookupService(IUnitOfWork unitOfWork) : ILookupService
         => unitOfWork.Repository<ApplicationUser>().SelectAsync(
             u => new LookupItem<string>(u.Id, u.FullName),
             u => u.UserType == Roles.Instructor);
-
-    public Task<List<LookupItem<string>>> UsersAsync()
-        => unitOfWork.Repository<ApplicationUser>().SelectAsync(u => new LookupItem<string>(u.Id, u.UserName!));
 }

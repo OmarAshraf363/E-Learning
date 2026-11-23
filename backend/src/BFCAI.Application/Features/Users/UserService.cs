@@ -1,6 +1,7 @@
 using BFCAI.Application.Common;
 using BFCAI.Application.Common.Exceptions;
 using BFCAI.Application.Common.Interfaces;
+using BFCAI.Domain.Constants;
 using BFCAI.Domain.Entities;
 using FluentValidation;
 using FluentValidation.Results;
@@ -21,7 +22,12 @@ public interface IUserService
     Task<List<string>> GetRolesAsync();
 }
 
-public class UserService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork) : IUserService
+/// <remarks>
+/// Business rules (second plan): an admin can't delete or lock their own account, and the last
+/// admin can't lose the Admin role, so the system is never left without an admin.
+/// </remarks>
+public class UserService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, ICurrentUser currentUser)
+    : IUserService
 {
     public async Task<List<UserListItemDto>> GetAllAsync(string? userType)
     {
@@ -52,6 +58,7 @@ public class UserService(UserManager<ApplicationUser> userManager, IUnitOfWork u
             Email = request.Email,
             FullName = request.FullName ?? string.Empty,
             UserType = request.Role, // fix: legacy Upsert left it empty
+            DepartmentId = await CheckDepartmentAsync(request.DepartmentId),
         };
 
         (await userManager.CreateAsync(user, request.Password)).ThrowIfFailed(nameof(request.Password));
@@ -63,15 +70,19 @@ public class UserService(UserManager<ApplicationUser> userManager, IUnitOfWork u
     public async Task<UserDto> UpdateAsync(string id, UserRequest request)
     {
         var user = await FindAsync(id);
+        var currentRoles = await userManager.GetRolesAsync(user);
+
+        if (currentRoles.Contains(Roles.Admin) && request.Role != Roles.Admin && await IsLastAdminAsync())
+            throw new BadRequestException("This is the only admin, so the Admin role can't be removed from it.");
 
         user.UserName = request.UserName;
         user.Email = request.Email;
         if (request.FullName is not null) user.FullName = request.FullName;
         user.UserType = request.Role; // fix: keep UserType in sync with the role
+        user.DepartmentId = await CheckDepartmentAsync(request.DepartmentId);
         (await userManager.UpdateAsync(user)).ThrowIfFailed();
 
         // Legacy: if the role changed, remove all roles and add the new one.
-        var currentRoles = await userManager.GetRolesAsync(user);
         if (!currentRoles.Contains(request.Role))
         {
             (await userManager.RemoveFromRolesAsync(user, currentRoles)).ThrowIfFailed();
@@ -83,6 +94,9 @@ public class UserService(UserManager<ApplicationUser> userManager, IUnitOfWork u
 
     public async Task LockAsync(string id)
     {
+        if (id == currentUser.UserId)
+            throw new BadRequestException("You can't lock your own account.");
+
         var user = await FindAsync(id);
         (await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100))).ThrowIfFailed();
     }
@@ -95,6 +109,9 @@ public class UserService(UserManager<ApplicationUser> userManager, IUnitOfWork u
 
     public async Task DeleteAsync(string id)
     {
+        if (id == currentUser.UserId)
+            throw new BadRequestException("You can't delete your own account.");
+
         var user = await FindAsync(id);
         (await userManager.DeleteAsync(user)).ThrowIfFailed();
     }
@@ -102,12 +119,23 @@ public class UserService(UserManager<ApplicationUser> userManager, IUnitOfWork u
     public Task<List<string>> GetRolesAsync()
         => unitOfWork.Repository<IdentityRole>().SelectAsync(r => r.Name!, orderBy: q => q.OrderBy(r => r.Id));
 
+    private async Task<bool> IsLastAdminAsync()
+        => (await userManager.GetUsersInRoleAsync(Roles.Admin)).Count <= 1;
+
+    private async Task<int?> CheckDepartmentAsync(int? departmentId)
+    {
+        if (departmentId is null) return null;
+        if (!await unitOfWork.Repository<Department>().AnyAsync(d => d.DepartmentID == departmentId))
+            throw new ValidationException([new ValidationFailure(nameof(UserRequest.DepartmentId), "Please select a valid department.")]);
+        return departmentId;
+    }
+
     private async Task<ApplicationUser> FindAsync(string id)
         => await userManager.FindByIdAsync(id) ?? throw new NotFoundException("User", id);
 
     private async Task<UserDto> ToDtoAsync(ApplicationUser user)
     {
         var role = (await userManager.GetRolesAsync(user)).FirstOrDefault() ?? string.Empty;
-        return new UserDto(user.Id, user.UserName ?? "", user.Email ?? "", user.FullName, role);
+        return new UserDto(user.Id, user.UserName ?? "", user.Email ?? "", user.FullName, role, user.DepartmentId);
     }
 }

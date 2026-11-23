@@ -24,7 +24,7 @@ export class EnrollmentsApi {
     });
   }
 
-  uploadCsv(csvFile: File): Observable<{ added: number; skipped: number }> {
+  uploadCsv(csvFile: File): Observable<{ added: number; skipped: number; alreadyEnrolled: number }> {
     return this.api.postForm('admin/enrollments/csv', { csvFile });
   }
 }

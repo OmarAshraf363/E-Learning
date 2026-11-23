@@ -18,7 +18,6 @@ export class LookupsApi {
   rooms = (): Observable<LookupItem[]> => this.get('rooms');
   academicYears = (): Observable<LookupItem[]> => this.get('academic-years');
   instructors = (): Observable<LookupItem<string>[]> => this.get('instructors');
-  users = (): Observable<LookupItem<string>[]> => this.get('users');
 
   private get<T>(name: string): Observable<T> {
     return this.api.get<T>(`admin/lookups/${name}`).pipe(shareReplay(1));

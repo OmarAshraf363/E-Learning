@@ -3,7 +3,8 @@
 نظام إدارة تعلّم (LMS) لكلية الحاسبات والذكاء الاصطناعي بجامعة بنها، وفيه كمان جزء لبيع الكورسات أونلاين.
 
 > **حالة المشروع:** المشروع اتنقل من ASP.NET Core 8 MVC لـ **API بـ .NET 10 (Clean Architecture)** و **Angular 22**، ووصل لنفس النقطة اللي كان واصلها الـ MVC.
-> كود الـ MVC القديم **لسه موجود في الريبو كمرجع** لحد ما تتاخد الموافقة على حذفه (التفاصيل في `docs/PARITY_CHECKLIST.md`).
+> كود الـ MVC القديم **هيفضل موجود في الريبو** (قرار نهائي، مش هيتحذف).
+> الخطة التانية (قرارات البيزنس) شغّالة في `docs/SECOND_PLAN.md`، والمسار أ منها اتعمل.
 
 ## هيكل الريبو
 | الفولدر | المحتوى |
@@ -11,14 +12,14 @@
 | `backend/` | الـ API الجديدة: .NET 10 و Clean Architecture و EF Core و SQL Server و Redis و Stripe و JWT |
 | `frontend/` | Angular 22: Standalone و Signals و Zoneless، ومتقسّمة Feature-based، و Bootstrap 5.3 و ng-bootstrap |
 | `e2e/` | 7 سيناريوهات Playwright بتغطي كل المناطق |
-| `docs/` | خطة النقل وحالتها (`MIGRATION_PLAN.md`) و Parity checklist |
-| `Banha UniverCity/` و `DataAccess/` و `BFCAI.Models/` و `BFCAI.Utility/` | الـ MVC القديم (مرجع) |
+| `docs/` | خطة النقل وحالتها (`MIGRATION_PLAN.md`) و Parity checklist والخطة التانية (`SECOND_PLAN.md`) |
+| `Banha UniverCity/` و `DataAccess/` و `BFCAI.Models/` و `BFCAI.Utility/` | الـ MVC القديم (فاضل في الريبو) |
 | `Models/` و `BFCAI.DataAccess/` | مشاريع قديمة ميتة، مش في الـ .sln |
 
 ## التقنيات (النسخة الجديدة)
 - **Backend:**
   - .NET 10 LTS، و ASP.NET Core Controllers، و EF Core 10 على SQL Server.
-  - نفس الـ Schema القديمة بالظبط، والإضافة الوحيدة جدول `RefreshTokens`.
+  - نفس الـ Schema القديمة، والإضافات: جدول `RefreshTokens` وعمود `CourseCurricula.SortOrder`.
   - ASP.NET Identity مع JWT و Refresh tokens.
   - FluentValidation، والأخطاء بترجع ProblemDetails.
   - Redis للكاش، و Stripe Checkout للدفع، و Scalar لتوثيق الـ API.
@@ -45,15 +46,22 @@
 **الأدمن الافتراضي:** `Admin@gmail.com` / `Admin@123`
 
 ## الجودة
-- **API:** 65 Integration test و 3 Unit tests، والـ Build من غير أي Warning.
+- **API:** 72 Integration test و 3 Unit tests، والـ Build من غير أي Warning.
 - **Frontend:** Unit tests بـ Vitest.
-- **E2E:** 7 سيناريوهات فيها 72 خطوة على المتصفح، والـ API الحقيقية، و SQL Server.
+- **E2E:** 7 سيناريوهات على المتصفح، والـ API الحقيقية، و SQL Server.
 
-## اللي جاي (الخطة التانية)
-قرارات البيزنس والتطويرات الجديدة اللي اتأجلت مكتوبة في **Backlog** في `docs/MIGRATION_PLAN.md`. أبرزها:
-- Repost و Share.
-- تسليم الامتحانات وتصحيحها.
-- حساب الـ Progress.
-- الإيميلات و Forgot password.
-- منع التسجيل المكرر.
-- الضريبة.
+## الخطة التانية
+التفاصيل في `docs/SECOND_PLAN.md`.
+- **اتعمل (المسار أ):**
+  - منع الشراء والتسجيل المكرر.
+  - شيل الضريبة من العرض.
+  - المحاضرين بس في الجداول.
+  - ربط المحاضر بقسم.
+  - حماية الأدمن.
+  - تعديل الفيديو، وحذف وترتيب أقسام المنهج.
+  - شروط أسئلة الامتحان.
+- **الجاي:**
+  - تسليم الامتحانات وتصحيحها، وحساب الـ Progress.
+  - Repost و Share.
+  - الإيميلات و Forgot password، و Webhooks.
+  - أدوات الأدمن (Events و Rooms وتعارض الجداول).

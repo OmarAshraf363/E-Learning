@@ -95,13 +95,15 @@
 
 ---
 
-## الـ Cutover (لسه مستني موافقتك)
-اتفقنا إن **محدش يحذف** أي حاجة من الحاجات دي غير لما تقول:
+## الـ MVC القديم
+**القرار: الـ MVC هيفضل في الريبو على طول ومش هيتحذف.** الفولدرات دي فاضلة زي ما هي:
 - `Banha UniverCity/` (الـ MVC)
 - `DataAccess/` و `BFCAI.Models/` و `BFCAI.Utility/` (طبقات الـ MVC)
 - `Models/` و `BFCAI.DataAccess/` (مشاريع ميتة مش في الـ .sln)
 
-**قبل الحذف:**
+**لو هتشغّل النسخة الجديدة على الداتابيز الحقيقية:**
 1. انقل الملفات المرفوعة من `Banha UniverCity/wwwroot` (الفولدرات `Covers` و `videos` و `assignments` و `uploads` و `Images/profile_pics`) لـ `backend/src/BFCAI.Api/wwwroot`، أو غيّر `Storage:RootPath`.
 2. على الداتابيز الحقيقية شغّل `backend/docs/database/attach-existing-database.sql` وبعده `dotnet ef database update`.
 3. اعمل Rotate للمفاتيح اللي في Git history: Stripe و Google و Facebook و Gmail.
+
+> الـ Migrations الجديدة بتضيف بس: جدول `RefreshTokens` وعمود `CourseCurricula.SortOrder` (قيمته الافتراضية 0)، فالـ MVC يقدر يشتغل على نفس الداتابيز.

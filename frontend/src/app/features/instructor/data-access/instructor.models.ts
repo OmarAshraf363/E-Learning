@@ -48,3 +48,12 @@ export interface SectionAssignments { id: number; title: string; assignments: As
 export interface Submission { id: number; studentName: string | null; submissionDate: string; content: string; grade: number | null; feedback: string }
 
 export interface CourseStudent { id: string; fullName: string; email: string | null; picture: string | null; gpa: number | null }
+
+/** What deleting a section removes; a section with student submissions can't be deleted. */
+export interface SectionDeleteSummary {
+  videos: number;
+  references: number;
+  assignments: number;
+  quizzes: number;
+  submissions: number;
+}

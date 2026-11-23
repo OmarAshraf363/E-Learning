@@ -22,10 +22,12 @@
           <td>{{ user.email }}</td>
           <td class="d-flex gap-1">
             <a [routerLink]="['/admin/users', user.id]" class="btn btn-warning" title="Edit"><i class="fas fa-edit"></i></a>
-            <button type="button" class="btn btn-danger" title="Delete" (click)="remove(user)"><i class="fas fa-trash"></i></button>
-            <button type="button" class="btn btn-secondary" (click)="toggleLock(user)">
-              @if (user.isLockedOut) { <i class="fas fa-unlock"></i> Unlock } @else { <i class="fas fa-lock"></i> Lock }
-            </button>
+            @if (user.id !== myId) {
+              <button type="button" class="btn btn-danger" title="Delete" (click)="remove(user)"><i class="fas fa-trash"></i></button>
+              <button type="button" class="btn btn-secondary" (click)="toggleLock(user)">
+                @if (user.isLockedOut) { <i class="fas fa-unlock"></i> Unlock } @else { <i class="fas fa-lock"></i> Lock }
+              </button>
+            }
           </td>
         </tr>
       } @empty {

@@ -1,5 +1,6 @@
 import { Component, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { NotifyService } from '../../../../core/ui/notify.service';
 import { UsersStore } from '../data-access/users.store';
 import { UserListItem } from '../models/user';
@@ -13,6 +14,8 @@ import { UserListItem } from '../models/user';
 export class UsersPageComponent {
   readonly store = inject(UsersStore);
   private readonly notify = inject(NotifyService);
+  /** Business rule (second plan): an admin can't delete or lock their own account. */
+  readonly myId = inject(AuthService).user()?.id;
 
   /** ?filter=Student | Instructor */
   readonly filter = input<string>();

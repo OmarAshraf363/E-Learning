@@ -37,6 +37,19 @@
     <app-form-errors [control]="form.controls.role" />
   </div>
 
+  @if (selectedRole() === 'Instructor') {
+    <div class="form-group mb-3">
+      <label for="departmentId">Department</label>
+      <select id="departmentId" formControlName="departmentId" class="form-control">
+        <option [ngValue]="null">No department (can teach in any department)</option>
+        @for (d of departments(); track d.id) {
+          <option [ngValue]="d.id">{{ d.name }}</option>
+        }
+      </select>
+      <app-form-errors [control]="form.controls.departmentId" />
+    </div>
+  }
+
   @for (message of generalErrors(); track message) {
     <div class="text-danger">{{ message }}</div>
   }

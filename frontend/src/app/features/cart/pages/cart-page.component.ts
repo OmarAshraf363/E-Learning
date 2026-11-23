@@ -12,6 +12,8 @@ import { CartStore } from '../data-access/cart.store';
 /**
  * Legacy Customer/Cart/Index. "?add=<courseId>" adds the course first
  * (legacy Cart/AddToCart redirected to this page), then the param is removed from the URL.
+ * If the course can't be added (already in the cart / already enrolled) the error is shown
+ * by the error interceptor and the cart is still loaded.
  */
 @Component({
   selector: 'app-cart-page',
@@ -27,19 +29,24 @@ export class CartPageComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly redirecting = signal(false);
 
-  /** Same summary as the legacy page (tax shown as 10% of the subtotal). */
-  readonly subtotal = computed(() => this.store.cart()?.subtotal ?? 0);
-  readonly tax = computed(() => this.subtotal() * 0.1);
-  readonly total = computed(() => this.subtotal() * 1.1);
+  /**
+   * Business rule (second plan): the legacy 10% tax line was display only (Stripe never charged it),
+   * so it was removed: the total is what the student actually pays.
+   */
+  readonly total = computed(() => this.store.cart()?.subtotal ?? 0);
 
   async ngOnInit(): Promise<void> {
     const add = this.add();
     if (add) {
-      await this.store.add(+add);
       void this.router.navigate([], { queryParams: { add: null }, replaceUrl: true });
-    } else {
-      await this.store.load();
+      try {
+        await this.store.add(+add);
+        return;
+      } catch {
+        // already in the cart / already enrolled: the message is shown by the error interceptor
+      }
     }
+    await this.store.load();
   }
 
   remove(itemId: number): void {
@@ -55,6 +62,9 @@ export class CartPageComponent implements OnInit {
     } catch (err) {
       this.redirecting.set(false);
       if (err instanceof HttpErrorResponse) this.error.set((err.error as ProblemDetails)?.detail ?? 'Failed to start payment session.');
+      // Courses the student is already enrolled in are removed from the cart by the server.
+      this.store.refreshSummary();
+      await this.store.load();
     }
   }
 }

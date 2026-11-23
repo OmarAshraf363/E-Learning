@@ -124,7 +124,9 @@ const png = { name: 'cover.png', mimeType: 'image/png', buffer: Buffer.from('iVB
   await noSwal();
   await p.goto(base + '/admin/schedules/new');
   await p.selectOption('#courseId', { label: course });
-  await p.selectOption('#instructorId', { label: 'instructor1' });
+  const options = await p.locator('#instructorId option').allInnerTexts();
+  if (options.includes('Admin') || options.includes('Student One')) throw new Error('only instructors should be listed: ' + options);
+  await p.selectOption('#instructorId', { label: 'Instructor One' });
   await p.selectOption('#roomId', { label: 'Lab 202' });
   await p.selectOption('#dayOfWeek', 'Wednesday');
   await p.fill('#startTime', '09:30'); await p.fill('#endTime', '11:00');
@@ -132,7 +134,7 @@ const png = { name: 'cover.png', mimeType: 'image/png', buffer: Buffer.from('iVB
   await p.waitForURL('**/admin/schedules');
   await p.waitForSelector(`td:text("${course}")`);
   await p.screenshot({ path: `${out}/p2-schedules.png` });
-  step('schedule with instructor created');
+  step('schedule with instructor created (instructors only in the list)');
 
   // Enrollments
   await noSwal();
@@ -145,11 +147,16 @@ const png = { name: 'cover.png', mimeType: 'image/png', buffer: Buffer.from('iVB
   await p.waitForSelector('text=Student has been successfully enrolled.');
   step('enroll by email (error + success)');
   await noSwal();
+  await p.fill('#email', 'student1@example.com'); await p.selectOption('#course', { label: course });
+  await p.click('text=Enroll via Email');
+  await p.waitForSelector('text=This student is already enrolled in this course.');
+  step('enroll by email twice -> "already enrolled"');
+  await noSwal();
   await p.click('text=Enroll via CSV File');
   await p.setInputFiles('#csvFile', { name: 's.csv', mimeType: 'text/csv', buffer: Buffer.from('1,1\nbad\n') });
   await p.click('.modal-body button:has-text("Upload")');
-  await p.waitForSelector('text=1 enrollment(s) added, 1 line(s) skipped.');
-  step('CSV import');
+  await p.waitForSelector('text=0 enrollment(s) added, 1 already enrolled (not added again), 1 line(s) skipped.');
+  step('CSV import skips students already enrolled');
 
   console.log('console errors:', errors.filter((e) => !/status of (400|404|409)/.test(e)));
   await b.close();

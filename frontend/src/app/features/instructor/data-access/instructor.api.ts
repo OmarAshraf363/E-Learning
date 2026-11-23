@@ -4,7 +4,7 @@ import { ApiClient } from '../../../core/api/api-client';
 import { PagedResult } from '../../../core/models/paged-result';
 import { CourseFormValue, CourseRequest } from '../../../shared/course-form/course-form.models';
 import {
-  Assignment, Choice, CourseCurriculum, CourseStudent, CurriculumExam, CurriculumReference, CurriculumSection, CurriculumVideo,
+  Assignment, Choice, CourseCurriculum, SectionDeleteSummary, CourseStudent, CurriculumExam, CurriculumReference, CurriculumSection, CurriculumVideo,
   Exam, ExamQuestions, ExamRow, InstructorCourseRow, InstructorDashboard, Option, Question, SectionAssignments, Submission,
 } from './instructor.models';
 
@@ -29,7 +29,14 @@ export class InstructorApi {
   updateSection = (id: number, body: { title: string; content: string }): Observable<void> => this.api.put(`instructor/sections/${id}`, body);
   uploadVideo = (sectionId: number, body: { title: string; video: File | null }): Observable<CurriculumVideo> =>
     this.api.postForm(`instructor/sections/${sectionId}/videos`, body);
+  /** The file is replaced only when a new one is chosen. */
+  updateVideo = (id: number, body: { title: string; video: File | null }): Observable<CurriculumVideo> =>
+    this.api.putForm(`instructor/videos/${id}`, body);
   deleteVideo = (id: number): Observable<void> => this.api.delete(`instructor/videos/${id}`);
+  moveSection = (id: number, direction: 'up' | 'down'): Observable<CourseCurriculum> =>
+    this.api.put(`instructor/sections/${id}/move`, { direction });
+  sectionDeleteSummary = (id: number): Observable<SectionDeleteSummary> => this.api.get(`instructor/sections/${id}/delete-summary`);
+  deleteSection = (id: number): Observable<void> => this.api.delete(`instructor/sections/${id}`);
   addReference = (sectionId: number, body: { resourceTitle: string; resourceURL: string }): Observable<CurriculumReference> =>
     this.api.post(`instructor/sections/${sectionId}/references`, body);
   updateReference = (id: number, body: { resourceTitle: string; resourceURL: string }): Observable<void> =>

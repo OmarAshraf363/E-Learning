@@ -1,6 +1,9 @@
 using BFCAI.Application.Common.Exceptions;
 using BFCAI.Application.Common.Interfaces;
+using BFCAI.Domain.Constants;
 using BFCAI.Domain.Entities;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace BFCAI.Application.Features.Schedules;
 
@@ -32,7 +35,7 @@ public class ScheduleService(IUnitOfWork unitOfWork) : IScheduleService
     public async Task<ScheduleFormDto> CreateAsync(ScheduleRequest request)
     {
         var schedule = new ClassSchedule();
-        Apply(schedule, request);
+        await ApplyAsync(schedule, request);
         await Schedules.AddAsync(schedule);
         await unitOfWork.SaveChangesAsync();
         return await GetAsync(schedule.ClassScheduleId);
@@ -42,7 +45,7 @@ public class ScheduleService(IUnitOfWork unitOfWork) : IScheduleService
     {
         var schedule = await Schedules.GetOneAsync(x => x.ClassScheduleId == id, tracked: true)
                        ?? throw new NotFoundException("Schedule", id);
-        Apply(schedule, request);
+        await ApplyAsync(schedule, request);
         await unitOfWork.SaveChangesAsync();
         return await GetAsync(id);
     }
@@ -58,9 +61,14 @@ public class ScheduleService(IUnitOfWork unitOfWork) : IScheduleService
     /// <summary>
     /// Legacy &lt;input type="time"&gt; bound to DateTime = today's date + the selected time.
     /// Technical fix: InstructorId is the user's string id (legacy int.Parse failed on GUID ids).
+    /// Business rule (second plan): the instructor must be a user whose type is Instructor.
     /// </summary>
-    private static void Apply(ClassSchedule schedule, ScheduleRequest request)
+    private async Task ApplyAsync(ClassSchedule schedule, ScheduleRequest request)
     {
+        if (!string.IsNullOrEmpty(request.InstructorId) && !await unitOfWork.Repository<ApplicationUser>()
+                .AnyAsync(u => u.Id == request.InstructorId && u.UserType == Roles.Instructor))
+            throw new ValidationException([new ValidationFailure(nameof(request.InstructorId), "Please select an instructor.")]);
+
         schedule.StartTime = DateTime.Today.Add(TimeOnly.Parse(request.StartTime).ToTimeSpan());
         schedule.EndTime = DateTime.Today.Add(TimeOnly.Parse(request.EndTime).ToTimeSpan());
         schedule.DayOfWeek = request.DayOfWeek;

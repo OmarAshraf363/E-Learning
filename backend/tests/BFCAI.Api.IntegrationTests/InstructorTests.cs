@@ -122,10 +122,16 @@ public class InstructorTests(ApiFactory factory) : IClassFixture<ApiFactory>
             new QuestionRequest("2 + 2 = ?", [new("4", true), new("5", false), new("", false)]))).Content.ReadFromJsonAsync<QuestionDto>();
         Assert.Equal(2, question!.Choices.Count); // empty choice ignored
 
+        // Business rule: at least two choices and at least one correct answer (several correct answers allowed).
+        Assert.Equal(HttpStatusCode.BadRequest, (await instructor.PutAsJsonAsync($"/api/instructor/questions/{question.Id}",
+            new QuestionRequest("2 + 3 = ?", [new("5", true), new("", false)]))).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await instructor.PutAsJsonAsync($"/api/instructor/questions/{question.Id}",
+            new QuestionRequest("2 + 3 = ?", [new("5", false), new("6", false)]))).StatusCode);
+
         var updated = await (await instructor.PutAsJsonAsync($"/api/instructor/questions/{question.Id}",
-            new QuestionRequest("2 + 3 = ?", [new("5", true)]))).Content.ReadFromJsonAsync<QuestionDto>();
+            new QuestionRequest("2 + 3 = ?", [new("5", true), new("five", true), new("6", false)]))).Content.ReadFromJsonAsync<QuestionDto>();
         Assert.Equal("2 + 3 = ?", updated!.QuestionText);
-        Assert.Equal("5", Assert.Single(updated.Choices).ChoiceText);
+        Assert.Equal(2, updated.Choices.Count(c => c.IsCorrect));
 
         var exams = await instructor.GetFromJsonAsync<List<ExamRowDto>>("/api/instructor/exams");
         Assert.Equal(1, Assert.Single(exams!).TotalQuestions);
@@ -175,5 +181,85 @@ public class InstructorTests(ApiFactory factory) : IClassFixture<ApiFactory>
 
         var response = await instructor.PostAsJsonAsync("/api/instructor/feedback", new StudentFeedbackRequest(student.Id, "Great work"));
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Instructor_linked_to_a_department_creates_courses_only_in_it()
+    {
+        var admin = await factory.AsAdminAsync();
+        var email = TestHelpers.UniqueEmail("Instructor");
+        await admin.PostAsJsonAsync("/api/admin/users",
+            new { userName = email, email, role = "Instructor", password = "Pass@123", departmentId = 2 });
+        var instructor = await factory.AuthenticatedAsync(email, "Pass@123");
+
+        var lookups = await instructor.GetFromJsonAsync<InstructorCourseLookupsDto>("/api/instructor/courses/form-lookups");
+        Assert.Equal(2, Assert.Single(lookups!.Departments).Id);
+
+        var response = await instructor.PostAsync("/api/instructor/courses", CourseForm($"IC {Guid.NewGuid():N}")); // department 1
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Video_title_and_file_can_be_edited()
+    {
+        var instructor = await NewUserAsync("Instructor");
+        var course = await CreateCourseAsync(instructor);
+        var section = await (await instructor.PostAsJsonAsync($"/api/instructor/courses/{course.Id}/sections",
+            new CurriculumSectionRequest("S", "C"))).Content.ReadFromJsonAsync<CurriculumSectionDto>();
+        using var video = new MultipartFormDataContent { { new StringContent("Lesson 1"), "Title" }, { new ByteArrayContent([0, 1]), "Video", "a.mp4" } };
+        var uploaded = await (await instructor.PostAsync($"/api/instructor/sections/{section!.Id}/videos", video)).Content.ReadFromJsonAsync<CurriculumVideoDto>();
+
+        using var titleOnly = new MultipartFormDataContent { { new StringContent("Lesson 1 (new)"), "Title" } };
+        var renamed = await (await instructor.PutAsync($"/api/instructor/videos/{uploaded!.Id}", titleOnly)).Content.ReadFromJsonAsync<CurriculumVideoDto>();
+        Assert.Equal("Lesson 1 (new)", renamed!.Title);
+        Assert.Equal(uploaded.Url, renamed.Url);
+
+        using var newFile = new MultipartFormDataContent { { new StringContent("Lesson 1"), "Title" }, { new ByteArrayContent([0, 2]), "Video", "b.mp4" } };
+        var replaced = await (await instructor.PutAsync($"/api/instructor/videos/{uploaded.Id}", newFile)).Content.ReadFromJsonAsync<CurriculumVideoDto>();
+        Assert.NotEqual(uploaded.Url, replaced!.Url);
+
+        var other = await NewUserAsync("Instructor");
+        using var steal = new MultipartFormDataContent { { new StringContent("x"), "Title" } };
+        Assert.Equal(HttpStatusCode.Forbidden, (await other.PutAsync($"/api/instructor/videos/{uploaded.Id}", steal)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Sections_can_be_reordered_and_deleted_with_their_content()
+    {
+        var instructor = await NewUserAsync("Instructor");
+        var course = await CreateCourseAsync(instructor);
+        var ids = new List<int>();
+        foreach (var title in new[] { "A", "B", "C" })
+        {
+            var created = await (await instructor.PostAsJsonAsync($"/api/instructor/courses/{course.Id}/sections",
+                new CurriculumSectionRequest(title, "c"))).Content.ReadFromJsonAsync<CurriculumSectionDto>();
+            ids.Add(created!.Id);
+        }
+
+        var moved = await (await instructor.PutAsJsonAsync($"/api/instructor/sections/{ids[2]}/move", new MoveSectionRequest("up")))
+            .Content.ReadFromJsonAsync<CourseCurriculumDto>();
+        Assert.Equal(["A", "C", "B"], moved!.Sections.Select(x => x.Title));
+        Assert.Equal(HttpStatusCode.BadRequest, (await instructor.PutAsJsonAsync($"/api/instructor/sections/{ids[0]}/move",
+            new MoveSectionRequest("left"))).StatusCode);
+
+        // Section "C" with a video, a reference, an assignment and a quiz
+        using var video = new MultipartFormDataContent { { new StringContent("V"), "Title" }, { new ByteArrayContent([0, 1]), "Video", "v.mp4" } };
+        await instructor.PostAsync($"/api/instructor/sections/{ids[2]}/videos", video);
+        await instructor.PostAsJsonAsync($"/api/instructor/sections/{ids[2]}/references", new ReferenceRequest("R", "https://e.com"));
+        using var hw = new MultipartFormDataContent { { new StringContent("HW"), "Title" }, { new StringContent("2025-05-01"), "DeadLine" }, { new ByteArrayContent([1]), "Content", "hw.pdf" } };
+        await instructor.PostAsync($"/api/instructor/sections/{ids[2]}/assignments", hw);
+        var quiz = await (await instructor.PostAsJsonAsync($"/api/instructor/sections/{ids[2]}/quizzes",
+            new QuizRequest("Q", DateTime.Today))).Content.ReadFromJsonAsync<CurriculumExamDto>();
+        await instructor.PostAsJsonAsync($"/api/instructor/exams/{quiz!.Id}/questions", new QuestionRequest("?", [new("a", true), new("b", false)]));
+
+        var summary = await instructor.GetFromJsonAsync<SectionDeleteSummaryDto>($"/api/instructor/sections/{ids[2]}/delete-summary");
+        Assert.Equal(new SectionDeleteSummaryDto(1, 1, 1, 1, 0), summary);
+
+        var other = await NewUserAsync("Instructor");
+        Assert.Equal(HttpStatusCode.Forbidden, (await other.DeleteAsync($"/api/instructor/sections/{ids[2]}")).StatusCode);
+
+        Assert.Equal(HttpStatusCode.NoContent, (await instructor.DeleteAsync($"/api/instructor/sections/{ids[2]}")).StatusCode);
+        var curriculum = await instructor.GetFromJsonAsync<CourseCurriculumDto>($"/api/instructor/courses/{course.Id}/curriculum");
+        Assert.Equal(["A", "B"], curriculum!.Sections.Select(x => x.Title));
     }
 }

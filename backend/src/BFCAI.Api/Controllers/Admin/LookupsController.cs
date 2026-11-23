@@ -14,5 +14,4 @@ public class LookupsController(ILookupService service) : AdminControllerBase
     [HttpGet("rooms")] public Task<List<LookupItem<int>>> Rooms() => service.RoomsAsync();
     [HttpGet("academic-years")] public Task<List<LookupItem<int>>> AcademicYears() => service.AcademicYearsAsync();
     [HttpGet("instructors")] public Task<List<LookupItem<string>>> Instructors() => service.InstructorsAsync();
-    [HttpGet("users")] public Task<List<LookupItem<string>>> Users() => service.UsersAsync();
 }

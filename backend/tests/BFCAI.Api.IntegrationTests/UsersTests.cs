@@ -83,4 +83,35 @@ public class UsersTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await admin.GetAsync($"/api/admin/users/{created.Id}")).StatusCode);
     }
+
+    [Fact]
+    public async Task Admin_cannot_delete_or_lock_self_and_the_last_admin_keeps_the_role()
+    {
+        var admin = await factory.AsAdminAsync();
+        const string me = "123548458";
+
+        Assert.Equal(HttpStatusCode.BadRequest, (await admin.DeleteAsync($"/api/admin/users/{me}")).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await admin.PostAsync($"/api/admin/users/{me}/lock", null)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await admin.PutAsJsonAsync($"/api/admin/users/{me}",
+            new UserRequest("Admin@gmail.com", "Admin@gmail.com", "Student", "Admin", null))).StatusCode);
+
+        // Another admin can still be removed by an admin.
+        var email = TestHelpers.UniqueEmail("admin");
+        var other = await (await admin.PostAsJsonAsync("/api/admin/users",
+            new UserRequest(email, email, "Admin", null, "Pass@123"))).Content.ReadFromJsonAsync<UserDto>();
+        Assert.Equal(HttpStatusCode.NoContent, (await admin.DeleteAsync($"/api/admin/users/{other!.Id}")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Instructor_can_be_linked_to_a_department()
+    {
+        var admin = await factory.AsAdminAsync();
+        var email = TestHelpers.UniqueEmail("inst");
+        var created = await (await admin.PostAsJsonAsync("/api/admin/users",
+            new UserRequest(email, email, "Instructor", null, "Pass@123", 2))).Content.ReadFromJsonAsync<UserDto>();
+        Assert.Equal(2, created!.DepartmentId);
+
+        var invalid = await admin.PutAsJsonAsync($"/api/admin/users/{created.Id}", new UserRequest(email, email, "Instructor", null, null, 999));
+        Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
+    }
 }

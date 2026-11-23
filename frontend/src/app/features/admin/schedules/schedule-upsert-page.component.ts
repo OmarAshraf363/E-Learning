@@ -34,7 +34,8 @@ export class ScheduleUpsertPageComponent implements OnInit {
 
   readonly days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   readonly courses = toSignal(this.lookups.courses(), { initialValue: [] });
-  readonly users = toSignal(this.lookups.users(), { initialValue: [] });
+  /** Business rule (second plan): only instructors can be picked (legacy listed every user). */
+  readonly instructors = toSignal(this.lookups.instructors(), { initialValue: [] });
   readonly rooms = toSignal(this.lookups.rooms(), { initialValue: [] });
   readonly departments = toSignal(this.lookups.departments(), { initialValue: [] });
   readonly years = toSignal(this.lookups.academicYears(), { initialValue: [] });

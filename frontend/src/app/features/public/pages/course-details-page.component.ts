@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FileUrlPipe } from '../../../shared/pipes/file-url.pipe';
 import { StarRatingComponent } from '../../../shared/components/star-rating.component';
 import { CourseGridComponent } from '../components/course-grid.component';
+import { CourseCartButtonComponent } from '../../cart/components/course-cart-button.component';
 import { CatalogApi } from '../data-access/catalog.api';
 import { CourseDetails } from '../data-access/catalog.models';
 
@@ -14,7 +15,7 @@ import { CourseDetails } from '../data-access/catalog.models';
  */
 @Component({
   selector: 'app-course-details-page',
-  imports: [RouterLink, CurrencyPipe, DatePipe, FileUrlPipe, StarRatingComponent, CourseGridComponent],
+  imports: [RouterLink, CurrencyPipe, DatePipe, FileUrlPipe, StarRatingComponent, CourseGridComponent, CourseCartButtonComponent],
   templateUrl: './course-details-page.component.html',
   styleUrl: './course-details-page.component.scss',
 })

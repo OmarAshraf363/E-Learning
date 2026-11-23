@@ -1,9 +1,11 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NotifyService } from '../../../../core/ui/notify.service';
 import { FormErrorsComponent } from '../../../../shared/components/form-errors.component';
 import { applyServerErrors } from '../../../../shared/forms.util';
+import { LookupsApi } from '../../shared/lookups.api';
 import { UsersApi } from '../data-access/users.api';
 import { UsersStore } from '../data-access/users.store';
 
@@ -37,7 +39,12 @@ export class UserUpsertPageComponent implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     password: [''],
     role: ['', Validators.required],
+    departmentId: new FormControl<number | null>(null),
   });
+
+  /** The department is shown for instructors only (without one they can pick any department). */
+  readonly selectedRole = toSignal(this.form.controls.role.valueChanges, { initialValue: '' });
+  readonly departments = toSignal(inject(LookupsApi).departments(), { initialValue: [] });
 
   get isEdit(): boolean {
     return !!this.id();
@@ -66,7 +73,12 @@ export class UserUpsertPageComponent implements OnInit {
     const value = this.form.getRawValue();
     try {
       await this.store.save(
-        { ...value, fullName: value.fullName || null, password: this.isEdit ? null : value.password },
+        {
+          ...value,
+          fullName: value.fullName || null,
+          password: this.isEdit ? null : value.password,
+          departmentId: value.role === 'Instructor' ? value.departmentId : null,
+        },
         this.id(),
       );
       this.notify.success(this.isEdit ? 'User updated.' : 'Added New User successfully');

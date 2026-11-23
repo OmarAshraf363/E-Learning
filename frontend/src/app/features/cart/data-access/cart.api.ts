@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../../../core/api/api-client';
-import { Cart, CheckoutResult } from './cart.models';
+import { Cart, CartSummary, CheckoutResult } from './cart.models';
 
 @Injectable({ providedIn: 'root' })
 export class CartApi {
@@ -11,12 +11,12 @@ export class CartApi {
     return this.api.get<Cart>('cart');
   }
 
-  count(): Observable<number> {
-    return this.api.get<number>('cart/count');
+  summary(): Observable<CartSummary> {
+    return this.api.get<CartSummary>('cart/summary');
   }
 
-  add(courseId: number, quantity = 1): Observable<Cart> {
-    return this.api.post<Cart>('cart/items', { courseId, quantity });
+  add(courseId: number): Observable<Cart> {
+    return this.api.post<Cart>('cart/items', { courseId });
   }
 
   remove(itemId: number): Observable<Cart> {

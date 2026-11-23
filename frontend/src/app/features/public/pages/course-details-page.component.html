@@ -17,7 +17,7 @@
         <div class="created-by">Created By <span><a [routerLink]="['/courses']" [queryParams]="{ instructorId: c.instructorId }">{{ c.instructorName }}</a></span></div>
         <div class="price"><span>{{ c.price | currency }}</span></div>
         <div class="enroll-btn mt-3 w-100 d-flex justify-content-center align-items-center">
-          <a routerLink="/cart" [queryParams]="{ add: c.id }" class="w-75 btn cus-btn">Enroll</a>
+          <app-course-cart-button [courseId]="c.id" label="Enroll" cssClass="w-75 btn cus-btn" />
         </div>
       </div>
     </section>

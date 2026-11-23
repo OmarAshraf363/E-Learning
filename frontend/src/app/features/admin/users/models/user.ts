@@ -14,13 +14,18 @@ export interface UserDetails {
   email: string;
   fullName: string;
   role: string;
+  departmentId: number | null;
 }
 
-/** Password is required on create and ignored on edit. */
+/**
+ * Password is required on create and ignored on edit.
+ * departmentId links an instructor to a department (the instructor then creates courses in it only).
+ */
 export interface UserRequest {
   userName: string;
   email: string;
   role: string;
   fullName: string | null;
   password: string | null;
+  departmentId: number | null;
 }

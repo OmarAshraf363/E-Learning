@@ -6,9 +6,16 @@ export interface CartItem {
   courseName: string;
   cover: string | null;
   instructorName: string | null;
-  /** Unit price; line total = price x quantity. */
   price: number;
+  /** Always 1: a course can be in the cart only once. */
   quantity: number;
+}
+
+/** Navbar badge + the course ids the course buttons need. */
+export interface CartSummary {
+  count: number;
+  cartCourseIds: number[];
+  enrolledCourseIds: number[];
 }
 
 export interface Cart {

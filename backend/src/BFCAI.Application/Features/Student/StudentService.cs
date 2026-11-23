@@ -75,7 +75,7 @@ public class StudentService(IUnitOfWork unitOfWork, ICurrentUser currentUser, IC
         var me = Me;
         return (await unitOfWork.Repository<Course>().SelectOneAsync(c => c.CourseID == courseId, c => new CoursePlayerDto(
             c.CourseID, c.CourseName,
-            c.CourseCurricula.OrderBy(s => s.CourseCurriculumID).Select(s => new SectionLinkDto(s.CourseCurriculumID, s.Title)).ToList(),
+            c.CourseCurricula.OrderBy(s => s.SortOrder).ThenBy(s => s.CourseCurriculumID).Select(s => new SectionLinkDto(s.CourseCurriculumID, s.Title)).ToList(),
             c.Feedbacks.OrderByDescending(f => f.FeedbackDate).Select(f => new CourseFeedbackDto(f.FeedbackID, f.ProviderUser!.FullName,
                 f.ProviderUser.Picture, f.FeedbackDate, f.Rating, f.Content, f.ProviderUserId == me)).ToList())))!;
     }
@@ -112,7 +112,7 @@ public class StudentService(IUnitOfWork unitOfWork, ICurrentUser currentUser, IC
         var me = Me;
         return (await unitOfWork.Repository<Course>().SelectOneAsync(c => c.CourseID == courseId, c => new QuickAccessDto(
             c.CourseID, c.CourseName,
-            c.CourseCurricula.Select(s => new QuickAccessSectionDto(s.Title, s.Content,
+            c.CourseCurricula.OrderBy(s => s.SortOrder).ThenBy(s => s.CourseCurriculumID).Select(s => new QuickAccessSectionDto(s.Title, s.Content,
                 s.CourseVideos.Select(v => new PlayerVideoDto(v.CourseVideoID, v.VideoTitle, v.VideoURL)).ToList(),
                 s.CourseResources.Select(r => new PlayerResourceDto(r.CourseResourceID, r.ResourceTitle, r.ResourceURL)).ToList(),
                 s.Assignments.Select(a => new PlayerAssignmentDto(a.AssignmentID, a.Title, a.Content, a.DeadLine,

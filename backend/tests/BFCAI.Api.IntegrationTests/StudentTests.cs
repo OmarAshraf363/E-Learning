@@ -9,7 +9,7 @@ namespace BFCAI.Api.IntegrationTests;
 
 public class StudentTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
-    private record Setup(HttpClient Student, string StudentEmail, int CourseId, int SectionId, int AssignmentId);
+    private record Setup(HttpClient Student, string StudentEmail, int CourseId, int SectionId, int AssignmentId, HttpClient Instructor);
 
     private async Task<(HttpClient Client, string Email)> NewUserAsync(string role)
     {
@@ -49,7 +49,7 @@ public class StudentTests(ApiFactory factory) : IClassFixture<ApiFactory>
         var admin = await factory.AsAdminAsync();
         await admin.PostAsJsonAsync("/api/admin/enrollments/by-email", new { email, courseId = course.Id });
 
-        return new Setup(student, email, course.Id, section.Id, assignment!.Id);
+        return new Setup(student, email, course.Id, section.Id, assignment!.Id, instructor);
     }
 
     [Fact]
@@ -104,6 +104,9 @@ public class StudentTests(ApiFactory factory) : IClassFixture<ApiFactory>
 
         var content = await s.Student.GetFromJsonAsync<SectionContentDto>($"/api/student/sections/{s.SectionId}");
         Assert.True(Assert.Single(content!.Assignments).Submitted);
+
+        // Business rule: a section with student submissions can't be deleted.
+        Assert.Equal(HttpStatusCode.BadRequest, (await s.Instructor.DeleteAsync($"/api/instructor/sections/{s.SectionId}")).StatusCode);
     }
 
     [Fact]

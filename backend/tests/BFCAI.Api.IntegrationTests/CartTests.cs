@@ -35,19 +35,45 @@ public class CartTests(ApiFactory factory) : IClassFixture<ApiFactory>
         => Assert.Equal(HttpStatusCode.Unauthorized, (await factory.CreateClient().GetAsync("/api/cart")).StatusCode);
 
     [Fact]
-    public async Task Adding_the_same_course_twice_increases_quantity_but_keeps_unit_price()
+    public async Task The_same_course_can_be_added_only_once()
     {
         var student = await NewStudentAsync();
         var courseId = await CreatePricedCourseAsync(100);
 
-        await student.PostAsJsonAsync("/api/cart/items", new AddToCartRequest(courseId));
         var cart = await (await student.PostAsJsonAsync("/api/cart/items", new AddToCartRequest(courseId))).Content.ReadFromJsonAsync<CartDto>();
+        var again = await student.PostAsJsonAsync("/api/cart/items", new AddToCartRequest(courseId));
+        Assert.Equal(HttpStatusCode.BadRequest, again.StatusCode);
 
         var item = Assert.Single(cart!.Items);
-        Assert.Equal(2, item.Quantity);
-        Assert.Equal(100, item.Price);
-        Assert.Equal(200, cart.Subtotal);
-        Assert.Equal(1, await student.GetFromJsonAsync<int>("/api/cart/count"));
+        Assert.Equal(1, item.Quantity);
+        Assert.Equal(100, cart.Subtotal);
+
+        var summary = await student.GetFromJsonAsync<CartSummaryDto>("/api/cart/summary");
+        Assert.Equal(1, summary!.Count);
+        Assert.Equal([courseId], summary.CartCourseIds);
+    }
+
+    [Fact]
+    public async Task An_enrolled_course_cannot_be_added_to_the_cart()
+    {
+        var admin = await factory.AsAdminAsync();
+        var email = TestHelpers.UniqueEmail();
+        await admin.PostAsJsonAsync("/api/admin/users", new { userName = email, email, role = "Student", password = "Pass@123" });
+        var student = await factory.AuthenticatedAsync(email, "Pass@123");
+        var courseId = await CreatePricedCourseAsync(80);
+
+        // Added to the cart first, then enrolled by the admin: checkout removes it instead of charging again.
+        await student.PostAsJsonAsync("/api/cart/items", new AddToCartRequest(courseId));
+        await admin.PostAsJsonAsync("/api/admin/enrollments/by-email", new BFCAI.Application.Features.Enrollments.EnrollByEmailRequest(email, courseId));
+
+        var checkout = await student.PostAsync("/api/cart/checkout", null);
+        Assert.Equal(HttpStatusCode.BadRequest, checkout.StatusCode);
+        var summary = await student.GetFromJsonAsync<CartSummaryDto>("/api/cart/summary");
+        Assert.Equal(0, summary!.Count);
+        Assert.Contains(courseId, summary.EnrolledCourseIds);
+
+        var add = await student.PostAsJsonAsync("/api/cart/items", new AddToCartRequest(courseId));
+        Assert.Equal(HttpStatusCode.BadRequest, add.StatusCode);
     }
 
     [Fact]
@@ -98,7 +124,7 @@ public class CartTests(ApiFactory factory) : IClassFixture<ApiFactory>
 
         var home = await student.GetFromJsonAsync<HomeDto>("/api/catalog/home");
         Assert.Single(home!.EnrolledCourseIds, id => id == courseId);
-        Assert.Equal(0, await student.GetFromJsonAsync<int>("/api/cart/count"));
+        Assert.Equal(0, (await student.GetFromJsonAsync<CartSummaryDto>("/api/cart/summary"))!.Count);
     }
 
     [Fact]

@@ -73,6 +73,15 @@ const png = { name: 'cover.png', mimeType: 'image/png', buffer: Buffer.from('iVB
   await noSwal();
   step('video uploaded');
 
+  // Second plan: edit a video (title only; the file is kept)
+  await p.click('button[title="Edit video"]');
+  await p.waitForFunction(() => document.querySelector('#fm-title')?.value === 'Intro video');
+  await p.fill('#fm-title', 'Intro video v2');
+  await p.click('.modal-footer button[type=submit]');
+  await p.waitForSelector('a:has-text("Intro video v2")');
+  await noSwal();
+  step('video title edited');
+
   await p.click('button:has-text("Add Assignment")');
   await p.fill('#fm-title', 'HW 1');
   await p.click('.modal-footer button[type=submit]');
@@ -99,6 +108,9 @@ const png = { name: 'cover.png', mimeType: 'image/png', buffer: Buffer.from('iVB
   await p.fill('#questionText', 'What is Angular?');
   const choices = p.locator('input[formcontrolname=choiceText]');
   await choices.nth(0).fill('A framework'); await choices.nth(1).fill('A database');
+  await p.click('button:has-text("Save")');
+  await p.waitForSelector('text=Please mark at least one choice as correct.');
+  step('question needs a correct answer');
   await p.check('#correct-0');
   await p.click('button:has-text("Save")');
   await p.waitForSelector('h5:text("What is Angular?")');
@@ -121,6 +133,33 @@ const png = { name: 'cover.png', mimeType: 'image/png', buffer: Buffer.from('iVB
   await p.click('a:has-text("Submitions")');
   await p.waitForSelector('text=No found any submitions');
   step('assignments page + submissions modal');
+  await p.keyboard.press('Escape');
+  await p.waitForSelector('.modal', { state: 'detached' });
+
+  // Second plan: reorder and delete curriculum sections
+  await p.goto(base + '/instructor/courses');
+  await p.locator('tr', { hasText: course }).locator('a:has-text("View")').click();
+  await p.waitForSelector('h5:text("Week 1")');
+  await p.click('button:has-text("Add-Process")');
+  await p.fill('#fm-title', 'Week 2'); await p.fill('#fm-content', 'Next steps');
+  await p.click('.modal-footer button[type=submit]');
+  await p.waitForSelector('h5:text("Week 2")');
+  await noSwal();
+  const sectionTitles = () => p.locator('.list-group > li h5').allInnerTexts();
+  await p.locator('li', { has: p.locator('h5:text("Week 2")') }).locator('button[title="Move up"]').click();
+  await p.waitForFunction(() => document.querySelector('.list-group > li h5')?.textContent === 'Week 2');
+  step('section moved up: ' + (await sectionTitles()).join(' > '));
+
+  await p.locator('li', { has: p.locator('h5:text("Week 1")') }).locator('button[title="Delete section"]').click();
+  await p.waitForSelector('.swal2-container:has-text("1 video(s), 1 reference(s), 1 assignment(s) and 1 quiz(zes)")');
+  await p.click('.swal2-cancel');
+  await noSwal();
+  step('delete confirmation lists what will be removed (cancelled)');
+  await p.locator('li', { has: p.locator('h5:text("Week 2")') }).locator('button[title="Delete section"]').click();
+  await p.click('.swal2-confirm');
+  await p.waitForSelector('h5:text("Week 2")', { state: 'detached' });
+  await noSwal();
+  step('empty section deleted: ' + (await sectionTitles()).join(' > '));
 
   console.log('console errors:', errors.filter((e) => !/status of (400|401|403|404)/.test(e)));
   await b.close();

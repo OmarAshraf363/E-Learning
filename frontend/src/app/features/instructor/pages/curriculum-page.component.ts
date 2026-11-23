@@ -8,7 +8,7 @@ import { openFormModal } from '../../../shared/components/form-modal.component';
 import { FileUrlPipe } from '../../../shared/pipes/file-url.pipe';
 import { AssignmentBody, InstructorApi } from '../data-access/instructor.api';
 import {
-  CourseCurriculum, CurriculumAssignment, CurriculumExam, CurriculumReference, CurriculumSection,
+  CourseCurriculum, CurriculumAssignment, CurriculumExam, CurriculumReference, CurriculumSection, CurriculumVideo,
 } from '../data-access/instructor.models';
 
 /**
@@ -50,6 +50,30 @@ export class CurriculumPageComponent {
     });
   }
 
+  /** Business rule (second plan): sections can be reordered. */
+  async moveSection(section: CurriculumSection, direction: 'up' | 'down'): Promise<void> {
+    this.curriculum.set(await firstValueFrom(this.api.moveSection(section.id, direction)));
+  }
+
+  /**
+   * Business rule (second plan): deletes the section with everything in it, after a confirmation
+   * that lists what will be removed. Not allowed when students already submitted work in it.
+   */
+  async deleteSection(section: CurriculumSection): Promise<void> {
+    const s = await firstValueFrom(this.api.sectionDeleteSummary(section.id));
+    if (s.submissions > 0) {
+      this.notify.error(`This section can't be deleted because students submitted ${s.submissions} solution(s) in it.`);
+      return;
+    }
+    const text =
+      `"${section.title}" will be deleted with ${s.videos} video(s), ${s.references} reference(s), ` +
+      `${s.assignments} assignment(s) and ${s.quizzes} quiz(zes). You won't be able to revert this!`;
+    if (!(await this.notify.confirm(text))) return;
+    await firstValueFrom(this.api.deleteSection(section.id));
+    this.notify.success('Section deleted.');
+    this.load();
+  }
+
   // ---- videos
   async addVideo(section: CurriculumSection): Promise<void> {
     await this.openAndReload<{ title: string; video: File | null }>({
@@ -59,6 +83,19 @@ export class CurriculumPageComponent {
         { name: 'video', label: 'Video', type: 'file', accept: 'video/*', required: true },
       ],
       submit: (v) => firstValueFrom(this.api.uploadVideo(section.id, v)),
+    });
+  }
+
+  /** Business rule (second plan): edit the title, and replace the file only when a new one is chosen. */
+  async editVideo(video: CurriculumVideo): Promise<void> {
+    await this.openAndReload<{ title: string; video: File | null }>({
+      title: 'Edit Video',
+      fields: [
+        { name: 'title', label: 'Title', required: true },
+        { name: 'video', label: 'Video (leave empty to keep the current one)', type: 'file', accept: 'video/*' },
+      ],
+      value: { title: video.title },
+      submit: (v) => firstValueFrom(this.api.updateVideo(video.id, v)),
     });
   }
 

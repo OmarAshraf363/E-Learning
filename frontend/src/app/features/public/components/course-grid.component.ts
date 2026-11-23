@@ -9,7 +9,7 @@ import { CourseCardComponent } from './course-card.component';
   template: `
     <div class="top-courses">
       @for (course of courses(); track course.id) {
-        <app-course-card [course]="course" [enrolled]="enrolledIds().includes(course.id)" />
+        <app-course-card [course]="course" />
       } @empty {
         @if (emptyText()) { <h6>{{ emptyText() }}</h6> }
       }
@@ -18,6 +18,5 @@ import { CourseCardComponent } from './course-card.component';
 })
 export class CourseGridComponent {
   readonly courses = input.required<CourseCard[]>();
-  readonly enrolledIds = input<number[]>([]);
   readonly emptyText = input<string | null>(null);
 }

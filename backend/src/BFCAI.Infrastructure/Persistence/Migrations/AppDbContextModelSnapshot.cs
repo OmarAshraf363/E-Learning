@@ -463,6 +463,9 @@ namespace BFCAI.Infrastructure.Persistence.Migrations
                     b.Property<int>("CourseID")
                         .HasColumnType("int");
 
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -479,6 +482,7 @@ namespace BFCAI.Infrastructure.Persistence.Migrations
                             CourseCurriculumID = 1,
                             Content = "Intro Of Cs",
                             CourseID = 1,
+                            SortOrder = 0,
                             Title = "Introduction"
                         },
                         new
@@ -486,6 +490,7 @@ namespace BFCAI.Infrastructure.Persistence.Migrations
                             CourseCurriculumID = 2,
                             Content = "Intro Of C++",
                             CourseID = 2,
+                            SortOrder = 0,
                             Title = "Basic Programming Concepts"
                         });
                 });

@@ -22,6 +22,21 @@ public class CurriculumController(ICurriculumService service) : InstructorContro
         return NoContent();
     }
 
+    /// <summary>Moves the section one place up or down; returns the reordered curriculum.</summary>
+    [HttpPut("sections/{id:int}/move")]
+    public Task<CourseCurriculumDto> MoveSection(int id, MoveSectionRequest request) => service.MoveSectionAsync(id, request);
+
+    /// <summary>What deleting the section would remove (for the confirmation message).</summary>
+    [HttpGet("sections/{id:int}/delete-summary")]
+    public Task<SectionDeleteSummaryDto> SectionDeleteSummary(int id) => service.GetSectionDeleteSummaryAsync(id);
+
+    [HttpDelete("sections/{id:int}")]
+    public async Task<IActionResult> DeleteSection(int id)
+    {
+        await service.DeleteSectionAsync(id);
+        return NoContent();
+    }
+
     public record VideoForm(string Title, IFormFile? Video);
 
     [HttpPost("sections/{id:int}/videos")]
@@ -32,6 +47,17 @@ public class CurriculumController(ICurriculumService service) : InstructorContro
         var request = new VideoUploadRequest(form.Title ?? "", form.Video.ToFileUpload());
         await validator.ValidateAndThrowAsync(request);
         return await service.UploadVideoAsync(id, request);
+    }
+
+    /// <summary>Edits the title; the file is replaced only when a new one is sent.</summary>
+    [HttpPut("videos/{id:int}")]
+    [RequestSizeLimit(500_000_000)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 500_000_000)]
+    public async Task<CurriculumVideoDto> UpdateVideo(int id, [FromForm] VideoForm form, [FromServices] IValidator<VideoUpdateRequest> validator)
+    {
+        var request = new VideoUpdateRequest(form.Title ?? "", form.Video.ToFileUpload());
+        await validator.ValidateAndThrowAsync(request);
+        return await service.UpdateVideoAsync(id, request);
     }
 
     [HttpDelete("videos/{id:int}")]

@@ -43,6 +43,28 @@ const base = process.env.BASE_URL || 'http://localhost:4200';
   await row.locator('button:has-text("Unlock")').waitFor();
   step('locked user');
 
+  // 3b) Instructor linked to a department (second plan); the department list is for instructors only
+  const instEmail = `inst${Date.now()}@test.com`;
+  await p.goto(base + '/admin/users/new?role=Instructor');
+  await p.fill('#userName', instEmail); await p.fill('#email', instEmail); await p.fill('#password', 'Pass@123');
+  await p.selectOption('#departmentId', { label: 'Electrical Engineering' });
+  await p.selectOption('#role', 'Student');
+  if (await p.locator('#departmentId').count()) throw new Error('department should be hidden for students');
+  await p.selectOption('#role', 'Instructor');
+  await p.selectOption('#departmentId', { label: 'Electrical Engineering' });
+  await p.click('button[type=submit]');
+  await p.waitForURL('**/admin/users?filter=Instructor');
+  await p.locator('tr', { hasText: instEmail }).locator('a[title=Edit]').click();
+  await p.waitForFunction(() => document.querySelector('#departmentId')?.selectedOptions[0]?.text === 'Electrical Engineering');
+  step('instructor created with a department (shown again on edit)');
+
+  // 3c) The admin can't delete or lock their own account (buttons hidden, API refuses)
+  await p.goto(base + '/admin/users');
+  const me = p.locator('tr', { hasText: 'Admin@gmail.com' });
+  await me.waitFor();
+  if (await me.locator('button').count()) throw new Error('own row must not have delete / lock buttons');
+  step('no delete / lock on the admin\'s own row');
+
   // 4) Logout, locked user cannot log in
   await p.click('button[title=Logout]');
   await p.waitForURL('**/auth/login');

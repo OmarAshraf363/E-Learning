@@ -2,6 +2,8 @@ using BFCAI.Application.Common.Interfaces;
 using BFCAI.Application.Common.Models;
 using BFCAI.Application.Features.Courses;
 using BFCAI.Domain.Entities;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace BFCAI.Application.Features.Instructor;
 
@@ -80,12 +82,25 @@ public class InstructorCourseService(IUnitOfWork unitOfWork, InstructorAccess ac
     }
 
     /// <summary>The instructor is always the current user (legacy trusted a hidden form field).</summary>
-    public Task<CourseFormDto> CreateAsync(CourseRequest request)
-        => courses.CreateAsync(request with { InstructorId = access.InstructorId });
+    public async Task<CourseFormDto> CreateAsync(CourseRequest request)
+    {
+        await EnsureDepartmentAllowedAsync(request.DepartmentId);
+        return await courses.CreateAsync(request with { InstructorId = access.InstructorId });
+    }
 
     public async Task<CourseFormDto> UpdateAsync(int id, CourseRequest request)
     {
         await access.EnsureOwnsCourseAsync(id);
+        await EnsureDepartmentAllowedAsync(request.DepartmentId);
         return await courses.UpdateAsync(id, request with { InstructorId = access.InstructorId });
+    }
+
+    /// <summary>An instructor linked to a department creates courses in that department only (same list as the form).</summary>
+    private async Task EnsureDepartmentAllowedAsync(int? departmentId)
+    {
+        var me = access.InstructorId;
+        var myDepartmentId = await unitOfWork.Repository<ApplicationUser>().SelectOneAsync(u => u.Id == me, u => u.DepartmentId);
+        if (myDepartmentId is not null && departmentId != myDepartmentId)
+            throw new ValidationException([new ValidationFailure(nameof(CourseRequest.DepartmentId), "Please select your department.")]);
     }
 }

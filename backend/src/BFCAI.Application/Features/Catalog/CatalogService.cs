@@ -95,7 +95,7 @@ public class CatalogService(IUnitOfWork unitOfWork, ICacheService cache, ICurren
             c.CourseID, c.CourseName, c.Description, c.Rate, c.Price, c.InstructorId, c.DepartmentId, c.TrackID,
             c.DemoVideoUrl,
             // Legacy: the demo is the first video of the first curriculum section.
-            FirstVideo = c.CourseCurricula.SelectMany(cc => cc.CourseVideos)
+            FirstVideo = c.CourseCurricula.OrderBy(cc => cc.SortOrder).ThenBy(cc => cc.CourseCurriculumID).SelectMany(cc => cc.CourseVideos)
                 .Select(v => new { v.VideoURL, v.VideoTitle }).FirstOrDefault(),
             NumOfFeedbacks = c.Feedbacks.Count,
             NumOfVideos = c.CourseVideos.Count,
